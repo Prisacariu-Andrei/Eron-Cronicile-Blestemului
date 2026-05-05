@@ -245,7 +245,15 @@ public class Player extends Entity {
     public void endTurn() {
         isPlayerTurn = false;
         isInvulnerable = false;
-        currentEnemy.shield = 0;
+
+        // Resetarea scutului se face doar dacă inamicul NU este un boss
+        if (currentEnemy != null) {
+            String enemyName = currentEnemy.name;
+            if (!"Fenris cel Alb".equals(enemyName) && !"Valerius, Cavalerul Neinvins".equals(enemyName)) {
+                currentEnemy.shield = 0;
+            }
+        }
+
         // 1. Curățăm mâna jucătorului
         while(!inventory.hand.isEmpty()) {
             inventory.discard(inventory.hand.removeFirst());
@@ -260,11 +268,11 @@ public class Player extends Entity {
             if (currentEnemy.life <= 0 && !currentEnemy.alive) {
                 Timer deathTimer = new Timer(800, e -> { winBattle(); ((Timer)e.getSource()).stop(); });
                 deathTimer.setRepeats(false); deathTimer.start();
-                return; // Oprim metoda
+                return;
             }
         }
 
-        // 3. TURA INAMICULUI (Acum va rula mereu la tranziția de fază pentru că alive = true)
+        // 3. TURA INAMICULUI
         gp.battleUI.announceTurn("TURNUL INAMICULUI");
 
         Timer enemyTurnTimer = new Timer(1500, e -> {
@@ -285,25 +293,23 @@ public class Player extends Entity {
             return; // Dacă jucătorul a murit, oprim execuția timerelor
         }
 
-        if (this.life > 0) {
-            gp.battleUI.commandNum = 0;
+        gp.battleUI.commandNum = 0;
 
-            this.updateStatuses();
+        this.updateStatuses();
 
-            Timer t1 = new Timer(1000, e -> {
-                gp.battleUI.announceTurn("TURNUL TĂU");
-                ((Timer)e.getSource()).stop();
-            });
-            t1.start();
+        Timer t1 = new Timer(1000, e -> {
+            gp.battleUI.announceTurn("TURNUL TĂU");
+            ((Timer)e.getSource()).stop();
+        });
+        t1.start();
 
-            Timer t2 = new Timer(1500, e -> {
-                isPlayerTurn = true;
-                for(int i = 0; i < 5; i++) inventory.drawCard();
-                ((Timer)e.getSource()).stop();
-            });
-            t2.start();
-            shield = 0;
-        }
+        Timer t2 = new Timer(1500, e -> {
+            isPlayerTurn = true;
+            for(int i = 0; i < 5; i++) inventory.drawCard();
+            ((Timer)e.getSource()).stop();
+        });
+        t2.start();
+        shield = 0;
 
         if (currentEnemy != null && currentEnemy.stunTurns > 0) {
             currentEnemy.stunTurns -= 1;

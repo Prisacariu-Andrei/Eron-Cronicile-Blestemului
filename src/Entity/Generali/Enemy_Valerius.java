@@ -31,7 +31,6 @@ public class Enemy_Valerius extends Enemy {
 
     @Override
     public void getImage() {
-        // Asigură-te că imaginea există la calea respectivă sau o poți schimba
         up1 = setup("/Enemy/Valerius");
         up2 = setup("/Enemy/Valerius");
         down1 = setup("/Enemy/Valerius");
@@ -48,16 +47,13 @@ public class Enemy_Valerius extends Enemy {
         Random rand = new Random();
         int chance = rand.nextInt(100);
 
-        // Dacă are sub 40% HP, devine foarte agresiv
         if (life < maxLife * 0.4) {
             nextAction = EnemyAction.ATTACK;
-            intentValue = attackDamage + 7; // Lovitură mai puternică
+            intentValue = attackDamage + 7;
             isCounterAttacking = false;
-        }
-        // 40% șansă să folosească Scutul Divin și Riposta
-        else if (chance < 90) {
+        } else if (chance < 90) {
             nextAction = EnemyAction.DEFEND;
-            intentValue = 30; // Scutul
+            intentValue = 30;
             isCounterAttacking = true;
         } else {
             nextAction = EnemyAction.ATTACK;
@@ -70,29 +66,31 @@ public class Enemy_Valerius extends Enemy {
     public void executeIntent(Player player) {
         if (stunTurns == 0) {
 
-            // 1. Verificăm dacă a fost activat contraatacul și dacă jucătorul a spart scutul
             if (nextAction == EnemyAction.DEFEND) {
-                // Își pune scutul
                 this.shield += intentValue;
                 gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "+" + intentValue + " BLOCK", Color.CYAN));
-            }
-            else if (nextAction == EnemyAction.ATTACK) {
-                // Verificăm contraatacul (dacă a avut scut și a rămas ceva din el până la începutul turei lui)
+            } else if (nextAction == EnemyAction.ATTACK) {
                 if (isCounterAttacking && this.shield > 0) {
                     int counterDamage = intentValue * 2;
                     gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "RIPOSTĂ! DMG X2", Color.RED));
                     player.damagePlayer(counterDamage);
                 } else {
-                    // Atac normal
                     player.damagePlayer(intentValue);
                 }
-
-                // Resetăm scutul și starea după atac
-                this.shield = 0;
                 isCounterAttacking = false;
             }
 
             setNextIntent();
+        }
+    }
+
+    @Override
+    public void takeDamage(int amount) {
+        super.takeDamage(amount);
+
+        if (life <= 0) {
+            life = 0;
+            alive = false;
         }
     }
 }
