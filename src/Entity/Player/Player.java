@@ -143,7 +143,7 @@ public class Player extends Entity {
         if (keyH.rightPressed) direction = "right";
 
         collisionOn = false;
-        gp.cChecher.checkTile(this);
+        //gp.cChecher.checkTile(this);
 
         if (!collisionOn) {
             switch (direction) {
@@ -245,7 +245,7 @@ public class Player extends Entity {
     public void endTurn() {
         isPlayerTurn = false;
         isInvulnerable = false;
-
+        currentEnemy.shield = 0;
         // 1. Curățăm mâna jucătorului
         while(!inventory.hand.isEmpty()) {
             inventory.discard(inventory.hand.removeFirst());

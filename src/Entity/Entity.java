@@ -129,4 +129,23 @@ public class Entity {
             return null;
         }
     }
+
+    // Metodă pentru a oglindi o imagine pe orizontală
+    protected BufferedImage flipImage(BufferedImage image) {
+        if (image == null) return null;
+
+        int w = image.getWidth();
+        int h = image.getHeight();
+
+        // Creăm o imagine goală cu aceleași dimensiuni și tip
+        BufferedImage flipped = new BufferedImage(w, h, image.getType());
+        java.awt.Graphics2D g2d = flipped.createGraphics();
+
+        // Desenăm imaginea originală, dar inversată
+        g2d.drawImage(image, 0, 0, w, h, w, 0, 0, h, null);
+        g2d.dispose();
+
+        return flipped;
+    }
+    
 }

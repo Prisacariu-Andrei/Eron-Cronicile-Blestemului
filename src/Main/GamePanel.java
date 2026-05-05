@@ -6,6 +6,7 @@ import Entity.Player.CardDatabase;
 import Entity.Player.Player;
 import Observer.*;
 import Tiles.TileManager;
+import ProgressManagement.QuestManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,12 +28,13 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxWorldRow = 200;
 
     // STATE-UL JOCULUI
-    public enum GameState { MENU, PLAY, PAUSE, INVENTORY, BATTLE, DEATH, REWARD, DIALOGUE }
+    public enum GameState { MENU, PLAY, PAUSE, INVENTORY, BATTLE, DEATH, REWARD, DIALOGUE,QUEST }
     public GameState gameState = GameState.MENU;
 
     // SISTEM
     int FPS = 60;
     public TileManager tileM = new TileManager(this);
+    public QuestManager questManager = new QuestManager();
     public KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecher = new CollisionChecker(this);
@@ -53,6 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
     public RewardUI rewardUI = new RewardUI(this);
     public DeathUI deathUI = new DeathUI(this);
     public DialogueUI dialogueUI = new DialogueUI(this);
+    public QuestBookUI questBookUI = new QuestBookUI(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();
 
     // OPȚIUNI MENIU (Păstrate aici pentru simplitate)
@@ -70,7 +73,12 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame() {
+        // Setăm inamicii pentru harta Eldoria
         aSetter.setEnemyForMap("/Maps/Eldoria");
+
+        // APELUL CRUCIAL PENTRU NPC-URI:
+        aSetter.setNPC(tileM.currentZone);
+
         gameState = GameState.MENU;
     }
 
@@ -188,13 +196,17 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         // 2. DESENEAZĂ LUMEA + UI-UL DE BAZĂ + PAUZA
-        else if (gameState == GameState.PLAY || gameState == GameState.PAUSE || gameState == GameState.DIALOGUE) {
+        else if (gameState == GameState.PLAY ||
+                gameState == GameState.PAUSE ||
+                gameState == GameState.DIALOGUE ||
+                gameState == GameState.QUEST) { // Adăugat QUEST aici
+
             tileM.draw(g2);
             for (NPC n : npc) if (n != null) n.draw(g2);
             for (Enemy e : enemy) if (e != null) e.draw(g2);
             player.draw(g2);
 
-            // Desenăm HUD-ul (Viață, Dash Mana)
+            // Desenăm HUD-ul și meniurile suprapuse (cum ar fi Jurnalul de quest-uri)
             ui.draw(g2);
         }
 

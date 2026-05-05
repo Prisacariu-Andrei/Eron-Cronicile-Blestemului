@@ -10,7 +10,6 @@ import java.util.Random;
 
 public class Enemy_LupBoss extends Enemy {
 
-    // Variabile speciale pentru mecanica Boss-ului
     private int damageBuffTurns = 0;
     private boolean isBuffing = false;
 
@@ -33,7 +32,6 @@ public class Enemy_LupBoss extends Enemy {
 
     @Override
     public void getImage() {
-        // Asigură-te că imaginile există la calea respectivă
         up1 = setup("/Enemy/LupBossFight");
         up2 = setup("/Enemy/LupBossFight");
         down1 = setup("/Enemy/LupBossFight");
@@ -50,18 +48,13 @@ public class Enemy_LupBoss extends Enemy {
         Random rand = new Random();
         int chance = rand.nextInt(100);
 
-        // ABILITATE: Urletul Haitei
-        // Dacă nu are deja buff-ul activ, are 30% șansă să se buffeze tura asta
         if (damageBuffTurns <= 0 && chance < 30) {
             isBuffing = true;
-            nextAction = EnemyAction.BUFF; // Folosim "DEFEND" pentru iconița de status non-atac
+            nextAction = EnemyAction.BUFF;
             intentValue = 0;
-        }
-        // ABILITATE: Mușcătură Adâncă
-        else {
+        } else {
             isBuffing = false;
             nextAction = EnemyAction.ATTACK;
-            // Dă damage-ul de bază + încă 5 dacă are buff-ul activ
             intentValue = attackDamage + (damageBuffTurns > 0 ? 5 : 0);
         }
     }
@@ -70,36 +63,56 @@ public class Enemy_LupBoss extends Enemy {
     public void executeIntent(Player player) {
         if (stunTurns == 0) {
             if (isBuffing) {
-                // Executăm buff-ul: Inamicul nu atacă, dar câștigă buff pentru următoarele 3 ture
                 damageBuffTurns = 3;
                 gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "URLET: +5 DMG!", Color.ORANGE));
-            }
-            else if (nextAction == EnemyAction.ATTACK) {
-                // Salvăm scutul jucătorului înainte de atac pentru a calcula cât damage a intrat "pe curat"
+            } else if (nextAction == EnemyAction.ATTACK) {
                 int shieldBefore = player.shield;
-
-                // Jucătorul își ia damage
                 player.damagePlayer(intentValue);
-
-                // Calculăm damage-ul neblocat pentru LIFESTEAL (jumătate din damage-ul dat efectiv)
                 int unblockedDamage = Math.max(0, intentValue - shieldBefore);
 
                 if (unblockedDamage > 0) {
                     int healAmount = unblockedDamage / 2;
                     if (healAmount > 0) {
                         this.life = Math.min(this.maxLife, this.life + healAmount);
-                        // Popup verde ca să vadă jucătorul că lupul s-a vindecat din el
                         gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 4, "+" + healAmount + " HP", Color.GREEN));
                     }
                 }
             }
 
-            // Scădem un rând de buff după ce a atacat
             if (damageBuffTurns > 0 && !isBuffing) {
                 damageBuffTurns--;
             }
 
             setNextIntent();
+        }
+    }
+
+    @Override
+    public void takeDamage(int amount) {
+        super.takeDamage(amount); // Păstrează logica de bază din clasa Enemy
+
+        // Verificăm dacă viața a ajuns la 0 și inamicul a murit
+        if (life <= 0 && !alive) {
+            var quest3 = gp.questManager.getQuestById(3, true);
+
+            if (quest3 != null && quest3.isReceived && !quest3.isCompleted) {
+                // Actualizăm progresul quest-ului
+                gp.questManager.updateQuestProgress(3, true, 1);
+
+                // Generăm runa
+                Entity.Items.Rune runaLupului = new Entity.Items.Rune(
+                        "Runa lui Fenris",
+                        "Crește puterea atacurilor.",
+                        5
+                );
+
+                // Adăugăm runa în inventar
+                gp.player.inventory.addRune(runaLupului);
+
+                // Afișăm mesajul pe ecran
+                gp.ui.message = "Misiune completată: Lupul cel Bătrân";
+                gp.ui.messageOn = true;
+            }
         }
     }
 }

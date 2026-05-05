@@ -9,7 +9,10 @@ public abstract class NPC extends Entity {
     protected GamePanel gp;
     public String name;
     public String[] dialogues = new String[20]; // Rezervăm 20 de linii de dialog
-    protected int dialogueIndex = 0;
+    public int dialogueIndex = 0;
+
+    // Indicator pentru a ști dacă NPC-ul este în dialog de introducere
+    public boolean isTalking = false;
 
     public NPC(GamePanel gp, int x, int y) {
         this.gp = gp;
@@ -27,30 +30,45 @@ public abstract class NPC extends Entity {
     public abstract void setDialogue();
 
     // Metoda apelată când apeși [E]
-    // În NPC.java
     public void speak() {
         if (dialogues[dialogueIndex] == null) {
             dialogueIndex = 0;
             gp.gameState = GamePanel.GameState.PLAY;
+            isTalking = false;
             return;
         }
 
+        gp.gameState = GamePanel.GameState.DIALOGUE;
         gp.dialogueUI.currentDialogue = dialogues[dialogueIndex];
-        gp.dialogueUI.resetCharIndex(); // <--- RESETĂM AICI
+        gp.dialogueUI.resetCharIndex(); // Folosește `resetCharIndex` în funcție de implementarea din UI-ul tău
 
         dialogueIndex++;
     }
 
-
     public void draw(Graphics2D g2) {
+        // 1. Calculăm poziția relativă față de player
         int screenX = worldX - gp.player.worldX + gp.player.screenX;
         int screenY = worldY - gp.player.worldY + gp.player.screenY;
 
-        // Randăm doar dacă e vizibil pe ecran
-        if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
-                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
-                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
-                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
+        // 2. Gestionarea marginilor ecranului (Screen Locking) pe axa X
+        if (gp.player.worldX < gp.player.screenX) {
+            screenX = worldX;
+        } else if (gp.screenWidth - gp.player.screenX > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX) {
+            screenX = worldX - (gp.maxWorldCol * gp.tileSize - gp.screenWidth);
+        }
+
+        // 3. Gestionarea marginilor ecranului (Screen Locking) pe axa Y
+        if (gp.player.worldY < gp.player.screenY) {
+            screenY = worldY;
+        } else if (gp.screenHeight - gp.player.screenY > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
+            screenY = worldY - (gp.maxWorldRow * gp.tileSize - gp.screenHeight);
+        }
+
+        // 4. Verificăm dacă NPC-ul se află în interiorul ferestrei
+        if (screenX + gp.tileSize > 0 &&
+                screenX < gp.screenWidth &&
+                screenY + gp.tileSize > 0 &&
+                screenY < gp.screenHeight) {
 
             g2.drawImage(down1, screenX, screenY, gp.tileSize, gp.tileSize, null);
         }

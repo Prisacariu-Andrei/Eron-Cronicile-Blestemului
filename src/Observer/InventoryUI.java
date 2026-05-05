@@ -24,7 +24,7 @@ public class InventoryUI {
         int width = gp.screenWidth - (gp.tileSize * 4);
         int height = gp.screenHeight - (gp.tileSize * 2);
 
-        // 2. DESENĂM FUNDALUL (Trebuie să fie primul, altfel acoperă textul!)
+        // 2. DESENĂM FUNDALUL
         g2.setColor(new Color(20, 20, 30, 240));
         g2.fillRoundRect(x, y, width, height, 35, 35);
 
@@ -72,10 +72,10 @@ public class InventoryUI {
             drawScrollIndicator(g2, startX + (width / 2) - 60, startY, sortedCards.size());
         }
 
-        // 7. INFO SUBSOL (Mutat aici pentru a avea acces la x, y, width, height)
+        // 7. INFO SUBSOL
         g2.setFont(g2.getFont().deriveFont(14F));
         g2.setColor(Color.LIGHT_GRAY);
-        g2.drawString("Total volume: " + sortedCards.size(), x + gp.tileSize, y + height - 30);
+        g2.drawString("Cărți: " + sortedCards.size() + " | Rune: " + gp.player.inventory.runes.size() + "/" + gp.player.inventory.MAX_RUNES, x + gp.tileSize, y + height - 30);
         g2.drawString("Apasă [I] pentru a închide", x + width - 250, y + height - 30);
     }
 

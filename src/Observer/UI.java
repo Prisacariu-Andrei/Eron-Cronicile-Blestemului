@@ -61,6 +61,10 @@ public class UI {
         if (gp.gameState == GamePanel.GameState.REWARD) {
             gp.rewardUI.draw(g2);
         }
+
+        if (gp.gameState == GamePanel.GameState.QUEST){
+            gp.questBookUI.draw(g2);
+        }
     }
 
     private void drawInteractionPrompt() {

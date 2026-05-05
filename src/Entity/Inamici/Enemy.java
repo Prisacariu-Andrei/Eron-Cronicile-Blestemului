@@ -145,10 +145,26 @@ public abstract class Enemy extends Entity {
 
     public void draw(Graphics2D g2) {
         if (alive) {
+            // 1. Calculăm poziția relativă față de player
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY = worldY - gp.player.worldY + gp.player.screenY;
             int drawSize = gp.tileSize * visualSize;
 
+            // 2. Gestionarea marginilor ecranului (Screen Locking) pe axa X
+            if (gp.player.worldX < gp.player.screenX) {
+                screenX = worldX;
+            } else if (gp.screenWidth - gp.player.screenX > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX) {
+                screenX = worldX - (gp.maxWorldCol * gp.tileSize - gp.screenWidth);
+            }
+
+            // 3. Gestionarea marginilor ecranului (Screen Locking) pe axa Y
+            if (gp.player.worldY < gp.player.screenY) {
+                screenY = worldY;
+            } else if (gp.screenHeight - gp.player.screenY > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
+                screenY = worldY - (gp.maxWorldRow * gp.tileSize - gp.screenHeight);
+            }
+
+            // 4. Verificăm dacă inamicul se află în interiorul ecranului
             if (worldX + drawSize > gp.player.worldX - gp.player.screenX &&
                     worldX - drawSize < gp.player.worldX + gp.player.screenX &&
                     worldY + drawSize > gp.player.worldY - gp.player.screenY &&
@@ -167,7 +183,7 @@ public abstract class Enemy extends Entity {
                 if(image != null) {
                     g2.drawImage(image, screenX, screenY, drawSize, drawSize, null);
                 } else {
-                    // Dacă imaginea lipsește, lăsăm pătratul roșu ca backup să nu fie invizibil
+                    // Dacă imaginea lipsește, lăsăm pătratul roșu ca backup
                     g2.setColor(Color.RED);
                     g2.fillRect(screenX + 4, screenY + 4, drawSize - 8, drawSize - 8);
                 }
@@ -176,11 +192,50 @@ public abstract class Enemy extends Entity {
     }
 
     public void takeDamage(int amount) {
-        life -= amount;
+
+        if (this.shield < amount) {
+            int remaining = amount - shield;
+            shield = 0;
+            life -= remaining;
+            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "-" + remaining + " HP", Color.RED));
+        } else {
+            shield -= amount;
+            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
+        }
+
         gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount, Color.RED));
+
         if (life <= 0) {
             life = 0;
             alive = false;
+
+            // Verificăm dacă inamicul are numele "Lup" și dacă ne aflăm în secvența de quest-uri
+            if (this.name != null && this.name.equals("Lup")) {
+
+                // Cazul pentru misiunea a doua (Inamici în Bârlog - ID 2)
+                var quest2 = gp.questManager.getQuestById(2, true);
+                if (quest2 != null && quest2.isReceived && !quest2.isCompleted) {
+                    gp.questManager.updateQuestProgress(2, true, 1);
+
+                    gp.ui.message = "Progres: " + quest2.currentAmount + "/5";
+                    gp.ui.messageOn = true;
+
+                    if (quest2.isCompleted) {
+                        gp.ui.message = "Misiune completată: Inamici în Bârlog";
+                        gp.ui.messageOn = true;
+                    }
+                }
+                // Cazul pentru prima misiune (Tutorial - ID 1)
+                else {
+                    var quest1 = gp.questManager.getQuestById(1, true);
+                    if (quest1 != null && quest1.isReceived && !quest1.isCompleted) {
+                        gp.questManager.updateQuestProgress(1, true, 1);
+
+                        gp.ui.message = "Misiune completată: Tutorial";
+                        gp.ui.messageOn = true;
+                    }
+                }
+            }
         }
     }
 

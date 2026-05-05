@@ -55,7 +55,7 @@ public class Enemy_Valerius extends Enemy {
             isCounterAttacking = false;
         }
         // 40% șansă să folosească Scutul Divin și Riposta
-        else if (chance < 40) {
+        else if (chance < 90) {
             nextAction = EnemyAction.DEFEND;
             intentValue = 30; // Scutul
             isCounterAttacking = true;

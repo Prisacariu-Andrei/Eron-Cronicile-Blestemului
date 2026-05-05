@@ -32,14 +32,14 @@ public class Enemy_JeanPlesa extends Enemy {
     @Override
     public void getImage() {
         // Înlocuiește calea cu fișierele corespunzătoare, dacă este cazul
-        up1 = setup("/Enemy/JeanPlesa");
-        up2 = setup("/Enemy/JeanPlesa");
-        down1 = setup("/Enemy/JeanPlesa");
-        down2 = setup("/Enemy/JeanPlesa");
-        left1 = setup("/Enemy/JeanPlesa");
-        left2 = setup("/Enemy/JeanPlesa");
-        right1 = setup("/Enemy/JeanPlesa");
-        right2 = setup("/Enemy/JeanPlesa");
+        up1 = flipImage(setup("/Enemy/JeanPlesa"));
+        up2 = flipImage(setup("/Enemy/JeanPlesa"));
+        down1 = flipImage(setup("/Enemy/JeanPlesa"));
+        down2 = flipImage(setup("/Enemy/JeanPlesa"));
+        left1 = flipImage(setup("/Enemy/JeanPlesa"));
+        left2 = flipImage(setup("/Enemy/JeanPlesa"));
+        right1 = flipImage(setup("/Enemy/JeanPlesa"));
+        right2 = flipImage(setup("/Enemy/JeanPlesa"));
         fightStand = setup("/Enemy/JeanPlesa");
     }
 

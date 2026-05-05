@@ -167,12 +167,19 @@ public class BattleUI {
         g2.fillRect(x, y, 200, 20);
         double oneScale = (double) 200 / gp.player.maxLife;
         double hpBarValue = oneScale * gp.player.life;
+
+        // Asigurăm limitele pentru bara de viață
+        if (hpBarValue < 0) hpBarValue = 0;
+        if (hpBarValue > 200) hpBarValue = 200;
+
         Color hudColor = (gp.player.shield > 0) ? new Color(43, 157, 182) : new Color(29, 138, 31);
         g2.setColor(hudColor);
         g2.fillRect(x, y, (int)hpBarValue, 20);
+
         g2.setColor(Color.WHITE);
         g2.setStroke(new BasicStroke(2));
         g2.drawRect(x, y, 200, 20);
+
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 16F));
         g2.drawString("ERON", x, y - 25);
         g2.setColor(hudColor);
@@ -181,9 +188,9 @@ public class BattleUI {
         if (gp.player.shield > 0) {
             g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 25F));
             g2.setColor(Color.BLACK);
-            g2.drawString("🛡️", x - 34, y + 16);
+            g2.drawString("🛡", x - 34, y + 16);
             g2.setColor(Color.WHITE);
-            g2.drawString("🛡️", x - 35, y + 15);
+            g2.drawString("🛡", x - 35, y + 15);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14F));
             g2.drawString("" + gp.player.shield, x + 96, y + 15);
         }
@@ -198,20 +205,36 @@ public class BattleUI {
         int y = gp.tileSize * 8;
 
         g2.setColor(Color.GRAY);
-        g2.fillRect(x, y, 200, 20);
+        g2.fillRect(x, y, 200, 20); // Set to 200 to match the player's health bar length
         double oneScale = (double) 200 / gp.player.currentEnemy.maxLife;
         double hpBarValue = oneScale * gp.player.currentEnemy.life;
-        g2.setColor(new Color(255, 0, 0));
+
+        // Asigurăm limitele pentru bara de viață
+        if (hpBarValue < 0) hpBarValue = 0;
+        if (hpBarValue > 200) hpBarValue = 200;
+
+        Color hudColor = (gp.player.currentEnemy.shield > 0) ? new Color(43, 157, 182) : new Color(255, 0, 0);
+        g2.setColor(hudColor);
         g2.fillRect(x, y, (int)hpBarValue, 20);
+
         g2.setColor(Color.WHITE);
-        g2.drawRect(x, y, 200, 20);
+        g2.setStroke(new BasicStroke(2));
+        g2.drawRect(x, y, 200, 20); // Set to 200 to match the player's health bar rectangle outline
+
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 16F));
-        String name = gp.player.currentEnemy.name;
-        int nameWidth = g2.getFontMetrics().stringWidth(name);
-        g2.drawString(name, x + 200 - nameWidth, y - 25);
-        String hpText = "HP: " + gp.player.currentEnemy.life + "/" + gp.player.currentEnemy.maxLife;
-        int hpTextWidth = g2.getFontMetrics().stringWidth(hpText);
-        g2.drawString(hpText, x + 200 - hpTextWidth, y - 5);
+        g2.drawString(gp.player.currentEnemy.name, x, y - 25);
+        g2.setColor(hudColor);
+        g2.drawString("HP: " + gp.player.currentEnemy.life + "/" + gp.player.currentEnemy.maxLife, x, y - 5);
+
+        if (gp.player.currentEnemy.shield > 0) {
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 25F));
+            g2.setColor(Color.BLACK);
+            g2.drawString("🛡", x - 34, y + 16);
+            g2.setColor(Color.WHITE);
+            g2.drawString("🛡", x - 35, y + 15);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14F));
+            g2.drawString("" + gp.player.currentEnemy.shield, x + 96, y + 15);
+        }
 
         drawEntityStatuses(g2, gp.player.currentEnemy, x, y + 40);
     }
