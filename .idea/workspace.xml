@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="f873dc53-65ee-4975-b5b0-a61a78d7100b" name="Changes" comment="Valerius shield fix">
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/CadereaStelelor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/CadereaStelelor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/DeslusireaRunelor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/DeslusireaRunelor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/FluxulStrabun.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/FluxulStrabun.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/FulgerDeSange.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/FulgerDeSange.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/GeamatulEcoului.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/GeamatulEcoului.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/ParjolulSferic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/ParjolulSferic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/PavazaAmurgului.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/PavazaAmurgului.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/PavazaGlaciara.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/PavazaGlaciara.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/SuflulVietii.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/SuflulVietii.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/UraganDeAzur.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/UraganDeAzur.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Entity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Entity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Player/CardDatabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/CardDatabase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Player/CardManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/CardManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Player/Inventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/Inventory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Player/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/GamePanel.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="SimpleSourceFile" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Prisacariu-Andrei&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/TUIASI-AC-CTI/paoo-proiect-mihalache_prisacariu.git&quot;,
+    &quot;accountId&quot;: &quot;41118903-7239-437e-9c79-1ae727207dce&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="3BY7nhwxn8oXOeTga7zoZBQtANy" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MapGenerator (1).executor&quot;: &quot;Run&quot;,
+    &quot;Application.MapGenerator.executor&quot;: &quot;Run&quot;,
+    &quot;Application.RegexDemo.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/andrei/Folders/Facultate/PAOO/Proiect/Costi/Game/Game&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;/home/andrei/Folders/Facultate/PAOO/Proiect/Game/Game/res/src/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/res/Tiles/Podul" />
+      <recent name="C:\Users\costi\Desktop\Game\Game\res\Player" />
+      <recent name="C:\Users\costi\Desktop\Game\Game\res\Tiles" />
+      <recent name="$PROJECT_DIR$/res/Tiles" />
+      <recent name="$PROJECT_DIR$/res/Maps" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\costi\Desktop\Game\Game\res\Player" />
+      <recent name="$PROJECT_DIR$/res/Player" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main.Main" />
+      <module name="Game" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Main.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MapGenerator (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="UNNAMED_CLASS_CONFIGURATION" value="true" />
+      <option name="MAIN_CLASS_NAME" value="MapGenerator" />
+      <module name="Game" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MapGenerator" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Tiles.MapGenerator" />
+      <module name="Game" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Tiles.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RegexDemo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="RegexDemo" />
+      <module name="Game" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.RegexDemo" />
+        <item itemvalue="Application.MapGenerator (1)" />
+        <item itemvalue="Application.MapGenerator" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f873dc53-65ee-4975-b5b0-a61a78d7100b" name="Changes" comment="" />
+      <created>1774654320103</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774654320103</updated>
+      <workItem from="1776628621573" duration="5058000" />
+      <workItem from="1776695672052" duration="360000" />
+      <workItem from="1776696757691" duration="1239000" />
+      <workItem from="1776698494256" duration="18000" />
+      <workItem from="1776772546595" duration="7044000" />
+      <workItem from="1776794848956" duration="5023000" />
+      <workItem from="1776803293279" duration="167000" />
+      <workItem from="1776849823039" duration="1794000" />
+    </task>
+    <task id="LOCAL-00001" summary="All Bosses">
+      <option name="closed" value="true" />
+      <created>1777760314783</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1777760314783</updated>
+    </task>
+    <task id="LOCAL-00002" summary="All Bosses">
+      <option name="closed" value="true" />
+      <created>1777760323305</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1777760323305</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Quests">
+      <option name="closed" value="true" />
+      <created>1777969696160</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1777969696160</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Valerius shield fix">
+      <option name="closed" value="true" />
+      <created>1777970321266</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1777970321266</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="All Bosses" />
+    <MESSAGE value="Quests" />
+    <MESSAGE value="Valerius shield fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Valerius shield fix" />
+  </component>
+</project>
