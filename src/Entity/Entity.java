@@ -48,6 +48,7 @@ public class Entity {
     public int damage; // Adaugă și damage-ul de bază al entității
     public int stunTurns = 0;
     public int weaknessTurns = 0;
+    public int bonusShield = 0;
     public int burnTurns = 0;
     public int voltCount = 0;
     // În clasa Entity (mama lui Player și Enemy)

@@ -68,7 +68,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
-        CardDatabase.init();
+        CardDatabase.init(player);
         player.addObserver(healthUI);
     }
 

@@ -5,11 +5,11 @@ import Entity.Items.Card;
 import Entity.Player.Player;
 
 public class PavazaAmurgului extends Card {
-    public PavazaAmurgului() {
-        super("Păvaza Amurgului", 1, CardType.NEUTRU, "Ridici un zid de spirit ce \noprește orice asalt.");
+    public PavazaAmurgului(Player player) {
+        super("Păvaza Amurgului", 1, CardType.NEUTRU, "Ridici un zid de spirit ce \noprește orice asalt. \nArmura "+(9+player.bonusShield));
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        player.addShield(20);
+        player.addShield(9+ player.bonusShield);
     }
 }

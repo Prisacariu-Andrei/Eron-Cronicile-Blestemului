@@ -10,6 +10,6 @@ public class SuflulVietii extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        player.life = Math.min(player.life + 20, player.maxLife);
+        player.life = Math.min(player.life + 5, player.maxLife);
     }
 }

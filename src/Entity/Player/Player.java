@@ -85,7 +85,7 @@ public class Player extends Entity {
         exploreMana = maxExploreMana;
 
         // Inițializare pachet
-        this.inventory.cards = CardManager.getStartingDeck();
+        this.inventory.cards = CardManager.getStartingDeck(this);
     }
 
     // --- LOGICA PRINCIPALĂ (UPDATE) ---
@@ -143,6 +143,8 @@ public class Player extends Entity {
         if (keyH.rightPressed) direction = "right";
 
         collisionOn = false;
+
+        //Coliziune
         //gp.cChecher.checkTile(this);
 
         if (!collisionOn) {
@@ -152,7 +154,6 @@ public class Player extends Entity {
                 case "left": worldX -= speed; break;
                 case "right": worldX += speed; break;
             }
-            checkTileEffect();
         } else if (isDashing) {
             isDashing = false;
         }
@@ -197,7 +198,7 @@ public class Player extends Entity {
             gp.keyH.enterPressed = false;
             Card selected = gp.rewardUI.getSelectedCard();
             if (selected != null) {
-                inventory.addCardToDeck(selected.name);
+                inventory.addCardToDeck(selected.name,this);
                 gp.rewardUI.commandNum = 0;
                 gp.gameState = GamePanel.GameState.PLAY;
             }
@@ -397,23 +398,6 @@ public class Player extends Entity {
         if (npcIndex != 999) {
             gp.gameState = GamePanel.GameState.DIALOGUE;
             gp.npc[npcIndex].speak();
-        }
-    }
-
-    public void checkTileEffect() {
-        int col = (worldX + hitBox.x + hitBox.width/2) / gp.tileSize;
-        int row = (worldY + hitBox.y + hitBox.height/2) / gp.tileSize;
-        if (col >= 0 && col < gp.maxWorldCol && row >= 0 && row < gp.maxWorldRow) {
-            int tileNum = gp.tileM.mapTileNum[col][row];
-            if (tileNum == 38 && (col != lastTileX || row != lastTileY)) {
-                lastTile_Damage_Logic: lastTileX = col; lastTileY = row;
-                damagePlayer(20);
-            }
-            if (tileNum == 37 && !hasTakenHeal) {
-                this.life = Math.min(this.life + 50, maxLife);
-                hasTakenHeal = true;
-                notifyObservers();
-            }
         }
     }
 

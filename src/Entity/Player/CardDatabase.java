@@ -8,19 +8,19 @@ import java.util.Random;
 public class CardDatabase {
     public static ArrayList<Card> allCards = new ArrayList<>();
 
-    public static void init() {
-        allCards.add(new CadereaStelelor());
-        allCards.add(new DeslusireaRunelor());
-        allCards.add(new FluxulStrabun());
-        allCards.add(new FulgerDeSange());
+    public static void init(Player player) {
+        allCards.add(new CadereaStelelor(player));
+        allCards.add(new DeslusireaRunelor(player));
+        allCards.add(new FluxulStrabun(player));
+        allCards.add(new FulgerDeSange(player));
         allCards.add(new GeamatulEcoului());
         allCards.add(new ManiorulIernii());
-        allCards.add(new ParjolulSferic());
-        allCards.add(new PavazaAmurgului());
-        allCards.add(new PavazaGlaciara());
+        allCards.add(new ParjolulSferic(player));
+        allCards.add(new PavazaAmurgului(player));
+        allCards.add(new PavazaGlaciara(player));
         allCards.add(new PovaraAnilor());
         allCards.add(new SuflulVietii());
-        allCards.add(new UraganDeAzur());
+        allCards.add(new UraganDeAzur(player));
         // Adaugă aici oricâte cărți noi creezi
     }
 

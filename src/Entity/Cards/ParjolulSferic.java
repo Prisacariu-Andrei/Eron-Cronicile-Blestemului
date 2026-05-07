@@ -6,16 +6,21 @@ import Entity.Inamici.Enemy;
 import Entity.StatusEffect;
 
 public class ParjolulSferic extends Card {
-
-    public ParjolulSferic() {
-        super("Pârjolul Sferic", 1, CardType.FOC,"Aruncă o bilă de foc \nputernică.");
+    public static final int baseDamage= 7;
+    public static final int burnTurns= 3;
+    public static final int burnDamage= 5;
+    public ParjolulSferic(Player player) {
+        super("Pârjolul Sferic",
+                1,
+                CardType.FOC,
+                "Aruncă o bilă de foc \nputernică.\n Paguba "+(baseDamage+player.damage)+"\n Arsura "+burnTurns);
     }
 
     @Override
     public void play(Player player, Enemy enemy) {
         if (enemy != null) {
-            enemy.takeDamage(1500);
-            enemy.applyStatus(StatusEffect.Type.BURN, 3, 5);
+            enemy.takeDamage(baseDamage+player.damage);
+            enemy.applyStatus(StatusEffect.Type.BURN, burnTurns, burnDamage);
         }
     }
 

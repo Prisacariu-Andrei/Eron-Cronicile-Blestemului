@@ -35,8 +35,8 @@ public class Inventory {
         }
     }
 
-    public void addCardToDeck(String cardName) {
-        Card newCard = CardManager.createCard(cardName);
+    public void addCardToDeck(String cardName,Player player) {
+        Card newCard = CardManager.createCard(cardName, player);
         if (newCard != null) {
             cards.add(newCard);
         }

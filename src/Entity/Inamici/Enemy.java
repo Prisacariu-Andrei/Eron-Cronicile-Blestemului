@@ -197,13 +197,12 @@ public abstract class Enemy extends Entity {
             int remaining = amount - shield;
             shield = 0;
             life -= remaining;
-            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "-" + remaining + " HP", Color.RED));
+            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount, Color.RED));
         } else {
             shield -= amount;
-            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
+            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
         }
 
-        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount, Color.RED));
 
         if (life <= 0) {
             life = 0;
@@ -222,7 +221,6 @@ public abstract class Enemy extends Entity {
 
                     if (quest2.isCompleted) {
                         gp.ui.message = "Misiune completată: Inamici în Bârlog";
-                        gp.ui.messageOn = true;
                     }
                 }
                 // Cazul pentru prima misiune (Tutorial - ID 1)

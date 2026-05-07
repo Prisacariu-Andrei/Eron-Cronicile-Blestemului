@@ -5,8 +5,8 @@ import Entity.Items.Card;
 import Entity.Player.Player;
 
 public class DeslusireaRunelor extends Card {
-    public DeslusireaRunelor(){
-        super("Deslușirea Runelor", 1, Card.CardType.NEUTRU, "Două taine noi se arată.");
+    public DeslusireaRunelor(Player player){
+        super("Deslușirea Runelor", 0, Card.CardType.NEUTRU, "Două taine noi se arată.");
     }
 
     @Override
