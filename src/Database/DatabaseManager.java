@@ -12,14 +12,21 @@ public class DatabaseManager {
     private DatabaseManager() {
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(DB_URL);
 
+            // Adăugăm un parametru de timeout direct în URL-ul de conectare (3000ms = 3 secunde)
+            // Asta previne erorile instantanee de tip [SQLITE_BUSY]
+            String connectionUrl = DB_URL + "?busy_timeout=3000";
+            connection = DriverManager.getConnection(connectionUrl);
+
+            // Configurăm SQLite pentru performanță și concurență crescută
             try (Statement st = connection.createStatement()) {
-                st.execute("PRAGMA journal_mode=DELETE;");
+                // WAL (Write-Ahead Logging) este mult mai stabil pentru jocuri și previne blocajele de fișier
+                st.execute("PRAGMA journal_mode=WAL;");
+                st.execute("PRAGMA synchronous=NORMAL;");
             }
 
             createTables();
-            System.out.println("✅ Database connected: eron_save.db");
+            System.out.println("✅ Database connected: eron_save.db (WAL mode active)");
 
         } catch (ClassNotFoundException e) {
             GameExceptionHandler.getInstance().handleCriticalError(

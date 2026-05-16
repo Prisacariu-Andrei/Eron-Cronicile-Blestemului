@@ -11,12 +11,6 @@ import Entity.Runes.RuneFactory;
 import java.sql.*;
 import java.util.List;
 
-/**
- * SaveManager — reads and writes the full game state to the SQLite database.
- *
- * Slot system: 3 save slots (1, 2, 3).
- * Call saveGame(slot) to persist, loadGame(slot) to restore.
- */
 public class SaveManager {
 
     private final GamePanel gp;
@@ -218,11 +212,11 @@ public class SaveManager {
                     if (type.equals("CARD")) {
                         for (int i = 0; i < qty; i++) {
                             Card c = CardFactory.createCard(name, gp.player);
-                            if (c != null) gp.player.inventory.cards.add(c);
+                            gp.player.inventory.cards.add(c);
                         }
                     } else if (type.equals("RUNE")) {
                         Rune r = RuneFactory.createRune(name);
-                        if (r != null) gp.player.inventory.addRune(r);
+                        gp.player.inventory.addRune(r);
                     }
                 }
             }
@@ -247,7 +241,7 @@ public class SaveManager {
 
     public String[] getTopScores() {
         String[] result = new String[5];
-        String sql = "SELECT player_name, time_seconds FROM scores ORDER BY time_seconds ASC LIMIT 5;";
+        String sql = "SELECT player_name, time_seconds FROM scores ORDER BY time_seconds LIMIT 5;";
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             int i = 0;

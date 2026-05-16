@@ -24,6 +24,19 @@ public class KeyHandler implements KeyListener {
     public void keyPressed(KeyEvent keyE) {
         int code = keyE.getKeyCode();
         GameState state = gp.getCurrentState();
+
+        if (code == KeyEvent.VK_ESCAPE) {
+            if (state instanceof PlayState) {
+                System.out.println("DEBUG: Jocul a trecut în PAUZĂ.");
+                gp.changeState(new PauseState(gp)); // Trecem în pauză
+                return; // Oprim execuția aici ca să nu se trimită ESC și la alte meniuri
+            } else if (state instanceof PauseState) {
+                System.out.println("DEBUG: Jocul a revenit din PAUZĂ.");
+                gp.changeState(new PlayState(gp)); // Revenim la joc
+                return;
+            }
+        }
+
         // 0. GESTIUNE MENIU PRINCIPAL
         if (state instanceof MenuState) {
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
@@ -193,9 +206,6 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_ENTER) {
             enterPressed = true;
-        }
-        if (code == KeyEvent.VK_ESCAPE) {
-            escPressed = true;
         }
         if (code == KeyEvent.VK_T) {
             tPressed = true;

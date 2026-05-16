@@ -4,110 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f873dc53-65ee-4975-b5b0-a61a78d7100b" name="Changes" comment="Cartile acum au valorile afisate + checkTileEffect() remove">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/xerial_sqlite_jdbc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Game/Game.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Database/DatabaseManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Database/SaveManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Entity/Cards/CardFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Entity/Cards/Dezolare.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Entity/Inamici/EnemyFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Entity/Runes/RuneFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/BattleState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/CreditsState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/DeathState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/DialogueState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/GameState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/InventoryState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/LeaderboardState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/MenuState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/PauseState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/PlayState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/QuestGameState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameState/RewardState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main/Exception/GameExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main/GameTimer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Observer/CreditsUI.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Observer/LeaderboardUI.java" afterDir="false" />
+    <list default="true" id="f873dc53-65ee-4975-b5b0-a61a78d7100b" name="Changes" comment="Interfate + DataBase + Save + Tratari de exceptii">
+      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Game.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Game.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/GeamatulEcoului.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/GeamatulEcoului.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/ManiorulIernii.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/ManiorulIernii.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/PovaraAnilor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/PovaraAnilor.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/UraganDeAzur.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/UraganDeAzur.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Entity$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Entity$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Entity.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Entity.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Charon.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Charon.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Feldgug.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Feldgug.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Glaciara.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Glaciara.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_JeanPlesa.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_JeanPlesa.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_LupBoss.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_LupBoss.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Malakor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Malakor.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Valerius.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Valerius.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy$EnemyAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy$EnemyAction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Cioara.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Cioara.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Lup.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Lup.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_LupElite.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_LupElite.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Trol.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Trol.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Items/Card$CardType.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Items/Card$CardType.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Items/Card.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Items/Card.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/NPC/NPC.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/NPC/NPC.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/NPC/NPC_BatranulCronicar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/NPC/NPC_BatranulCronicar.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Player/CardDatabase.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Player/CardDatabase.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Player/CardManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Player/CardManager.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Player/Inventory.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Player/Inventory.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Player/Player.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Player/Player.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/StatusEffect$Type.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/StatusEffect$Type.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Main/AssetSetter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/AssetSetter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Main/CollisionChecker.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/CollisionChecker.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Main/GamePanel$GameState.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Main/GamePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/GamePanel.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Main/KeyHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/KeyHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Maps/Tundra" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Maps/Tundra" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/DeathUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/DeathUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/DialogueUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/DialogueUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/InventoryUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/InventoryUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/PauseUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/PauseUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/QuestBookUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/QuestBookUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/RewardUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/RewardUI.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/HealthBarUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/HealthBarUI.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/UI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/UI.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Tiles/Tile.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Tiles/Tile.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Tiles/TileManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Tiles/TileManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/res/Maps/Tundra" beforeDir="false" afterPath="$PROJECT_DIR$/res/Maps/Tundra" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/GeamatulEcoului.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/GeamatulEcoului.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/ManiorulIernii.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/ManiorulIernii.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/PovaraAnilor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/PovaraAnilor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/UraganDeAzur.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/UraganDeAzur.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Entity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Entity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Charon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Charon.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Feldgug.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Feldgug.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Glaciara.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Glaciara.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_JeanPlesa.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_JeanPlesa.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_LupBoss.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_LupBoss.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Malakor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Malakor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Valerius.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Valerius.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Cioara.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Cioara.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Lup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Lup.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_LupElite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_LupElite.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Trol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Trol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Items/Card.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Items/Card.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/NPC/NPC.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/NPC/NPC.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/NPC/NPC_BatranulCronicar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/NPC/NPC_BatranulCronicar.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Player/CardDatabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/CardDatabase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Player/CardManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/CardManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Database/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Database/DatabaseManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Database/SaveManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Database/SaveManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/CardFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/CardFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Entity/Player/Inventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/Inventory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Player/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/Player.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/StatusEffect.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/StatusEffect.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main/AssetSetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/AssetSetter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main/CollisionChecker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/CollisionChecker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/GamePanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Runes/RuneFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Runes/RuneFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main/Exception/GameExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/Exception/GameExceptionHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main/KeyHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/KeyHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Observer/BattleUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Observer/BattleUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Observer/RewardUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Observer/RewardUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Observer/UI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Observer/UI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +34,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="709" />
+    <option name="cachedIndexableFilesCount" value="728" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -156,41 +75,41 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Main.executor": "Run",
-    "Application.MapGenerator (1).executor": "Run",
-    "Application.MapGenerator.executor": "Run",
-    "Application.RegexDemo.executor": "Run",
-    "Downloaded.Files.Path.Enabled": "false",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Repository.Attach.Annotations": "false",
-    "Repository.Attach.JavaDocs": "false",
-    "Repository.Attach.Sources": "false",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/andrei/Folders/Facultate/PAOO/Proiect/CSTI/Game/Game",
-    "nodejs_package_manager_path": "npm",
-    "onboarding.tips.debug.path": "/home/andrei/Folders/Facultate/PAOO/Proiect/Game/Game/res/src/Main.java",
-    "project.structure.last.edited": "Libraries",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "ml.llm.AcpAgentsConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MapGenerator (1).executor&quot;: &quot;Run&quot;,
+    &quot;Application.MapGenerator.executor&quot;: &quot;Run&quot;,
+    &quot;Application.RegexDemo.executor&quot;: &quot;Run&quot;,
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/andrei/Folders/Facultate/PAOO/Proiect/CSTI/Game/Game&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;/home/andrei/Folders/Facultate/PAOO/Proiect/Game/Game/res/src/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.AcpAgentsConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "sqlite"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;sqlite&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/res/Tiles/Podul" />
@@ -321,7 +240,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778194686177</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Interfate + DataBase + Save + Tratari de exceptii">
+      <option name="closed" value="true" />
+      <created>1778971960167</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1778971960167</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -332,7 +259,8 @@
     <MESSAGE value="Quests" />
     <MESSAGE value="Valerius shield fix" />
     <MESSAGE value="Cartile acum au valorile afisate + checkTileEffect() remove" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cartile acum au valorile afisate + checkTileEffect() remove" />
+    <MESSAGE value="Interfate + DataBase + Save + Tratari de exceptii" />
+    <option name="LAST_COMMIT_MESSAGE" value="Interfate + DataBase + Save + Tratari de exceptii" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
