@@ -2,6 +2,7 @@ package Entity.NPC;
 
 import Entity.Entity;
 import Main.GamePanel;
+import GameState.*; // Importă pachetul cu stările jocului
 import java.awt.*;
 
 public abstract class NPC extends Entity {
@@ -21,7 +22,7 @@ public abstract class NPC extends Entity {
         this.direction = "down";
         this.speed = 0; // NPC-urile stau pe loc de regulă
 
-        // Hitbox standard pentru NPC (ajustează dacă e nevoie)
+        // Hitbox standard pentru NPC
         hitBox = new Rectangle(8, 16, 48, 48);
     }
 
@@ -29,18 +30,18 @@ public abstract class NPC extends Entity {
     public abstract void getImage();
     public abstract void setDialogue();
 
-    // Metoda apelată când apeși [E]
+    // Metoda apelată când apeși [E] (Modificată pentru State Pattern)
     public void speak() {
         if (dialogues[dialogueIndex] == null) {
             dialogueIndex = 0;
-            gp.gameState = GamePanel.GameState.PLAY;
+            gp.changeState(new PlayState(gp)); // Schimbare prin interfață înapoi la joc
             isTalking = false;
             return;
         }
 
-        gp.gameState = GamePanel.GameState.DIALOGUE;
+        gp.changeState(new DialogueState(gp)); // Schimbare prin interfață către ecranul de dialog
         gp.dialogueUI.currentDialogue = dialogues[dialogueIndex];
-        gp.dialogueUI.resetCharIndex(); // Folosește `resetCharIndex` în funcție de implementarea din UI-ul tău
+        gp.dialogueUI.resetCharIndex();
 
         dialogueIndex++;
     }

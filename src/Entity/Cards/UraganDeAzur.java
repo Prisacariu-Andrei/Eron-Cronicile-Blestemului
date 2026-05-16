@@ -5,17 +5,28 @@ import Entity.Items.Card;
 import Entity.Player.Player;
 
 public class UraganDeAzur extends Card {
+    private final int baseDamage = 600;
+    private final int scalePerVolt = 4;
+
     public UraganDeAzur(Player player) {
-        super("Uragan de Azur", 2, CardType.ELECTRIC, "Mânia furtunii sporește cu \nfiecare scânteie. \nPaguba "+(10+player.damage+player.voltCount*8)+"\nCreste cu 8 dupa fiecare\nfulger");
+        // Punem o descriere generică în constructor, oricum va fi suprascrisă vizual
+        super("Uragan de Azur", 0, CardType.ELECTRIC, "Mânia furtunii sporește \ncu fiecare scânteie.\nPaguba: 10\nScântei(4 dmg per card electric)");
+    }
+
+    @Override
+    public String getDynamicDescription(Player player) {
+        int currentDmg = baseDamage + player.damage + (player.voltCount * scalePerVolt);
+        return "Mânia furtunii sporește \ncu fiecare scânteie. \nPaguba: " + currentDmg +
+                "\n(: " + player.voltCount + ")";
     }
 
     @Override
     public void play(Player player, Enemy enemy) {
-        // Calculăm damage-ul: baza 10 + 8 per fiecare carte electrică jucată anterior
-        int totalDamage = 10+ player.damage + (player.voltCount * 8);
+        int totalDamage = baseDamage + player.damage + (player.voltCount * scalePerVolt);
         if (enemy != null) {
             enemy.takeDamage(totalDamage);
-            ++player.voltCount; // Incrementăm contorul pentru următoarea carte
+            // Incrementăm contorul global al jucătorului
+            player.voltCount++;
         }
     }
 }

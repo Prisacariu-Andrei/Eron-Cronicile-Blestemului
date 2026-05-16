@@ -15,12 +15,12 @@ public class Enemy_Valerius extends Enemy {
     public Enemy_Valerius(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Valerius, Cavalerul Neinvins";
-        this.maxLife = 280;
+        this.maxLife = 5000;
         this.life = maxLife;
         this.attackDamage = 18;
-        this.visualSize = 3;
+        this.mapSize = 1.8;
 
-        hitBox = new Rectangle(0, 0, gp.tileSize * visualSize, gp.tileSize * visualSize);
+        hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
         this.isStatic = true;

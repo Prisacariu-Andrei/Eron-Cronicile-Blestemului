@@ -4,60 +4,49 @@ import Entity.Entity;
 import Entity.Inamici.Enemy;
 import Entity.Items.Card;
 import Entity.Cards.GeamatulEcoului;
-import Entity.Generali.Enemy_Malakor;
 import Main.GamePanel;
 import Main.KeyHandler;
+import Main.Exception.GameExceptionHandler;
 import Observer.Observer;
 import Observer.DamagePopUp;
+import GameState.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class Player extends Entity {
 
-    // DEPENDENȚE
     KeyHandler keyH;
     public Inventory inventory = new Inventory();
     private final List<Observer> observers = new ArrayList<>();
 
-    // COORDONATE ECRAN (CENTRALE)
-    public  int screenX;
-    public  int screenY;
+    public int screenX;
+    public int screenY;
 
-    // STATS DE BAZĂ (EXPLORARE)
     public final int NORMAL_SPEED = 4;
     public float exploreMana;
     public final float maxExploreMana = 100f;
     public float manaRegen = 0.25f;
 
-    // DASH SISTEM
     public boolean isDashing = false;
     public int dashSpeed = 16;
     public int dashCounter = 0;
     public final int DASH_DURATION = 20;
     public final int DASH_COST = 30;
 
-    // STATS LUPTĂ (CĂRȚI)
     public int maxMana = 3;
     public int currentMana;
     public boolean isPlayerTurn = true;
     public Enemy currentEnemy;
 
-    // --- VARIABILE PENTRU ABILITĂȚI NOI ---
     public Card lastCardPlayed = null;
     public int voltCount = 0;
     public boolean isInvulnerable = false;
-    // -------------------------------------
-
-    // LOGICĂ EVENIMENTE / COLIZIUNE
-    int lastTileX = -1, lastTileY = -1;
-    private boolean hasTakenHeal = false;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
@@ -84,20 +73,21 @@ public class Player extends Entity {
         currentMana = maxMana;
         exploreMana = maxExploreMana;
 
-        // Inițializare pachet
-        this.inventory.cards = CardManager.getStartingDeck(this);
+        this.inventory.cards.addAll(CardManager.getStartingDeck(this));
     }
 
-    // --- LOGICA PRINCIPALĂ (UPDATE) ---
     public void update() {
         updateStatus();
-        if (gp.gameState == GamePanel.GameState.PLAY) {
+
+        var state = gp.getCurrentState();
+
+        if (state instanceof PlayState) {
             handleExploration();
         }
-        else if (gp.gameState == GamePanel.GameState.BATTLE) {
+        else if (state instanceof BattleState) {
             handleBattleInput();
         }
-        else if (gp.gameState == GamePanel.GameState.REWARD) {
+        else if (state instanceof RewardState) {
             handleRewardInput();
         }
     }
@@ -123,11 +113,10 @@ public class Player extends Entity {
         if (worldX > (gp.maxWorldCol * gp.tileSize) - gp.tileSize) worldX = (gp.maxWorldCol * gp.tileSize) - gp.tileSize;
         if (worldY > (gp.maxWorldRow * gp.tileSize) - gp.tileSize) worldY = (gp.maxWorldRow * gp.tileSize) - gp.tileSize;
 
-
         if (keyH.dashPressed && !isDashing && exploreMana >= DASH_COST) {
             isDashing = true;
             dashCounter = 0;
-            exploreMana -= 1; // DASH_COST
+            exploreMana -= 1;
         }
         if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
             updateMovement();
@@ -143,9 +132,7 @@ public class Player extends Entity {
         if (keyH.rightPressed) direction = "right";
 
         collisionOn = false;
-
-        //Coliziune
-        //gp.cChecher.checkTile(this);
+        gp.cChecher.checkTile(this);
 
         if (!collisionOn) {
             switch (direction) {
@@ -167,7 +154,7 @@ public class Player extends Entity {
 
     private void handleBattleInput() {
         if (this.life <= 0) {
-            return; // Oprește orice acțiune dacă player-ul este mort
+            return;
         }
 
         if (isPlayerTurn) {
@@ -198,48 +185,54 @@ public class Player extends Entity {
             gp.keyH.enterPressed = false;
             Card selected = gp.rewardUI.getSelectedCard();
             if (selected != null) {
-                inventory.addCardToDeck(selected.name,this);
+                inventory.addCardToDeck(selected.name, this);
                 gp.rewardUI.commandNum = 0;
-                gp.gameState = GamePanel.GameState.PLAY;
+                gp.changeState(new PlayState(gp));
             }
         }
 
         if (gp.keyH.escPressed) {
             gp.keyH.escPressed = false;
             gp.rewardUI.commandNum = 0;
-            gp.gameState = GamePanel.GameState.PLAY;
+            gp.changeState(new PlayState(gp));
         }
     }
 
-    // --- SISTEM DE LUPTĂ & CĂRȚI ---
-    // --- SISTEM DE LUPTĂ & CĂRȚI ---
     public void playSelectedCard() {
-        if (inventory.hand.isEmpty()) return;
+        try {
+            if (inventory.hand.isEmpty()) return;
 
-        int index = gp.battleUI.commandNum;
-        if (index >= 0 && index < inventory.hand.size()) {
-            Card card = inventory.hand.get(index);
+            int index = gp.battleUI.commandNum;
+            if (index >= 0 && index < inventory.hand.size()) {
+                Card card = inventory.hand.get(index);
 
-            if (currentMana >= card.manaCost) {
-                currentMana -= card.manaCost;
+                if (currentMana >= card.manaCost) {
+                    currentMana -= card.manaCost;
 
-                card.play(this, currentEnemy);
+                    card.play(this, currentEnemy);
 
-                if (!(card instanceof GeamatulEcoului)) {
-                    lastCardPlayed = card;
-                }
+                    if (!(card instanceof GeamatulEcoului)) {
+                        lastCardPlayed = card;
+                    }
 
-                inventory.discard(inventory.hand.remove(index));
+                    inventory.discard(inventory.hand.remove(index));
 
-                // Bătălia se câștigă doar dacă inamicul are 0 HP ȘI alive este false (adică a trecut de faza 3)
-                if (currentEnemy != null && currentEnemy.life <= 0 && !currentEnemy.alive) {
-                    winBattle();
-                }
+                    if (currentEnemy != null && currentEnemy.life <= 0 && !currentEnemy.alive) {
+                        winBattle();
+                    }
 
-                if (gp.battleUI.commandNum >= inventory.hand.size() && gp.battleUI.commandNum > 0) {
-                    gp.battleUI.commandNum = inventory.hand.size() - 1;
+                    if (gp.battleUI.commandNum >= inventory.hand.size() && gp.battleUI.commandNum > 0) {
+                        gp.battleUI.commandNum = inventory.hand.size() - 1;
+                    }
                 }
             }
+        } catch (IndexOutOfBoundsException e) {
+            GameExceptionHandler.getInstance().handleWarning("Gestiune index cursor eronată în timpul bătăliei la playSelectedCard", e);
+            if (gp.battleUI.commandNum >= inventory.hand.size()) {
+                gp.battleUI.commandNum = Math.max(0, inventory.hand.size() - 1);
+            }
+        } catch (Exception e) {
+            GameExceptionHandler.getInstance().handleWarning("Eroare neprevăzută la utilizarea cărții selectate", e);
         }
     }
 
@@ -247,7 +240,6 @@ public class Player extends Entity {
         isPlayerTurn = false;
         isInvulnerable = false;
 
-        // Resetarea scutului se face doar dacă inamicul NU este un boss
         if (currentEnemy != null) {
             String enemyName = currentEnemy.name;
             if (!"Fenris cel Alb".equals(enemyName) && !"Valerius, Cavalerul Neinvins".equals(enemyName)) {
@@ -255,17 +247,14 @@ public class Player extends Entity {
             }
         }
 
-        // 1. Curățăm mâna jucătorului
         while(!inventory.hand.isEmpty()) {
             inventory.discard(inventory.hand.removeFirst());
         }
         gp.battleUI.commandNum = 0;
 
-        // 2. ACTUALIZĂM STATUSURILE INAMICULUI
         if (currentEnemy != null) {
             currentEnemy.updateStatuses();
 
-            // Verificăm dacă inamicul a murit definitiv din cauza otrăvii/arsurii etc.
             if (currentEnemy.life <= 0 && !currentEnemy.alive) {
                 Timer deathTimer = new Timer(800, e -> { winBattle(); ((Timer)e.getSource()).stop(); });
                 deathTimer.setRepeats(false); deathTimer.start();
@@ -273,7 +262,6 @@ public class Player extends Entity {
             }
         }
 
-        // 3. TURA INAMICULUI
         gp.battleUI.announceTurn("TURNUL INAMICULUI");
 
         Timer enemyTurnTimer = new Timer(1500, e -> {
@@ -291,10 +279,19 @@ public class Player extends Entity {
 
     private void finishEnemyTurn() {
         if (this.life <= 0) {
-            return; // Dacă jucătorul a murit, oprim execuția timerelor
+            return;
         }
 
         gp.battleUI.commandNum = 0;
+
+        if (currentEnemy != null) {
+            currentEnemy.updateStatuses();
+
+            if (currentEnemy.life <= 0 && !currentEnemy.alive) {
+                winBattle();
+                return;
+            }
+        }
 
         this.updateStatuses();
 
@@ -317,7 +314,6 @@ public class Player extends Entity {
         }
     }
 
-    // --- UTILITARE & COLIZIUNI ---
     public void damagePlayer(int amount) {
         if (isInvulnerable) {
             gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "IMUN", Color.WHITE));
@@ -336,17 +332,13 @@ public class Player extends Entity {
 
         if (this.life <= 0) {
             this.life = 0;
-
-            // 1. Oprește acțiunile jucătorului
             isPlayerTurn = false;
 
-            // 2. Oprește inamicul activ
             if (currentEnemy != null) {
                 currentEnemy = null;
             }
 
-            // 3. Setează starea pe ecranul de moarte (Death Screen)
-            gp.gameState = GamePanel.GameState.DEATH;
+            gp.changeState(new DeathState(gp));
         }
         notifyObservers();
     }
@@ -372,7 +364,7 @@ public class Player extends Entity {
                         gp.enemy[i].hitBox.width, gp.enemy[i].hitBox.height);
                 if (pRect.intersects(eRect)) {
                     this.currentEnemy = gp.enemy[i];
-                    gp.gameState = GamePanel.GameState.BATTLE;
+                    gp.changeState(new BattleState(gp));
                     startBattle();
                     break;
                 }
@@ -396,7 +388,7 @@ public class Player extends Entity {
         hitBox.height = oldH;
 
         if (npcIndex != 999) {
-            gp.gameState = GamePanel.GameState.DIALOGUE;
+            gp.changeState(new DialogueState(gp));
             gp.npc[npcIndex].speak();
         }
     }
@@ -415,12 +407,27 @@ public class Player extends Entity {
         this.life = Math.min(this.life + 5, maxLife);
         notifyObservers();
         if (currentEnemy != null) {
+            if ("Malakor".equals(currentEnemy.name)) {
+
+                currentEnemy.alive = false;
+                currentEnemy = null;
+                this.inventory.resetDeckAfterBattle();
+
+                long finalTime = gp.ui.getPlayTime();
+
+                gp.leaderboardUI.checkAndSaveNewScore(finalTime, this.name);
+
+                gp.creditsUI.resetPosition();
+                gp.changeState(new CreditsState(gp));
+                return;
+            }
+
             currentEnemy.alive = false;
             currentEnemy = null;
         }
         this.inventory.resetDeckAfterBattle();
         gp.rewardUI.generateRewards();
-        gp.gameState = GamePanel.GameState.REWARD;
+        gp.changeState(new RewardState(gp));
     }
 
     public void resetPlayer() {
@@ -451,8 +458,8 @@ public class Player extends Entity {
             right2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/Eron_right2.png")));
             fightStand = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/Eron_Battle.png")));
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (Exception e) {
+            GameExceptionHandler.getInstance().handleWarning("Eroare la încărcarea setului de imagini pentru personajul principal (Player)", e);
         }
     }
 

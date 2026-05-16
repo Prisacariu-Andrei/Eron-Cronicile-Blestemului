@@ -1,6 +1,7 @@
 package Tiles;
 
 import Main.GamePanel;
+import Main.Exception.GameExceptionHandler;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.*;
@@ -13,20 +14,18 @@ public class TileManager {
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[50]; // Spațiu generos pentru tile-uri
+        tile = new Tile[50];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 
-        // Încărcăm zona de start (Eldoria) implicit
         loadZoneTiles("Eldoria");
         loadMap("/Maps/Eldoria");
     }
 
     public void loadZoneTiles(String zoneName) {
-        this.currentZone = zoneName; // Salvăm zona curentă aici!
-        tile = new Tile[50]; // Spațiu generos pentru tile-uri
+        this.currentZone = zoneName;
+        tile = new Tile[50];
         switch (zoneName) {
             case "Eldoria":
-                // Zonele de bază (0-14) care există în orice lume
                 setup(0, zoneName+"/grass", false);
                 setup(1, zoneName+"/Rock", true);
                 setup(2, zoneName+"/water", true);
@@ -43,13 +42,11 @@ public class TileManager {
                 setup(13, zoneName+"/Intersection3Down", false);
                 setup(14, zoneName+"/Intersection4", false);
 
-                // Clădiri/Obiecte specifice (15-38)
                 for (int i = 1; i <= 12; i++) {
-                    setup(14 + i, zoneName+"/H" + i, true); // H1-H12
-                    setup(26 + i, zoneName+"/B" + i, true); // B1-B12
+                    setup(14 + i, zoneName+"/H" + i, true);
+                    setup(26 + i, zoneName+"/B" + i, true);
                 }
 
-                // Utilitare (39-42)
                 setup(39, zoneName+"/bridge", false);
                 setup(40, zoneName+"/healZone", false);
                 setup(41, zoneName+"/damageZone", false);
@@ -69,13 +66,11 @@ public class TileManager {
                 setup(5, zoneName+"/water", true);
                 break;
 
-
             case "Abisul":
                 setup(0, zoneName+"/Dirt3", false);
                 setup(1, zoneName+"/Mount", true);
                 setup(2, zoneName+"/RockEntrance", false);
                 break;
-
 
             case "Citadela":
                 setup(0 , zoneName+"/grass", false);
@@ -97,7 +92,6 @@ public class TileManager {
                 setup(16, zoneName+"/chair", true);
                 setup(17, zoneName+"/sky", true);
                 break;
-
 
             case "Tundra":
                 setup(0 ,zoneName+"/Tree",true);
@@ -131,41 +125,35 @@ public class TileManager {
                 setup(20,zoneName+"/D2",true);
                 break;
 
-
             case "Castelul":
-                /*
-                ULTIMA ZONA!!!
-                 */
                 break;
         }
     }
+
     public void setup(int index, String imageName, boolean collision) {
         try {
-            InputStream is = getClass().getResourceAsStream("/Tiles/"+imageName +".png");
+            InputStream is = getClass().getResourceAsStream("/Tiles/" + imageName + ".png");
             if (is == null) {
-                // Dacă nu găsește imaginea în folderul zonei, încearcă într-un folder comun
-                is = getClass().getResourceAsStream("/Tiles/Common/"+imageName.substring(imageName.lastIndexOf("/") + 1) + ".png");
-                // Nu exista va da eroare!!! Intentionat pusa asa! :)
+                is = getClass().getResourceAsStream("/Tiles/Common/" + imageName.substring(imageName.lastIndexOf("/") + 1) + ".png");
             }
 
             if (is != null) {
                 tile[index] = new Tile();
                 tile[index].image = ImageIO.read(is);
                 tile[index].collision = collision;
-            }
-            else {
-                System.out.println("❌ Imagine negăsită: " + imageName); // Asta îți va spune clar de ce e negru
+            } else {
+                // Dacă resursa este complet absentă, trimitem un Warning controlat
+                GameExceptionHandler.getInstance().handleWarning("Elementul grafic (Tile) din resurse lipsește complet: " + imageName, null);
             }
 
-        } catch (IOException e) {
-            System.out.println("Error loading tile: " + imageName);
+        } catch (Exception e) {
+            GameExceptionHandler.getInstance().handleWarning("Eroare neprevăzută întâmpinată la citirea imaginii: " + imageName, e);
         }
     }
 
     public void loadMap(String filePath) {
         try {
-            // IMPORTANT: Verificăm dacă path-ul începe cu /
-            if(!filePath.startsWith("/")) {
+            if (!filePath.startsWith("/")) {
                 filePath = "/" + filePath;
             }
 
@@ -173,18 +161,16 @@ public class TileManager {
             InputStream is = getClass().getResourceAsStream(filePath);
 
             if (is == null) {
-                System.out.println("❌ EROARE CRITICĂ: Fișierul hărții NU a fost găsit la: " + filePath);
-                System.out.println("Verifică dacă fișierul se numește EXACT așa în folderul res/Maps (litere mari/mici)");
-                return; // Dacă e null, ieșim imediat ca să nu folosim harta veche
+                // Eroare critică - nu putem juca pe o hartă lipsă
+                GameExceptionHandler.getInstance().handleCriticalError(
+                        "Fisierul text al hărții lipsește din directorul res/Maps: " + filePath, null);
+                return;
             }
 
-            // Dacă am ajuns aici, înseamnă că am găsit fișierul!
-            // Resetăm matricea ca să fim siguri că nu rămân resturi din Eldoria
             mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
-
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            int col = 0;
+            int col;
             int row = 0;
 
             while (row < gp.maxWorldRow) {
@@ -202,8 +188,7 @@ public class TileManager {
             System.out.println("✅ SUCCES: Harta " + filePath + " a fost încărcată corect!");
 
         } catch (Exception e) {
-            System.out.println("❌ EROARE la citirea numerelor din hartă: " + e.getMessage());
-            e.printStackTrace();
+            GameExceptionHandler.getInstance().handleCriticalError("A apărut o eroare structurală la citirea fișierului de configurare a hărții: " + filePath, e);
         }
     }
 
@@ -217,47 +202,39 @@ public class TileManager {
             int worldX = worldCol * gp.tileSize;
             int worldY = worldRow * gp.tileSize;
 
-            // Calculăm unde ar trebui să fie camera în mod normal
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY = worldY - gp.player.worldY + gp.player.screenY;
 
-            // --- LIMITĂRI CAMERĂ ---
-            // Stânga
             if (gp.player.worldX < gp.player.screenX) {
                 screenX = worldX;
             }
-            // Sus
             if (gp.player.worldY < gp.player.screenY) {
                 screenY = worldY;
             }
-            // Dreapta
             int rightOffset = gp.screenWidth - gp.player.screenX;
             if (rightOffset > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX) {
                 screenX = gp.screenWidth - ((gp.maxWorldCol * gp.tileSize) - worldX);
             }
-            // Jos
             int bottomOffset = gp.screenHeight - gp.player.screenY;
             if (bottomOffset > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
                 screenY = gp.screenHeight - ((gp.maxWorldRow * gp.tileSize) - worldY);
             }
 
-            // Randăm doar ce se vede pe ecran (optimizare)
             if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
                     worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
                     worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
                     worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
 
-                if (tile[tileNum] != null) {
+                if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null) {
                     g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                 }
             } else {
-                // Dacă suntem la margini, forțăm desenarea tile-urilor de margine chiar dacă "matematic" camera e în afară
                 if (gp.player.worldX < gp.player.screenX ||
                         gp.player.worldY < gp.player.screenY ||
                         rightOffset > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX ||
                         bottomOffset > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
 
-                    if (tile[tileNum] != null) {
+                    if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null) {
                         g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                     }
                 }

@@ -2,6 +2,7 @@ package Main;
 
 import Entity.Entity;
 import Entity.Inamici.Enemy;
+import GameState.BattleState; // Import nou pentru verificare
 
 import java.awt.*;
 
@@ -85,7 +86,7 @@ public class CollisionChecker {
                     if (target[i] != entity) index = i;
                 }
                 // Resetăm coordonatele hitbox-ului la valorile lor relative
-                entity.hitBox.x = 8; // sau cât ai tu setat în Entity/Player
+                entity.hitBox.x = 8;
                 entity.hitBox.y = 16;
                 target[i].hitBox.x = 8;
                 target[i].hitBox.y = 16;
@@ -101,7 +102,6 @@ public class CollisionChecker {
         int playerHitBoxWorldY = gp.player.worldY + gp.player.hitBox.y;
 
         // 2. Creăm o zonă de detectare mai mare (Trigger Zone) pentru BĂTĂLIE
-        // Vrem să detectăm dacă jucătorul este la o distanță de un tileSize
         int activationRange = gp.tileSize;
 
         // Calculăm distanța dintre centrul inamicului și centrul jucătorului
@@ -112,17 +112,16 @@ public class CollisionChecker {
 
         double distance = Math.sqrt(Math.pow(centerX - playerCenterX, 2) + Math.pow(centerY - playerCenterY, 2));
 
-        // --- LOGICĂ DECLANȘARE LUPTĂ ---
+        // --- LOGICĂ DECLANȘARE LUPTĂ (Modificată pentru State Pattern) ---
         if (distance <= activationRange && entity instanceof Enemy e) {
-            if (e.alive && gp.gameState != GamePanel.GameState.BATTLE) {
+            if (e.alive && !(gp.getCurrentState() instanceof BattleState)) {
                 gp.player.currentEnemy = e;
-                gp.gameState = GamePanel.GameState.BATTLE;
-                gp.player.startBattle(); // Inițializează cărțile, mana, etc.
+                gp.changeState(new BattleState(gp)); // Schimbare directă de stare prin interfață
+                gp.player.startBattle();
             }
         }
 
-        // --- LOGICĂ COLIZIUNE FIZICĂ (să nu se suprapună sprite-urile) ---
-        // Verificăm direcția pentru a opri inamicul să intre în player
+        // --- LOGICĂ COLIZIUNE FIZICĂ ---
         switch(entity.direction) {
             case "up": entityHitBoxWorldY -= entity.speed; break;
             case "down": entityHitBoxWorldY += entity.speed; break;

@@ -1,7 +1,7 @@
 package Main;
 
 import Entity.Items.Card;
-
+import GameState.*; // Importă toate stările noi
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -23,9 +23,35 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyPressed(KeyEvent keyE) {
         int code = keyE.getKeyCode();
+        GameState state = gp.getCurrentState();
+        // 0. GESTIUNE MENIU PRINCIPAL
+        if (state instanceof MenuState) {
+            if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+                gp.ui.commandNum--;
+                if (gp.ui.commandNum < 0) gp.ui.commandNum = 4; // Ajustat la 4 pentru că ai 5 opțiuni în UI!
+            }
+            if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+                gp.ui.commandNum++;
+                if (gp.ui.commandNum > 4) gp.ui.commandNum = 0;
+            }
+            if (code == KeyEvent.VK_ENTER) {
+                enterPressed = false;
+
+                if (gp.ui.commandNum == 0) {
+                    gp.changeState(new PlayState(gp));
+                } else if (gp.ui.commandNum == 2) {
+                    gp.changeState(new LeaderboardState(gp));
+                } else if (gp.ui.commandNum == 4) {
+                    // MODIFICAT: Închidem baza de date curat înainte de a închide procesul ★★★
+                    Database.DatabaseManager.getInstance().close();
+                    System.exit(0);
+                }
+            }
+            return;
+        }
 
         // 1. GESTIUNE DEATH SCREEN
-        if (gp.gameState == GamePanel.GameState.DEATH) {
+        if (state instanceof DeathState) {
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
                 gp.deathUI.commandNum--;
                 if (gp.deathUI.commandNum < 0) gp.deathUI.commandNum = 1;
@@ -34,12 +60,14 @@ public class KeyHandler implements KeyListener {
                 gp.deathUI.commandNum++;
                 if (gp.deathUI.commandNum > 1) gp.deathUI.commandNum = 0;
             }
-
             if (code == KeyEvent.VK_ENTER) {
-                if (gp.deathUI.commandNum == 0) { // Main Menu selectat
+                enterPressed = false;
+                if (gp.deathUI.commandNum == 0) {
                     gp.player.resetPlayer();
-                    gp.gameState = GamePanel.GameState.MENU;
+                    gp.changeState(new MenuState(gp));
                 } else if (gp.deathUI.commandNum == 1) {
+                    // MODIFICAT: Închidem baza de date curat și aici ★★★
+                    Database.DatabaseManager.getInstance().close();
                     System.exit(0);
                 }
             }
@@ -47,7 +75,7 @@ public class KeyHandler implements KeyListener {
         }
 
         // 2. GESTIUNE BATTLE
-        if (gp.gameState == GamePanel.GameState.BATTLE) {
+        if (state instanceof BattleState) {
             if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
                 if (gp.battleUI.commandNum > 0) gp.battleUI.commandNum--;
             }
@@ -65,7 +93,7 @@ public class KeyHandler implements KeyListener {
         }
 
         // 3. GESTIUNE REWARD SCREEN
-        if (gp.gameState == GamePanel.GameState.REWARD) {
+        if (state instanceof RewardState) {
             if (code == KeyEvent.VK_LEFT) {
                 gp.rewardUI.commandNum--;
                 if (gp.rewardUI.commandNum < 0) gp.rewardUI.commandNum = 2;
@@ -77,13 +105,13 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ENTER) {
                 Card selectedGarde = gp.rewardUI.rewardCards.get(gp.rewardUI.commandNum);
                 gp.player.inventory.cards.add(selectedGarde);
-                gp.gameState = GamePanel.GameState.PLAY;
+                gp.changeState(new PlayState(gp));
                 gp.player.worldY -= 10;
             }
         }
 
         // 4. GESTIUNE INVENTAR
-        if (gp.gameState == GamePanel.GameState.INVENTORY) {
+        if (state instanceof InventoryState) {
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
                 if (gp.inventoryUI.slotRow > 0) {
                     gp.inventoryUI.slotRow--;
@@ -100,48 +128,45 @@ public class KeyHandler implements KeyListener {
             }
         }
 
-        // 5. GESTIUNE DIALOG ȘI JURNAL DE QUEST-URI (Tastele J și Q sunt active în timpul dialogului și în joc)
+        // 5. GESTIUNE DIALOG ȘI JURNAL DE QUEST-URI
         if (code == KeyEvent.VK_J) {
             System.out.println("DEBUG: Tasta J a fost apasată.");
 
-            if (gp.gameState == GamePanel.GameState.PLAY || gp.gameState == GamePanel.GameState.DIALOGUE) {
+            if (state instanceof PlayState || state instanceof DialogueState) {
                 gp.questBookUI.isOpen = true;
-                gp.gameState = GamePanel.GameState.QUEST;
-                return; // Oprește execuția pentru a nu intra în alte stări
-            } else if (gp.gameState == GamePanel.GameState.QUEST) {
+                gp.changeState(new QuestGameState(gp));
+                return;
+            } else if (state instanceof QuestGameState) {
                 gp.questBookUI.isOpen = false;
-                gp.gameState = GamePanel.GameState.PLAY;
+                gp.changeState(new PlayState(gp));
                 return;
             }
         }
 
         // Comutare tab-uri când jurnalul este deschis
-        if (gp.gameState == GamePanel.GameState.QUEST) {
+        if (state instanceof QuestGameState) {
             if (code == KeyEvent.VK_Q) {
                 System.out.println("DEBUG: Tasta Q a fost apasată în meniul Quest.");
                 gp.questBookUI.switchTab();
             }
-            return; // Împiedică jucătorul să se miște în fundal când citește quest-urile
+            return;
         }
 
         // 6. INTERACȚIUNE ȘI GESTIUNE DIALOG
         if (code == KeyEvent.VK_E) {
-            if (gp.gameState == GamePanel.GameState.PLAY) {
+            if (state instanceof PlayState) {
                 gp.player.interactNPC();
-            } else if (gp.gameState == GamePanel.GameState.DIALOGUE) {
+            } else if (state instanceof DialogueState) {
 
                 if (gp.dialogueUI.isWriting()) {
                     gp.dialogueUI.skipTypewriter();
                 } else {
-                    // Dacă mai sunt NPC-uri care vorbesc, le lăsăm să își finalizeze logica
                     for (int i = 0; i < gp.npc.length; i++) {
                         if (gp.npc[i] != null) {
-                            // Când se apasă tasta în timp ce suntem în dialog, avansăm sau ieșim
                             gp.npc[i].speak();
 
-                            // Ieșim manual din starea de dialog dacă s-a terminat
                             if (gp.npc[i].dialogueIndex == 0) {
-                                gp.gameState = GamePanel.GameState.PLAY;
+                                gp.changeState(new PlayState(gp));
                                 return;
                             }
                         }
@@ -150,7 +175,7 @@ public class KeyHandler implements KeyListener {
             }
         }
 
-        // 6. DEPLASĂRI GENERALE PE HARTĂ
+        // 7. DEPLASĂRI GENERALE PE HARTĂ
         if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             upPressed = true;
         }
@@ -179,11 +204,11 @@ public class KeyHandler implements KeyListener {
 
         // Deschidere inventar
         if (code == KeyEvent.VK_I) {
-            if (gp.gameState == GamePanel.GameState.PLAY) {
-                gp.gameState = GamePanel.GameState.INVENTORY;
+            if (state instanceof PlayState) {
+                gp.changeState(new InventoryState(gp));
                 gp.inventoryUI.slotRow = 0;
-            } else if (gp.gameState == GamePanel.GameState.INVENTORY) {
-                gp.gameState = GamePanel.GameState.PLAY;
+            } else if (state instanceof InventoryState) {
+                gp.changeState(new PlayState(gp));
             }
         }
     }

@@ -14,7 +14,7 @@ public class Enemy_Lup extends Enemy {
         this.speed = 1; // <--- ASIGURĂ-TE CĂ ARE VITEZĂ
         getImage();
         setNextIntent();
-        hitBox = new Rectangle(8, 16, gp.tileSize*visualSize, gp.tileSize*visualSize); // Hitbox mai mic decât tile-ul (recomandat)
+        hitBox = new Rectangle(8, 16, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize)); // Hitbox mai mic decât tile-ul (recomandat)
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
     }
@@ -31,6 +31,8 @@ public class Enemy_Lup extends Enemy {
         right1 = setup("/Enemy/Wolf");
         right2 = setup("/Enemy/Wolf");
         fightStand = setup("/Enemy/WolfFight");
+        battleBackground = setup("/Enemy/Barlog");
+
     }
 
     @Override

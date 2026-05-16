@@ -1,38 +1,45 @@
 package Entity.Player;
 
-import Entity.Cards.*;
-import Entity.Items.*;
-import java.util.ArrayList;
-import java.util.Random;
+import Entity.Items.Card;
+import Entity.Cards.CardFactory;
+import java.util.*;
 
 public class CardDatabase {
-    public static ArrayList<Card> allCards = new ArrayList<>();
+    private static CardDatabase instance;
+    private final List<String> cardRegistry;
+    private final Random rand = new Random();
 
-    public static void init(Player player) {
-        allCards.add(new CadereaStelelor(player));
-        allCards.add(new DeslusireaRunelor(player));
-        allCards.add(new FluxulStrabun(player));
-        allCards.add(new FulgerDeSange(player));
-        allCards.add(new GeamatulEcoului());
-        allCards.add(new ManiorulIernii());
-        allCards.add(new ParjolulSferic(player));
-        allCards.add(new PavazaAmurgului(player));
-        allCards.add(new PavazaGlaciara(player));
-        allCards.add(new PovaraAnilor());
-        allCards.add(new SuflulVietii());
-        allCards.add(new UraganDeAzur(player));
-        // Adaugă aici oricâte cărți noi creezi
+    private CardDatabase() {
+        cardRegistry = new ArrayList<>(Arrays.asList(
+                "CadereaStelelor", "DeslusireaRunelor", "FluxulStrabun",
+                "FulgerDeSange", "GeamatulEcoului", "ManiorulIernii",
+                "ParjolulSferic", "PavazaAmurgului", "PavazaGlaciara",
+                "PovaraAnilor", "SuflulVietii", "UraganDeAzur"
+        ));
     }
 
-    public static ArrayList<Card> getRandomRewards(int count) {
-        ArrayList<Card> rewards = new ArrayList<>();
-        Random rand = new Random();
+    public static CardDatabase getInstance() {
+        if (instance == null) instance = new CardDatabase();
+        return instance;
+    }
 
-        for (int i = 0; i < count; i++) {
-            // Luăm o carte la întâmplare din baza de date
-            Card randomCard = allCards.get(rand.nextInt(allCards.size()));
-            rewards.add(randomCard);
+    // --- METODA NOUĂ PENTRU RECOMPENSE ---
+    public List<Card> getRandomRewards(int count, Player player) {
+        List<Card> rewards = new ArrayList<>();
+        Set<String> pickedNames = new HashSet<>();
+
+        // Ne asigurăm că nu alegem aceeași carte de mai multe ori în același pool
+        while (pickedNames.size() < count && pickedNames.size() < cardRegistry.size()) {
+            pickedNames.add(cardRegistry.get(rand.nextInt(cardRegistry.size())));
+        }
+
+        for (String name : pickedNames) {
+            rewards.add(CardFactory.createCard(name, player));
         }
         return rewards;
+    }
+
+    public String getRandomCardName() {
+        return cardRegistry.get(rand.nextInt(cardRegistry.size()));
     }
 }

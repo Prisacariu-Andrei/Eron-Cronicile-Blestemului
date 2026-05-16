@@ -12,13 +12,13 @@ public class Enemy_Glaciara extends Enemy {
 
     public Enemy_Glaciara(GamePanel gp, int x, int y) {
         super(gp, x, y);
-        this.name = "Glaciara";
+        this.name = "Glaciara, Stăpânul Inelului de Gheață";
         this.maxLife = 400;
         this.life = maxLife;
         this.attackDamage = 25; // Damage de bază ridicat
-        this.visualSize = 6;
+        this.mapSize = 3;
 
-        hitBox = new Rectangle(0, 0, gp.tileSize * visualSize, gp.tileSize * visualSize);
+        hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
         this.isStatic = true;

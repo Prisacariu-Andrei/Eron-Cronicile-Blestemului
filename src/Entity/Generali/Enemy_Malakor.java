@@ -20,9 +20,9 @@ public class Enemy_Malakor extends Enemy {
         this.maxLife = 250; // Viață faza 1
         this.life = maxLife;
         this.attackDamage = 20;
-        this.visualSize = 3;
+        this.mapSize = 1.4;
 
-        hitBox = new Rectangle(0, 0, gp.tileSize * visualSize, gp.tileSize * visualSize);
+        hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
         this.isStatic = true;
@@ -134,6 +134,7 @@ public class Enemy_Malakor extends Enemy {
         name = "Malakor, Cavalerul Morții (Faza 2)";
         maxLife = 300;
         life = maxLife;
+        this.mapSize=1.5;
         getImage();
 
         // Tranziție vizuală
@@ -161,6 +162,7 @@ public class Enemy_Malakor extends Enemy {
         maxLife = 400;
         life = maxLife;
         phase3TurnsLeft = 10;
+        this.mapSize = 2;
         getImage();
 
         // Tranziție vizuală
@@ -201,6 +203,7 @@ public class Enemy_Malakor extends Enemy {
             }
             else {
                 // De abia în Faza 3 moare de tot
+                this.name = "Malakor";
                 life = 0;
                 alive = false;
             }

@@ -1,7 +1,7 @@
 package Entity;
 
 public class StatusEffect {
-    public enum Type { BURN, POISON, WEAK, SHIELD }
+    public enum Type { BURN, POISON, WEAK, SHIELD, STUN, VULNERABLE }
 
     public Type type;
     public int duration; // Câte turnuri mai durează

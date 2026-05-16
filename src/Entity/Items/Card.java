@@ -2,6 +2,7 @@ package Entity.Items;
 
 import Entity.Player.Player;
 import Entity.Inamici.Enemy;
+import Entity.StatusEffect;
 import java.awt.image.BufferedImage;
 
 public abstract class Card {
@@ -10,7 +11,7 @@ public abstract class Card {
     public String description;
     public BufferedImage image;
 
-    // Tipuri pentru sinergii (ex: pentru Uragan de Azur)
+    // Tipuri pentru sinergii
     public enum CardType { ELECTRIC, FOC, UMBRA, NEUTRU, INGHET }
     public CardType type;
 
@@ -24,12 +25,59 @@ public abstract class Card {
     // Metoda pe care o apelează Player.java
     public abstract void play(Player player, Enemy enemy);
 
-    // Metode helper pentru a nu repeta codul în fiecare carte
-    protected void applyWeakness(Enemy e) {
-        e.weaknessTurns += 3;
+    // --- METODE HELPER ACTUALIZATE PENTRU SISTEMUL DE STATUSURI ---
+
+    /**
+     * Reduce damage-ul inamicului la jumătate.
+     */
+    protected void applyWeakness(Enemy e, int turns) {
+        if (e != null) {
+            e.applyStatus(StatusEffect.Type.WEAK, turns, 0);
+            e.weaknessTurns += turns;
+        }
     }
 
-    protected void applyStun(Enemy e) {
-        e.stunTurns += 1;
+    /**
+     * Inamicul sare peste tura următoare.
+     */
+    protected void applyStun(Enemy e, int turns) {
+        if (e != null) {
+            // Folosim variabila stunTurns din Entity sau noul sistem StatusEffect
+            e.stunTurns += turns;
+            e.applyStatus(StatusEffect.Type.STUN, turns, 0);
+        }
+    }
+
+    protected void applyVulnerability(Enemy e, int turns) {
+        if (e != null) {
+            // Aplicăm statusul. Valoarea poate fi folosită pentru procentaj (ex: 50 pentru 50% mai mult)
+            e.applyStatus(StatusEffect.Type.VULNERABLE, turns, 50);
+        }
+    }
+
+    /**
+     * Aplică daune periodice de foc.
+     */
+    protected void applyBurn(Enemy e, int turns, int damagePerTurn) {
+        if (e != null) {
+            e.burnTurns += turns;
+            e.applyStatus(StatusEffect.Type.BURN, turns, damagePerTurn);
+        }
+    }
+
+    /**
+     * Aplică daune periodice de otravă.
+     */
+    protected void applyPoison(Enemy e, int turns, int damagePerTurn) {
+        if (e != null) {
+            e.applyStatus(StatusEffect.Type.POISON, turns, damagePerTurn);
+        }
+    }
+
+    // --- DESCRIERE DINAMICĂ ---
+
+    public String getDynamicDescription(Player player) {
+        // Implicit returnează descrierea statică definită în constructor
+        return this.description;
     }
 }

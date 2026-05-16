@@ -6,7 +6,7 @@ import Entity.Player.Player;
 
 public class GeamatulEcoului extends Card {
     public GeamatulEcoului() {
-        super("Geamătul Ecoului", 0, CardType.NEUTRU, "Puterea de adineauri răsună \niarăși.");
+        super("Geamătul Ecoului", 0, CardType.NEUTRU, "Puterea de adineauri \nrăsună iarăși.");
     }
     @Override
     public void play(Player player, Enemy enemy) {

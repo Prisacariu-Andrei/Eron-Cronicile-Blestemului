@@ -1,61 +1,58 @@
 package Entity.Player;
 
+import Entity.Cards.CardFactory;
 import Entity.Items.Card;
-import Entity.Items.Rune; // Importăm noua clasă
+import Entity.Items.Rune;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Inventory {
-    // Pachetul de cărți (Deck)
-    public ArrayList<Card> cards = new ArrayList<>();
+    // Liste principale - Am păstrat ArrayList pentru acces rapid
+    public final ArrayList<Card> cards = new ArrayList<>();
+    public final ArrayList<Rune> runes = new ArrayList<>();
+    public final ArrayList<Card> hand = new ArrayList<>();
+    public final ArrayList<Card> discardPile = new ArrayList<>();
 
-    // Pachetul de rune (Pasive)
-    public ArrayList<Rune> runes = new ArrayList<>();
-
-    // Mâna curentă (Max 8)
-    public ArrayList<Card> hand = new ArrayList<>();
-    // Cărțile folosite (Discard)
-    public ArrayList<Card> discardPile = new ArrayList<>();
-
+    // Constante neschimbate
     public final int MAX_RUNES = 5;
+    public final int MAX_HAND_SIZE = 8;
 
     public void addItem(Card card) {
-        cards.add(card);
-        System.out.println("Carte adăugată în pachet: " + card.name);
+        if (card != null) {
+            cards.add(card);
+            // System.out.println("Carte adăugată în pachet: " + card.name);
+        }
     }
 
-    // Metodă separată pentru adăugarea unei rune în inventar
     public void addRune(Rune rune) {
-        if (runes.size() < MAX_RUNES) {
+        if (rune != null && runes.size() < MAX_RUNES) {
             runes.add(rune);
             rune.isEquipped = true;
-            System.out.println("Runa echipată: " + rune.name);
         } else {
             System.out.println("Inventarul de rune este plin!");
         }
     }
 
-    public void addCardToDeck(String cardName,Player player) {
-        Card newCard = CardManager.createCard(cardName, player);
-        if (newCard != null) {
-            cards.add(newCard);
-        }
+    public void addCardToDeck(String cardName, Player player) {
+        // Folosim direct Factory-ul dacă ai făcut refactorizarea anterioară
+        Card newCard = CardFactory.createCard(cardName, player);
+        cards.add(newCard);
     }
 
     public void drawCard() {
-        if (hand.size() < 8) {
-            if (cards.isEmpty()) {
+        if (hand.size() < MAX_HAND_SIZE) {
+            if (cards.isEmpty() && !discardPile.isEmpty()) {
                 refreshDeckFromDiscard();
             }
 
             if (!cards.isEmpty()) {
+                // Folosim remove(0) pentru compatibilitate sau removeFirst() dacă ești pe Java 21+
                 hand.add(cards.removeFirst());
             }
         }
     }
 
     private void refreshDeckFromDiscard() {
-        System.out.println("Deck gol! Reciclăm discard pile...");
         cards.addAll(discardPile);
         discardPile.clear();
         Collections.shuffle(cards);
@@ -68,6 +65,7 @@ public class Inventory {
     }
 
     public void prepareForBattle() {
+        // Curățăm totul în Deck înainte de luptă
         cards.addAll(hand);
         hand.clear();
         cards.addAll(discardPile);
@@ -75,7 +73,8 @@ public class Inventory {
 
         Collections.shuffle(cards);
 
-        for(int i = 0; i < 5; i++) {
+        // Tragem mâna inițială (8 cărți conform logicii tale)
+        for (int i = 0; i < MAX_HAND_SIZE; i++) {
             drawCard();
         }
     }
@@ -86,7 +85,5 @@ public class Inventory {
 
         hand.clear();
         discardPile.clear();
-
-        System.out.println("Pachetul a fost reîntregit: " + cards.size() + " cărți.");
     }
 }

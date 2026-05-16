@@ -1,12 +1,16 @@
 package Observer;
 
 import Main.GamePanel;
+import GameState.*; // Importă toate stările din pachetul nou
 import java.awt.*;
 
 public class UI {
     GamePanel gp;
     Graphics2D g2;
     public Font arial_40, arial_80B;
+
+    // Proprietate folosită de KeyHandler pentru selecția opțiunilor din meniuri (Start, Death, etc.)
+    public int commandNum = 0;
 
     // Mesaje temporare (ex: "Ai primit o carte!")
     public String message = "";
@@ -21,16 +25,23 @@ public class UI {
 
     public void draw(Graphics2D g2) {
         this.g2 = g2;
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+        g2.setColor(Color.WHITE);
+        g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
+
         g2.setFont(arial_40);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // --- LAYER-URI UI ÎN FUNCȚIE DE STATE ---
+        // Preluăm starea curentă prin interfață
+        GameState state = gp.getCurrentState();
 
-        if (gp.gameState == GamePanel.GameState.MENU) {
+        // --- LAYER-URI UI ÎN FUNCȚIE DE CLASA STĂRII CURENTE ---
+
+        if (state instanceof MenuState) {
             drawMenuScreen();
         }
 
-        if (gp.gameState == GamePanel.GameState.PLAY) {
+        if (state instanceof PlayState) {
             // HUD-ul de bază (Viața)
             gp.healthUI.draw(g2);
             drawManaText(g2);      // Textul pentru Mana de dash
@@ -38,37 +49,40 @@ public class UI {
             drawMessage();
         }
 
-        if (gp.gameState == GamePanel.GameState.PAUSE) {
+        if (state instanceof PauseState) {
             gp.pauseUI.draw(g2);
         }
 
-        if (gp.gameState == GamePanel.GameState.DIALOGUE) {
+        if (state instanceof DialogueState) {
             gp.dialogueUI.draw(g2);
         }
 
-        if (gp.gameState == GamePanel.GameState.INVENTORY) {
+        if (state instanceof InventoryState) {
             gp.inventoryUI.draw(g2);
         }
 
-        if (gp.gameState == GamePanel.GameState.BATTLE) {
+        if (state instanceof BattleState) {
             gp.battleUI.draw(g2);
         }
 
-        if (gp.gameState == GamePanel.GameState.DEATH) {
+        if (state instanceof DeathState) {
             gp.deathUI.draw(g2);
         }
 
-        if (gp.gameState == GamePanel.GameState.REWARD) {
+        if (state instanceof RewardState) {
             gp.rewardUI.draw(g2);
         }
 
-        if (gp.gameState == GamePanel.GameState.QUEST){
+        if (state instanceof QuestGameState) {
             gp.questBookUI.draw(g2);
+        }
+
+        if (state instanceof LeaderboardState) {
+            gp.leaderboardUI.draw(g2);
         }
     }
 
     private void drawInteractionPrompt() {
-        // Logica de "Senzor" 64x64 pentru tasta E
         int oldX = gp.player.hitBox.x;
         int oldY = gp.player.hitBox.y;
         int oldW = gp.player.hitBox.width;
@@ -97,15 +111,15 @@ public class UI {
 
             // Umbră
             g2.setColor(Color.BLACK);
-            g2.drawString(text, x+ 2, y/4+2);
+            g2.drawString(text, x + 2, y / 4 + 2);
             // Text principal
             g2.setColor(Color.YELLOW);
-            g2.drawString(text, x, y/4);
+            g2.drawString(text, x, y / 4);
         }
     }
 
     private void drawMenuScreen() {
-        // 1. FUNDAL (Asigură-te că asta e prima!)
+        // 1. FUNDAL
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
@@ -113,7 +127,7 @@ public class UI {
         g2.setFont(arial_80B.deriveFont(Font.BOLD, 90f));
         String titleMain = "ERON";
         int x1 = getXforCenteredText(titleMain);
-        int y1 = gp.tileSize * 3; // Folosim tileSize pentru a fi siguri de poziție (aprox 192px)
+        int y1 = gp.tileSize * 3;
 
         // Umbră pentru contrast
         g2.setColor(Color.GRAY);
@@ -124,29 +138,29 @@ public class UI {
         g2.drawString(titleMain, x1, y1);
 
         // 3. TITLU SECUNDAR: Cronicile Blestemului
-        // Verifică dacă arial_40 este încărcat corect în constructor!
         g2.setFont(arial_40.deriveFont(Font.PLAIN, 48f));
         String titleSub = "Cronicile Blestemului";
         int x2 = getXforCenteredText(titleSub);
-        int y2 = y1 + 50; // Îl punem la fix 50 pixeli sub primul rând
+        int y2 = y1 + 50;
 
         g2.setColor(Color.WHITE);
         g2.drawString(titleSub, x2, y2);
 
-        // 4. LINIE DECORATIVĂ (Opțional, ajută la vizualizarea spațiului)
-        g2.setColor(new Color(255, 215, 0, 100)); // Auriu transparent
-        g2.fillRect(x1-30, y2+20, 320, 2);
+        // 4. LINIE DECORATIVĂ
+        g2.setColor(new Color(255, 215, 0, 100));
+        g2.fillRect(x1 - 30, y2 + 20, 320, 2);
 
         // 5. OPȚIUNI MENIU
         g2.setFont(arial_40.deriveFont(Font.BOLD, 26F));
-        String[] menuOptions = {"ÎNCEPE AVENTURA", "CONTINUĂ CĂLĂTORIA", "OPȚIUNI ȘI SECRETE", "PĂRĂSEȘTE TĂRÂMUL"};
+        String[] menuOptions = {"ÎNCEPE AVENTURA", "CONTINUĂ CĂLĂTORIA", "TOP SCORURI", "OPȚIUNI ȘI SECRETE", "PĂRĂSEȘTE TĂRÂMUL"};
 
         for (int i = 0; i < menuOptions.length; i++) {
             String text = menuOptions[i];
-            int y = (gp.tileSize * 6) + (i * 55); // Mutăm meniul mai jos
+            int y = (gp.tileSize * 5) + (i * 55);
             int textX = getXforCenteredText(text);
 
-            if (i == gp.currentMenuOption) {
+            // Sincronizat cu variabila centrală `commandNum` din UI (folosită de KeyHandler-ul reparat) ★★★
+            if (i == this.commandNum) {
                 g2.setColor(Color.YELLOW);
                 g2.drawString("> " + text + " <", getXforCenteredText("> " + text + " <"), y);
             } else {
@@ -174,33 +188,37 @@ public class UI {
     }
 
     public void drawManaText(Graphics2D g2) {
-        // Setăm fontul și culoarea
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 18F));
 
-        // Verificăm dacă jucătorul are destulă mană pentru dash (30) pentru a schimba culoarea
-        // Acesta este un feedback vizual excelent pentru jucător
         if (gp.player.exploreMana < 30) {
-            g2.setColor(new Color(200, 200, 200, 150)); // Gri dacă nu poate da dash
+            g2.setColor(new Color(200, 200, 200, 150));
         } else {
-            g2.setColor(new Color(0, 204, 255)); // Albastru deschis (Cyan) dacă poate
+            g2.setColor(new Color(0, 204, 255));
         }
 
-        // Convertim float-ul în int pentru a nu afișa zecimale plictisitoare (ex: 75.23 -> 75)
         String manaText = "DASH: " + (int)gp.player.exploreMana + "%";
 
-        // Poziționăm textul. Dacă vrei să fie lângă viață:
-        // Presupunând că bara de viață e la x=32, y=32
         int x = gp.tileSize / 2;
-        int y = (gp.tileSize / 2) + 45; // Poziționat sub bara de viață
+        int y = (gp.tileSize / 2) + 45;
 
-        // Desenăm un mic "glow" sau umbră pentru lizibilitate
         g2.setColor(Color.BLACK);
-        g2.drawString(manaText, x + 2, y + 2); // Umbra
+        g2.drawString(manaText, x + 2, y + 2);
 
-        // Desenăm textul principal (revenim la culoarea setată anterior)
         if (gp.player.exploreMana < 30) g2.setColor(Color.GRAY);
         else g2.setColor(new Color(0, 204, 255));
 
         g2.drawString(manaText, x, y);
+    }
+
+    /**
+     * Metodă reparată integral. Extrage secundele brute acumulate de cronometrul jocului tau. ★★★
+     */
+    public long getPlayTime() {
+        if (gp.gameTimer != null) {
+            // Presupunând că obiectul tău gameTimer deține secundele totale (sau o metodă similară de getSeconds)
+            // Dacă clasa ta are altă metodă, înlocuiește `.getSeconds()` cu denumirea ei curentă.
+            return gp.gameTimer.getElapsedSeconds();
+        }
+        return 0;
     }
 }

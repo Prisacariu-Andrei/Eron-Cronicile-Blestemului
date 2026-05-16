@@ -2,11 +2,12 @@ package Main;
 
 import Entity.Inamici.Enemy;
 import Entity.NPC.NPC;
-import Entity.Player.CardDatabase;
 import Entity.Player.Player;
 import Observer.*;
 import Tiles.TileManager;
 import ProgressManagement.QuestManager;
+import GameState.GameState; // Importă interfața nouă
+import GameState.MenuState; // Importă starea inițială de meniu
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,18 +19,15 @@ public class GamePanel extends JPanel implements Runnable {
     final int originalTileSize = 32;
     final int scale = 2;
     public final int tileSize = originalTileSize * scale;
-    public final int maxScreenCol = 20;
-    public final int maxScreenRow = 14;
-    public final int screenWidth = maxScreenCol * tileSize;
-    public final int screenHeight = maxScreenRow * tileSize;
+    public final int screenWidth = 1600;
+    public final int screenHeight = 900;
 
     // SETĂRI WORLD
     public final int maxWorldCol = 200;
     public final int maxWorldRow = 200;
 
-    // STATE-UL JOCULUI
-    public enum GameState { MENU, PLAY, PAUSE, INVENTORY, BATTLE, DEATH, REWARD, DIALOGUE,QUEST }
-    public GameState gameState = GameState.MENU;
+    // STATE-UL JOCULUI (Acum controlat prin Interfață)
+    private GameState currentState;
 
     // SISTEM
     int FPS = 60;
@@ -40,6 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecher = new CollisionChecker(this);
     public EventHandler eHandler = new EventHandler(this);
     public AssetSetter aSetter = new AssetSetter(this);
+    public GameTimer gameTimer = new GameTimer();
 
     // ENTITĂȚI
     public Player player = new Player(this, keyH);
@@ -56,11 +55,12 @@ public class GamePanel extends JPanel implements Runnable {
     public DeathUI deathUI = new DeathUI(this);
     public DialogueUI dialogueUI = new DialogueUI(this);
     public QuestBookUI questBookUI = new QuestBookUI(this);
+    public LeaderboardUI leaderboardUI = new LeaderboardUI(this);
+    public CreditsUI creditsUI = new CreditsUI(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();
 
     // OPȚIUNI MENIU (Păstrate aici pentru simplitate)
     public int currentMenuOption = 0;
-    private final String[] menuOptions = {"ÎNCEPE AVENTURA", "CONTINUĂ CĂLĂTORIA", "OPȚIUNI", "PĂRĂSEȘTE TĂRÂMUL"};
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -68,18 +68,45 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
-        CardDatabase.init(player);
+
         player.addObserver(healthUI);
     }
 
     public void setupGame() {
+        try {
+            Database.DatabaseManager.getInstance();
+        } catch (Exception e) {
+            System.out.println("⚠️ Eroare la inițializarea bazei de date: " + e.getMessage());
+        }
+
         // Setăm inamicii pentru harta Eldoria
         aSetter.setEnemyForMap("/Maps/Eldoria");
 
         // APELUL CRUCIAL PENTRU NPC-URI:
         aSetter.setNPC(tileM.currentZone);
 
-        gameState = GameState.MENU;
+        // Pornim jocul direct în starea de Meniu
+        changeState(new MenuState(this));
+    }
+
+    /**
+     * Schimbă starea curentă a jocului asigurând rularea metodelor de exit și enter.
+     */
+    public void changeState(GameState newState) {
+        if (currentState != null) {
+            currentState.exit();
+        }
+        currentState = newState;
+        if (currentState != null) {
+            currentState.enter();
+        }
+    }
+
+    /**
+     * Permite altor clase (ex: UI sau KeyHandler) să verifice starea activă.
+     */
+    public GameState getCurrentState() {
+        return currentState;
     }
 
     public void startGameThread() {
@@ -106,113 +133,21 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // UPDATE delegat complet către starea curentă
     public void update() {
-        if (gameState == GameState.MENU) {
-            updateMenu();
-        } else if (gameState == GameState.PLAY) {
-            player.update();
-            eHandler.checkEvent();
-            for (int i = 0; i < enemy.length; i++) {
-                if (enemy[i] != null) {
-                    if (enemy[i].alive) {
-                        enemy[i].update();
-                    } else {
-                        // Opțional: scoate inamicul din listă dacă e mort definitiv
-                         enemy[i] = null;
-                    }
-                }
-            }
-            if (keyH.escPressed) {
-                gameState = GameState.PAUSE;
-                keyH.escPressed = false;
-            }
-
-        } else if (gameState == GameState.PAUSE) {
-            updatePause();
-
-        } else if (gameState == GameState.BATTLE || gameState == GameState.REWARD) {
-            player.update();
-            for (int i = 0; i < popups.size(); i++) {
-                popups.get(i).update();
-                if (popups.get(i).lifeSpan <= 0) popups.remove(i--);
-            }
-
-            // Asigură-te că verificăm dacă inamicul a murit pentru a termina bătălia corect
-            if (gameState == GameState.BATTLE && player.currentEnemy != null && !player.currentEnemy.alive) {
-                player.winBattle();
-            }
+        if (currentState != null) {
+            currentState.update();
         }
     }
 
-    private void updateMenu() {
-        if (keyH.upPressed) {
-            currentMenuOption = (currentMenuOption <= 0) ? menuOptions.length - 1 : currentMenuOption - 1;
-            keyH.upPressed = false;
-        }
-        if (keyH.downPressed) {
-            currentMenuOption = (currentMenuOption >= menuOptions.length - 1) ? 0 : currentMenuOption + 1;
-            keyH.downPressed = false;
-        }
-        if (keyH.enterPressed) {
-            if (currentMenuOption == 0) gameState = GameState.PLAY;
-            if (currentMenuOption == 3) System.exit(0);
-            keyH.enterPressed = false;
-        }
-    }
-
-    private void updatePause() {
-        if (keyH.escPressed) {
-            gameState = GameState.PLAY;
-            keyH.escPressed = false;
-        }
-        // Folosim direct selectorul din PauseUI dacă ai implementat acolo comanda
-        if (keyH.upPressed) {
-            pauseUI.commandNum = (pauseUI.commandNum <= 0) ? 3 : pauseUI.commandNum - 1;
-            keyH.upPressed = false;
-        }
-        if (keyH.downPressed) {
-            pauseUI.commandNum = (pauseUI.commandNum >= 3) ? 0 : pauseUI.commandNum + 1;
-            keyH.downPressed = false;
-        }
-        if (keyH.enterPressed) {
-            if (pauseUI.commandNum == 0) {
-                gameState = GameState.PLAY;
-                aSetter.setEnemyForMap("/Maps/Eldoria.txt"); // Încarcă inamicii de start
-                aSetter.setNPC(this.tileM.currentZone); // incarca NPC-urile
-            }
-            if (pauseUI.commandNum == 3) gameState = GameState.MENU;
-            keyH.enterPressed = false;
-        }
-    }
-
+    // DRAW delegat complet către starea curentă
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // 1. DESENEAZĂ MENIUL PRINCIPAL
-        if (gameState == GameState.MENU) {
-            ui.draw(g2);
-        }
-
-        // 2. DESENEAZĂ LUMEA + UI-UL DE BAZĂ + PAUZA
-        else if (gameState == GameState.PLAY ||
-                gameState == GameState.PAUSE ||
-                gameState == GameState.DIALOGUE ||
-                gameState == GameState.QUEST) { // Adăugat QUEST aici
-
-            tileM.draw(g2);
-            for (NPC n : npc) if (n != null) n.draw(g2);
-            for (Enemy e : enemy) if (e != null) e.draw(g2);
-            player.draw(g2);
-
-            // Desenăm HUD-ul și meniurile suprapuse (cum ar fi Jurnalul de quest-uri)
-            ui.draw(g2);
-        }
-
-        // 3. DESENEAZĂ ALTE STATE-URI (Luptă etc)
-        else {
-            ui.draw(g2);
+        if (currentState != null) {
+            currentState.draw(g2);
         }
 
         g2.dispose();

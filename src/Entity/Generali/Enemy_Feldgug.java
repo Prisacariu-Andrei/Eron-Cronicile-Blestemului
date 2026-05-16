@@ -19,9 +19,9 @@ public class Enemy_Feldgug extends Enemy {
         this.maxLife = 220;
         this.life = maxLife;
         this.attackDamage = 15;
-        this.visualSize = 3;
+        this.mapSize = 1.5;
 
-        hitBox = new Rectangle(0, 0, gp.tileSize * visualSize, gp.tileSize * visualSize);
+        hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
         this.isStatic = true;

@@ -5,6 +5,7 @@ import Entity.Player.CardDatabase;
 import Main.GamePanel;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RewardUI {
     GamePanel gp;
@@ -31,7 +32,7 @@ public class RewardUI {
         for (int i = 0; i < rewardCards.size(); i++) {
             Card currentCard = rewardCards.get(i); // Luăm obiectul Card curent
 
-            int cardX = gp.tileSize * 2 + (i * gp.tileSize * 6); // Spațiere mai generoasă
+            int cardX = gp.tileSize * 2-5 + (i * gp.tileSize * 6); // Spațiere mai generoasă
             int cardY = gp.screenHeight / 2 - gp.tileSize * 2;
             int cardWidth = gp.tileSize * 4;
             int cardHeight = gp.tileSize * 6;
@@ -84,7 +85,7 @@ public class RewardUI {
             // --- TIP CARTE (Dacă ai variabila 'type') ---
             g2.setFont(g2.getFont().deriveFont(Font.ITALIC, 14F));
             g2.setColor(Color.CYAN);
-            g2.drawString("[" + currentCard.getClass().getSimpleName() + "]", cardX + 20, cardY + cardHeight - 20);
+            g2.drawString("[" + currentCard.type + "]", cardX + 20, cardY + cardHeight - 20);
         }
 
         // --- INSTRUCȚIUNI JOS ---
@@ -103,15 +104,14 @@ public class RewardUI {
         return null;
     }
 
+    // În interiorul clasei RewardUI, modifică doar metoda generateRewards:
     public void generateRewards() {
-        // Ștergem ce era înainte
         rewardCards.clear();
 
-        // Cerem bazei de date 3 cărți aleatorii (instanțe noi)
-        // CardDatabase se va ocupa intern de alegere și de CardManager
-        rewardCards = CardDatabase.getRandomRewards(3);
+        // Apelăm Singleton-ul și pasăm jucătorul pentru că Factory are nevoie de el
+        List<Card> newRewards = CardDatabase.getInstance().getRandomRewards(3, gp.player);
+        rewardCards.addAll(newRewards);
 
-        // Resetăm selecția vizuală la prima carte
         commandNum = 0;
     }
 }

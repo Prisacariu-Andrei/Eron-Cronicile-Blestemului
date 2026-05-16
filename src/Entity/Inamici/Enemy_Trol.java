@@ -11,7 +11,7 @@ public class Enemy_Trol extends Enemy {
         this.maxLife = 120;
         this.life = maxLife;
         this.attackDamage = 15;
-        this.visualSize = 2;
+        this.mapSize = 2;
         getImage();
         setNextIntent();
     }

@@ -10,6 +10,6 @@ public class ManiorulIernii extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        if (enemy != null) applyStun(enemy);
+        if (enemy != null) applyStun(enemy, 1);
     }
 }
