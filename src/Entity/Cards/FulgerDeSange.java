@@ -16,7 +16,7 @@ public class FulgerDeSange extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        if (enemy != null) enemy.takeDamage(baseDamage+player.damage);
+        if (enemy != null) enemy.takeDamage(player,baseDamage+player.damage);
         ++player.voltCount;
     }
 }

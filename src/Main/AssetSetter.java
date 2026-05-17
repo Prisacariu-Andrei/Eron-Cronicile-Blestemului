@@ -2,6 +2,8 @@ package Main;
 
 import Entity.Inamici.*;
 import Entity.NPC.NPC_BatranulCronicar;
+import Entity.NPC.NPC_Gardian;
+
 import java.util.Arrays;
 
 public class AssetSetter {
@@ -64,8 +66,22 @@ public class AssetSetter {
         Arrays.fill(gp.npc, null);
         String zone = currentZone != null ? currentZone.toLowerCase() : "";
 
-        if (zone.contains("eldoria")) {
+        if (currentZone.equals("Eldoria")) {
+
+            // Bătrânul Cronicar stă la locul lui
             gp.npc[0] = new NPC_BatranulCronicar(gp, gp.tileSize * 15, gp.tileSize * 10);
+
+            // GARDIANUL ABISULUI (Verifică Quest 4: "Deblochează Abisul")
+            // Îl pui la coordonatele exacte din fața tile-ului de teleportare spre Abis (ID 43)
+            gp.npc[1] = new NPC_Gardian(gp, gp.tileSize * 31, gp.tileSize * 37, 4,
+                    "STAI PE LOC! Porțile Abisului de Piatră sunt închise din ordinul Consiliului.\nNu ai ce căuta aici, pleacă!",
+                    "Ah, Eron! Bătrânul Înțelept ne-a trimis cuvânt despre faptele tale.\nPoarta este deschisă. Coboară cu prudență în Abis!");
+
+            // GARDIANUL TUNDREI (Verifică Quest 11: "Stăpânul Gheții")
+            // Îl pui în fața tile-ului de teleportare spre Tundra (ID 45)
+            gp.npc[2] = new NPC_Gardian(gp, gp.tileSize * 33, gp.tileSize * 37, 11,
+                    "Viscolul din Nord aduce doar moarte. Nu pot lăsa un nepregătit să treacă.\nÎntoarce-te când ești cu adevărat gata.",
+                    "Runa lui Jean... Înțeleg. Ai dovedit că poți înfrunta urgia.\nTrecerea spre Tundra îți este permisă. Înarmează-te cu răbdare!");
         }
     }
 }

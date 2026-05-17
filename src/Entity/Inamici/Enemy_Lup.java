@@ -11,12 +11,14 @@ public class Enemy_Lup extends Enemy {
         this.maxLife = 80;
         this.life = maxLife;
         this.attackDamage = 12;
-        this.speed = 1; // <--- ASIGURĂ-TE CĂ ARE VITEZĂ
+        this.speed = 2;
         getImage();
         setNextIntent();
-        hitBox = new Rectangle(8, 16, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize)); // Hitbox mai mic decât tile-ul (recomandat)
+        hitBox = new Rectangle(8, 16, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
+        this.battleMusicKey = "InamiciBarlog";
+
     }
 
     @Override

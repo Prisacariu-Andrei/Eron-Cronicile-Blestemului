@@ -24,7 +24,7 @@ public class UraganDeAzur extends Card {
     public void play(Player player, Enemy enemy) {
         int totalDamage = baseDamage + player.damage + (player.voltCount * scalePerVolt);
         if (enemy != null) {
-            enemy.takeDamage(totalDamage);
+            enemy.takeDamage(player,totalDamage);
             // Incrementăm contorul global al jucătorului
             player.voltCount++;
         }

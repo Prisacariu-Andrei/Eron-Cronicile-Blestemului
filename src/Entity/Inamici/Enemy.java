@@ -13,6 +13,7 @@ public abstract class Enemy extends Entity {
     public String name;
     public boolean alive = true;
     public BufferedImage battleBackground;
+    public String battleMusicKey;
     public double battleSize = 1;
     public double mapSize = 1;
 
@@ -177,17 +178,30 @@ public abstract class Enemy extends Entity {
 
     // În Entity.Inamici.Enemy.java
 
-    public void takeDamage(int amount) {
+    public void takeDamage(Player player, int amount) {
         int finalDamage = amount;
 
+        if(player.areDinteChilimbar){
+            finalDamage += 3;
+        }
         // VERIFICARE VULNERABILITATE
         for (StatusEffect s : activeStatuses) {
             if (s.type == StatusEffect.Type.VULNERABLE) {
-                // Exemplu: +50% damage (finalDamage * 1.5)
-                finalDamage = amount + (amount * s.value / 100);
 
-                // Debug opțional să vezi în consolă
-                System.out.println("VULNERABIL! Damage crescut de la " + amount + " la " + finalDamage);
+                // Luăm valoarea de bază a efectului (ex: 50 pentru +50%)
+                int procentVulnerabilitate = s.value;
+
+                // Dacă jucătorul a învins-o pe Jean și are Paloșul Legendar, mărim procentul la 75% (adică x1.75 damage)
+                if (gp.player.arePalosLegendar && procentVulnerabilitate == 50) {
+                    procentVulnerabilitate = 75;
+                }
+
+                // Aplicăm noua formulă cu procentul actualizat
+                finalDamage = amount + (amount * procentVulnerabilitate / 100);
+
+                // Debug în consolă ca să vezi clar dacă s-a aplicat runa
+                System.out.println("VULNERABIL! Damage crescut de la " + amount + " la " + finalDamage +
+                        (gp.player.arePalosLegendar ? " (Efect Paloș Legendar Activ!)" : ""));
                 break;
             }
         }

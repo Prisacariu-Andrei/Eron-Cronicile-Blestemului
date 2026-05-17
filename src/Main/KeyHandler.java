@@ -9,7 +9,7 @@ public class KeyHandler implements KeyListener {
     public boolean upPressed, downPressed, rightPressed, leftPressed,
             dashPressed, interactPressed,
             enterPressed, escPressed,
-            tPressed;
+            tPressed, iPressed;
     GamePanel gp;
 
     @Override
@@ -28,11 +28,13 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_ESCAPE) {
             if (state instanceof PlayState) {
                 System.out.println("DEBUG: Jocul a trecut în PAUZĂ.");
-                gp.changeState(new PauseState(gp)); // Trecem în pauză
-                return; // Oprim execuția aici ca să nu se trimită ESC și la alte meniuri
+                SoundManager.getInstance().playSE("click"); // <--- ADĂUGAT: Pune efect de click!
+                gp.changeState(new PauseState(gp));
+                return;
             } else if (state instanceof PauseState) {
                 System.out.println("DEBUG: Jocul a revenit din PAUZĂ.");
-                gp.changeState(new PlayState(gp)); // Revenim la joc
+                SoundManager.getInstance().playSE("click"); // <--- ADĂUGAT: Pune efect de click!
+                gp.changeState(new PlayState(gp));
                 return;
             }
         }
@@ -168,21 +170,22 @@ public class KeyHandler implements KeyListener {
         // 6. INTERACȚIUNE ȘI GESTIUNE DIALOG
         if (code == KeyEvent.VK_E) {
             if (state instanceof PlayState) {
+                // Jucătorul încearcă să pornească o discuție (detectează distanța/coliziunea în metodă)
                 gp.player.interactNPC();
             } else if (state instanceof DialogueState) {
 
                 if (gp.dialogueUI.isWriting()) {
                     gp.dialogueUI.skipTypewriter();
                 } else {
-                    for (int i = 0; i < gp.npc.length; i++) {
-                        if (gp.npc[i] != null) {
-                            gp.npc[i].speak();
+                    // Verificăm ce NPC este cel cu care vorbim în loc să apelăm speak() pe toți simultan
+                    // Presupunând că în gp.player salvezi indexul NPC-ului curent interacționat (ex: gp.player.npcIndex)
+                    int npcIndex = gp.cChecher.checkEntity(gp.player, gp.npc);
 
-                            if (gp.npc[i].dialogueIndex == 0) {
-                                gp.changeState(new PlayState(gp));
-                                return;
-                            }
-                        }
+                    if (npcIndex != -1 && gp.npc[npcIndex] != null) {
+                        gp.npc[npcIndex].speak();
+                    } else {
+                        // Fallback de siguranță: dacă nu știi exact indexul, închide dialogul
+                        gp.changeState(new PlayState(gp));
                     }
                 }
             }
@@ -214,10 +217,13 @@ public class KeyHandler implements KeyListener {
 
         // Deschidere inventar
         if (code == KeyEvent.VK_I) {
+            iPressed = true;
             if (state instanceof PlayState) {
+                System.out.println("DEBUG: Deschidem Inventarul.");
                 gp.changeState(new InventoryState(gp));
                 gp.inventoryUI.slotRow = 0;
             } else if (state instanceof InventoryState) {
+                System.out.println("DEBUG: Închidem Inventarul.");
                 gp.changeState(new PlayState(gp));
             }
         }
@@ -253,6 +259,9 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_T) {
             tPressed = false;
+        }
+        if (code == KeyEvent.VK_I){
+            iPressed = false;
         }
     }
 }

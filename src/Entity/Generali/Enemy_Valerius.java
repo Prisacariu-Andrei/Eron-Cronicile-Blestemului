@@ -85,8 +85,8 @@ public class Enemy_Valerius extends Enemy {
     }
 
     @Override
-    public void takeDamage(int amount) {
-        super.takeDamage(amount);
+    public void takeDamage(Player player,int amount) {
+        super.takeDamage(player,amount);
 
         if (life <= 0) {
             life = 0;

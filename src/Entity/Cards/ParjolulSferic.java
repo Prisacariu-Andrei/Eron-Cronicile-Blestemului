@@ -19,7 +19,7 @@ public class ParjolulSferic extends Card {
     @Override
     public void play(Player player, Enemy enemy) {
         if (enemy != null) {
-            enemy.takeDamage(baseDamage+player.damage);
+            enemy.takeDamage(player,baseDamage+player.damage);
             enemy.applyStatus(StatusEffect.Type.BURN, burnTurns, burnDamage);
         }
     }

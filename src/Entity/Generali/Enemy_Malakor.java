@@ -185,8 +185,10 @@ public class Enemy_Malakor extends Enemy {
     }
 
     @Override
-    public void takeDamage(int amount) {
-        life -= amount;
+    public void takeDamage(Player player,int amount) {
+        if(player.areDinteChilimbar){
+            amount+=3;
+        }
         gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount, Color.RED));
 
         // Când viața scade la 0, schimbăm faza instantaneu

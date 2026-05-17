@@ -88,9 +88,11 @@ public class Enemy_LupBoss extends Enemy {
     }
 
     @Override
-    public void takeDamage(int amount) {
-        super.takeDamage(amount); // Păstrează logica de bază din clasa Enemy
-
+    public void takeDamage(Player player, int amount) {
+        if(player.areDinteChilimbar){
+            amount+=3;
+        }
+        life -= amount;
         // Verificăm dacă viața a ajuns la 0 și inamicul a murit
         if (life <= 0 && !alive) {
             var quest3 = gp.questManager.getQuestById(3, true);

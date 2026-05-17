@@ -5,28 +5,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f873dc53-65ee-4975-b5b0-a61a78d7100b" name="Changes" comment="Interfate + DataBase + Save + Tratari de exceptii">
-      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Entity/NPC/NPC_Gardian.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Main/SoundManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Entity$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Entity$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Entity.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Entity.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/CadereaStelelor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/CadereaStelelor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/FulgerDeSange.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/FulgerDeSange.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/ParjolulSferic.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/ParjolulSferic.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/PavazaAmurgului.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/PavazaAmurgului.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/PavazaGlaciara.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/PavazaGlaciara.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Cards/UraganDeAzur.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Cards/UraganDeAzur.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_LupBoss.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_LupBoss.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Malakor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Malakor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Valerius.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Generali/Enemy_Valerius.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy$EnemyAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy$EnemyAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Lup.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Inamici/Enemy_Lup.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/NPC/NPC_BatranulCronicar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/NPC/NPC_BatranulCronicar.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Player/Inventory.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Player/Inventory.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Entity/Player/Player.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Entity/Player/Player.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Main/AssetSetter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/AssetSetter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Main/EventHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/EventHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Game/Main/GamePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/GamePanel.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Main/KeyHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Main/KeyHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/BattleUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/HealthBarUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/HealthBarUI.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Game/Observer/UI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Observer/UI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Tiles/Tile.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Tiles/Tile.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Game/Tiles/TileManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Game/Tiles/TileManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Database/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Database/DatabaseManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Database/SaveManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Database/SaveManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/CardFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/CardFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Player/Inventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/Inventory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Runes/RuneFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Runes/RuneFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main/Exception/GameExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/Exception/GameExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/CadereaStelelor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/CadereaStelelor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/FulgerDeSange.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/FulgerDeSange.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/ParjolulSferic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/ParjolulSferic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/PavazaAmurgului.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/PavazaAmurgului.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/PavazaGlaciara.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/PavazaGlaciara.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Cards/UraganDeAzur.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Cards/UraganDeAzur.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_LupBoss.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_LupBoss.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Malakor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Malakor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Valerius.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Generali/Enemy_Valerius.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Lup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Inamici/Enemy_Lup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/NPC/NPC_BatranulCronicar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/NPC/NPC_BatranulCronicar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Player/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Player/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameState/DialogueState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameState/DialogueState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameState/InventoryState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameState/InventoryState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main/AssetSetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/AssetSetter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main/EventHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/EventHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/GamePanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main/KeyHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main/KeyHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Observer/UI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Observer/UI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +54,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="728" />
+    <option name="cachedIndexableFilesCount" value="250" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">

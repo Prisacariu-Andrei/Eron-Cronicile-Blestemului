@@ -59,10 +59,16 @@ public class UI {
 
         if (state instanceof InventoryState) {
             gp.inventoryUI.draw(g2);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+            g2.setColor(Color.WHITE);
+            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
 
         if (state instanceof BattleState) {
             gp.battleUI.draw(g2);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+            g2.setColor(Color.WHITE);
+            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
 
         if (state instanceof DeathState) {
@@ -71,10 +77,16 @@ public class UI {
 
         if (state instanceof RewardState) {
             gp.rewardUI.draw(g2);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+            g2.setColor(Color.WHITE);
+            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
 
         if (state instanceof QuestGameState) {
             gp.questBookUI.draw(g2);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+            g2.setColor(Color.WHITE);
+            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
 
         if (state instanceof LeaderboardState) {

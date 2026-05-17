@@ -6,8 +6,8 @@ import Entity.Player.Player;
 import Observer.*;
 import Tiles.TileManager;
 import ProgressManagement.QuestManager;
-import GameState.GameState; // Importă interfața nouă
-import GameState.MenuState; // Importă starea inițială de meniu
+import GameState.GameState;
+import GameState.MenuState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +26,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxWorldCol = 200;
     public final int maxWorldRow = 200;
 
-    // STATE-UL JOCULUI (Acum controlat prin Interfață)
+    // STATE-UL JOCULUI (Controlat prin Interfață)
     private GameState currentState;
 
     // SISTEM
@@ -59,7 +59,7 @@ public class GamePanel extends JPanel implements Runnable {
     public CreditsUI creditsUI = new CreditsUI(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();
 
-    // OPȚIUNI MENIU (Păstrate aici pentru simplitate)
+    // OPȚIUNI MENIU
     public int currentMenuOption = 0;
 
     public GamePanel() {
@@ -86,25 +86,63 @@ public class GamePanel extends JPanel implements Runnable {
         aSetter.setNPC(tileM.currentZone);
 
         // Pornim jocul direct în starea de Meniu
+        // NOTĂ: Schimbarea de stare va porni automat muzica de meniu configurată în changeState!
         changeState(new MenuState(this));
     }
 
     /**
-     * Schimbă starea curentă a jocului asigurând rularea metodelor de exit și enter.
+     * Schimbă starea curentă a jocului asigurând rularea metodelor de exit și enter,
+     * și actualizează automat SoundTrack-ul în mod inteligent.
      */
     public void changeState(GameState newState) {
         if (currentState != null) {
             currentState.exit();
         }
+
         currentState = newState;
+
         if (currentState != null) {
             currentState.enter();
+
+            // =========================================================================
+            // GESTIUNE AUTOMATĂ AUDIO ÎN FUNCȚIE DE STARE (OPȚIUNEA B)
+            // =========================================================================
+            String stateClassName = currentState.getClass().getSimpleName();
+
+            switch (stateClassName) {
+                case "MenuState":
+                    // Înregistrează o cheie "MeniuPrincipal" în SoundManager sau folosește ce piesă vrei pentru ecranul de start
+                    SoundManager.getInstance().playMusic("MeniuPrincipal");
+                    break;
+
+                case "PlayState":
+                    // Când dai "Începe Aventura", piesa de meniu se oprește automat
+                    // și pornește muzica dedicată hărții curente (ex: "Eldoria")
+                    if (tileM != null && tileM.currentZone != null && !tileM.currentZone.isEmpty()) {
+                        SoundManager.getInstance().playMusic(tileM.currentZone);
+                    } else {
+                        SoundManager.getInstance().playMusic("Eldoria");
+                    }
+                    break;
+
+                case "BattleState":
+                    // Când intri în luptă, se trece la piesa dinamică de combat a zonei respective
+                    if (tileM != null && tileM.currentZone != null && !tileM.currentZone.isEmpty()) {
+                        SoundManager.getInstance().playMusic(player.currentEnemy.battleMusicKey);
+                    } else {
+                        SoundManager.getInstance().playMusic("Eldoria");
+                    }
+                    break;
+
+                case "DeathState":
+                    // Oprim muzica complet când jucătorul moare pentru un efect dramatic
+                    SoundManager.getInstance().stopMusic();
+                    break;
+            }
+            // =========================================================================
         }
     }
 
-    /**
-     * Permite altor clase (ex: UI sau KeyHandler) să verifice starea activă.
-     */
     public GameState getCurrentState() {
         return currentState;
     }
@@ -133,14 +171,12 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    // UPDATE delegat complet către starea curentă
     public void update() {
         if (currentState != null) {
             currentState.update();
         }
     }
 
-    // DRAW delegat complet către starea curentă
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);

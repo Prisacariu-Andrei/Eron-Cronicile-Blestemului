@@ -21,7 +21,10 @@ public class CadereaStelelor extends Card {
         if (enemy != null) {
             // Calculăm damage-ul final: Baza + Bonusul din Rune
             int totalDamage = BASE_DAMAGE + player.damage;
-            enemy.takeDamage(totalDamage);
+            if(player.areDinteChilimbar){
+                totalDamage += 3;
+            }
+            enemy.takeDamage(player,totalDamage);
         }
     }
 }

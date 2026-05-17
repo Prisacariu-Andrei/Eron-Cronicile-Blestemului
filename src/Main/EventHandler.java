@@ -33,8 +33,6 @@ public class EventHandler {
         switch (gp.tileM.currentZone) {
 
             case "Eldoria" -> {
-                // AM ȘTERS resetHealTiles() DE AICI
-
                 // DAMAGE: Spike-uri (ID 41)
                 if (tileNum == 41) {
                     if (gp.player.life > 0) {
@@ -57,12 +55,77 @@ public class EventHandler {
                     }
                 }
 
-                // TELEPORTARE:
-                if (tileNum == 42) changeMap("/Maps/Barlogul", "Barlogul", 47, 14);
-                if (tileNum == 43) changeMap("/Maps/Abisul", "Abisul", 13, 18);
-                if (tileNum == 44) changeMap("/Maps/Citadela", "Citadela", 66, 43);
-                if (tileNum == 45) changeMap("/Maps/Tundra", "Tundra", 87, 60);
-                if (tileNum == 46) changeMap("/Maps/Podul", "Podul", 5, 24);
+                // =====================================================================
+                // BLOCAJ TELEPORTĂRI BAZAT PE QUEST-URI (Înlocuitor Gardian)
+                // =====================================================================
+
+                // TELEPORTARE BÂRLOG (ID 42) - Permisă dacă ai primit Quest 2
+                if (tileNum == 42) {
+                    var q2 = gp.questManager.getQuestById(2, true);
+                    if (q2 != null && q2.isReceived) {
+                        changeMap("/Maps/Barlogul", "Barlogul", 47, 14);
+                    } else {
+                        gp.ui.message = "Bârlogul e blocat! Vorbește cu Bătrânul Înțelept.";
+                        gp.ui.messageOn = true;
+                        eventCooldown = 30; // Cooldown mic să nu spameze mesajul la fiecare cadru
+                    }
+                }
+
+                // TELEPORTARE ABIS (ID 43) - Quest 4: Trebuie să ai permisiunea/să fii la Quest 4 primit
+                if (tileNum == 43) {
+                    var q4 = gp.questManager.getQuestById(4, true);
+                    if (q4 != null && q4.isReceived) {
+                        // Dacă pășești aici și ai misiunea 4 activă, o completăm automat (în loc de gardian)!
+                        if (!q4.isCompleted) {
+                            gp.questManager.updateQuestProgress(4, true, 1);
+                        }
+                        changeMap("/Maps/Abisul", "Abisul", 13, 18);
+                    } else {
+                        gp.ui.message = "Porțile Abisului sunt pecetluite de Santinele!";
+                        gp.ui.messageOn = true;
+                        eventCooldown = 30;
+                    }
+                }
+
+                // TELEPORTARE CITADELA (ID 44) - Quest 8: Descoperă Citadela Haiducilor
+                if (tileNum == 44) {
+                    var q8 = gp.questManager.getQuestById(8, true);
+                    if (q8 != null && q8.isReceived) {
+                        // Dacă ai ajuns aici, înseamnă că ai descoperit locația pentru Quest 8!
+                        if (!q8.isCompleted) {
+                            gp.questManager.updateQuestProgress(8, true, 1);
+                        }
+                        changeMap("/Maps/Citadela", "Citadela", 66, 43);
+                    } else {
+                        gp.ui.message = "Drumul spre Citadelă este periculos și ascuns acum.";
+                        gp.ui.messageOn = true;
+                        eventCooldown = 30;
+                    }
+                }
+
+                // TELEPORTARE TUNDRA (ID 45) - Quest 11: Stăpânul Gheții (Glaciara)
+                if (tileNum == 45) {
+                    var q11 = gp.questManager.getQuestById(11, true);
+                    if (q11 != null && q11.isReceived) {
+                        changeMap("/Maps/Tundra", "Tundra", 87, 60);
+                    } else {
+                        gp.ui.message = "Un viscol teribil blochează trecerea spre Nord!";
+                        gp.ui.messageOn = true;
+                        eventCooldown = 30;
+                    }
+                }
+
+                // TELEPORTARE POD / CASTEL (ID 46) - Quest 12: Învinge-l pe Charon
+                if (tileNum == 46) {
+                    var q12 = gp.questManager.getQuestById(12, true);
+                    if (q12 != null && q12.isReceived) {
+                        changeMap("/Maps/Podul", "Podul", 5, 24); // Sau direct spre "Castelul" depinzând de mapa ta
+                    } else {
+                        gp.ui.message = "Calea către Castelul de Obsidian este interzisă muritorilor.";
+                        gp.ui.messageOn = true;
+                        eventCooldown = 30;
+                    }
+                }
             }
 
             case "Barlogul" -> {
@@ -98,6 +161,8 @@ public class EventHandler {
         // --- RESETĂM HEAL-URILE CÂND JUCĂTORUL SCHIMBĂ MAPA ---
         resetHealTiles();
 
+        gp.tileM.currentZone = zoneFolder;
+
         // 1. Schimbăm imaginile hărții
         gp.tileM.loadZoneTiles(zoneFolder);
 
@@ -113,6 +178,12 @@ public class EventHandler {
         gp.player.worldY = gp.tileSize * nextRow - 2;
 
         eventCooldown = 60;
+
+        // =====================================================================
+        // 5. REFRESH AUDIO: Forțăm starea curentă să prindă noua piesă din zonă
+        // =====================================================================
+        gp.changeState(gp.getCurrentState());
+        // =====================================================================
     }
 
     public void resetHealTiles() {

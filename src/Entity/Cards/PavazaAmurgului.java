@@ -10,6 +10,10 @@ public class PavazaAmurgului extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        player.addShield(9+ player.bonusShield);
+        int amount = 9 + player.bonusShield;
+        if(player.areInelDeGheata){
+            amount += 3;
+        }
+        player.addShield(amount);
     }
 }

@@ -14,10 +14,9 @@ public class DialogueState implements GameState {
 
     @Override
     public void update() {
+        gp.gameTimer.update();
         if (gp.keyH.enterPressed) {
             gp.keyH.enterPressed = false;
-            // Aici pui logica ta de avansat textul NPC-ului sau ieșirea în PlayState la finalul dialogului
-            gp.changeState(new PlayState(gp));
         }
     }
 

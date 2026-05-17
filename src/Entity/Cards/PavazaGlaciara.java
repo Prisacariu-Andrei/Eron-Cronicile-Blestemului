@@ -12,6 +12,10 @@ public class PavazaGlaciara extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        player.addShield(7+ player.bonusShield);
+        int amount = 7 + player.bonusShield;
+        if(player.areInelDeGheata){
+            amount += 3;
+        }
+        player.addShield(amount);
     }
 }

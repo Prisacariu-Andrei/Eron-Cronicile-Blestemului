@@ -28,6 +28,12 @@ public class Player extends Entity {
     public int screenX;
     public int screenY;
 
+    public boolean areDinteChilimbar = false;  // Fenris
+    public boolean areDiamantulNoptii = false; // Feldgug
+    public boolean arePalosLegendar = false;   // Jean
+    public boolean areInelDeGheata = false;    // Glaciara
+    public boolean arePlatosaValerius = false; // Valerius
+
     public final int NORMAL_SPEED = 4;
     public float exploreMana;
     public final float maxExploreMana = 100f;
@@ -116,7 +122,7 @@ public class Player extends Entity {
         if (keyH.dashPressed && !isDashing && exploreMana >= DASH_COST) {
             isDashing = true;
             dashCounter = 0;
-            exploreMana -= 1;
+            exploreMana -= DASH_COST;
         }
         if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
             updateMovement();
@@ -301,13 +307,22 @@ public class Player extends Entity {
         });
         t1.start();
 
+        if (this.arePlatosaValerius) {
+            // Apelăm direct addShield pentru a declanșa și popup-ul grafic pe ecran!
+            shield = 0;
+            this.addShield(5);
+            System.out.println("DEBUG: Platoșa lui Valerius s-a activat! +5 Scut.");
+        }
+        else{
+            shield = 0;
+        }
+
         Timer t2 = new Timer(1500, e -> {
             isPlayerTurn = true;
             for(int i = 0; i < 5; i++) inventory.drawCard();
             ((Timer)e.getSource()).stop();
         });
         t2.start();
-        shield = 0;
 
         if (currentEnemy != null && currentEnemy.stunTurns > 0) {
             currentEnemy.stunTurns -= 1;
@@ -344,6 +359,9 @@ public class Player extends Entity {
     }
 
     public void addShield(int amount) {
+        if(this.areInelDeGheata){
+            amount += 3;
+        }
         this.shield += amount;
         gp.popups.add(new DamagePopUp(gp.tileSize * 3, gp.tileSize * 2, "+" + amount + " BLOCK", Color.CYAN));
         notifyObservers();
@@ -406,20 +424,126 @@ public class Player extends Entity {
     public void winBattle() {
         this.life = Math.min(this.life + 5, maxLife);
         notifyObservers();
+
         if (currentEnemy != null) {
-            if ("Malakor".equals(currentEnemy.name)) {
+            String inamicNume = currentEnemy.name;
 
-                currentEnemy.alive = false;
-                currentEnemy = null;
-                this.inventory.resetDeckAfterBattle();
+            // --- 1. ATRIBUIRE RUNE DE LA GENERALI ---
+            switch (inamicNume) {
+                case "Fenris":
+                case "Fenris cel Alb":
+                    this.areDinteChilimbar = true;
+                    System.out.println("⭐ DEBLOCAT: Dintele de Chilimbar (+3 Base Damage)!");
+                    break;
 
-                long finalTime = gp.ui.getPlayTime();
+                case "Feldgug":
+                    this.primesteDiamantulNoptii();
+                    System.out.println("⭐ DEBLOCAT: Diamantul Nopții (+10 Max HP)!");
+                    break;
 
-                gp.leaderboardUI.checkAndSaveNewScore(finalTime, this.name);
+                case "Jean":
+                case "Jean Pleșa":
+                    this.arePalosLegendar = true;
+                    System.out.println("⭐ DEBLOCAT: Paloșul Legendar (Dezolarea dă x1.75 damage)!");
+                    break;
 
-                gp.creditsUI.resetPosition();
-                gp.changeState(new CreditsState(gp));
-                return;
+                case "Glaciara":
+                    this.areInelDeGheata = true;
+                    System.out.println("⭐ DEBLOCAT: Inelul de Gheață (+3 Base Armor)!");
+                    break;
+
+                case "Valerius":
+                case "Valerius, Cavalerul Neinvins":
+                    this.arePlatosaValerius = true;
+                    System.out.println("⭐ DEBLOCAT: Platoșa lui Valerius (+5 Scut pe tură)!");
+                    break;
+            }
+
+            // --- 2. ACTUALIZARE AUTOMATĂ PROGRES QUEST-URI PRINCIPALE ---
+            // Verificăm ce monstru a murit și trimitem progresul către QuestManager
+            switch (inamicNume) {
+                case "Lup":
+                    // Quest 2: Învinge 5 inamici în Bârlog
+                    var q2 = gp.questManager.getQuestById(2, true);
+                    if (q2 != null && q2.isReceived && !q2.isCompleted) {
+                        gp.questManager.updateQuestProgress(2, true, 1);
+                        gp.ui.message = "Progres Bârlog: " + q2.currentAmount + "/5";
+                        gp.ui.messageOn = true;
+                    }
+
+                    // Quest 1: Dacă Tutorialul cere doar uciderea primului inamic din pădure (un lup normal)
+                    var q1 = gp.questManager.getQuestById(1, true);
+                    if (q1 != null && q1.isReceived && !q1.isCompleted) {
+                        gp.questManager.updateQuestProgress(1, true, 1);
+                        gp.ui.message = "Misiune completată: Tutorial";
+                        gp.ui.messageOn = true;
+                    }
+                    break;
+
+                case "Fenris":
+                case "Fenris cel Alb":
+                case "Lupul cel Bătrân":
+                    // Quest 3: Învinge Lupul cel Bătrân din Bârlog
+                    gp.questManager.updateQuestProgress(3, true, 1);
+                    break;
+
+                case "Orc":
+                case "InamicAbis": // Înlocuiește cu numele text al inamicilor normali din Abis
+                    // Quest 5: Învinge 5 inamici în Abisul de Piatra
+                    var q5 = gp.questManager.getQuestById(5, true);
+                    if (q5 != null && q5.isReceived && !q5.isCompleted) {
+                        gp.questManager.updateQuestProgress(5, true, 1);
+                        gp.ui.message = "Progres Abis: " + q5.currentAmount + "/5";
+                        gp.ui.messageOn = true;
+                    }
+                    break;
+
+                case "Mini-Boss Abis":
+                case "Locotenent Orc": // Înlocuiește cu numele exact din clasa mini-boss-ului
+                    // Quest 6: Învinge mini-boss-ul din zona Abisul de Piatra
+                    gp.questManager.updateQuestProgress(6, true, 1);
+                    break;
+
+                case "Feldgug":
+                    // Quest 7: Învinge-l pe Feldgug
+                    gp.questManager.updateQuestProgress(7, true, 1);
+                    break;
+
+                case "Jean":
+                case "Jean Pleșa":
+                    // Quest 9: Învinge-l / Recrutează-l pe Jean Pleșa
+                    gp.questManager.updateQuestProgress(9, true, 1);
+                    break;
+
+                case "Glaciara":
+                    // Quest 11: Învinge-o pe Glaciara
+                    gp.questManager.updateQuestProgress(11, true, 1);
+                    break;
+
+                case "Charon":
+                    // Quest 12: Învinge-l pe Charon
+                    gp.questManager.updateQuestProgress(12, true, 1);
+                    break;
+
+                case "Malakor":
+                case "Malakor, Monarhul Amurgului":
+                    // Quest 14: Învinge-l pe Malakor
+                    gp.questManager.updateQuestProgress(14, true, 1);
+
+                    // Executăm direct logica ta de final de joc
+                    currentEnemy.alive = false;
+                    currentEnemy = null;
+                    this.inventory.resetDeckAfterBattle();
+                    long finalTime = gp.ui.getPlayTime();
+                    gp.leaderboardUI.checkAndSaveNewScore(finalTime, this.name);
+                    gp.creditsUI.resetPosition();
+                    gp.changeState(new CreditsState(gp));
+                    return;
+            }
+
+            // Decomentează și folosește dacă vrei ca Valerius să completeze un Side Quest la moarte
+            if ("Valerius".equals(inamicNume) || "Valerius, Cavalerul Neinvins".equals(inamicNume)) {
+                gp.questManager.updateQuestProgress(3, false, 1); // Side Quest 3
             }
 
             currentEnemy.alive = false;
@@ -490,5 +614,12 @@ public class Player extends Entity {
         };
 
         g2.drawImage(image, tempScreenX, tempScreenY, gp.tileSize, gp.tileSize, null);
+    }
+
+    public void primesteDiamantulNoptii() {
+        this.areDiamantulNoptii = true;
+        this.maxLife += 10;
+        this.life += 10; // Îi dăm și viața curentă ca bonus instant
+        this.notifyObservers(); // Actualizează HealthBarUI-ul!
     }
 }
