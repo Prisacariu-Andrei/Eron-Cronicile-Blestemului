@@ -39,12 +39,13 @@ public class SoundManager {
         try {
             // --- 1. SOUNDTRACK-URI ZONE ---
             registerMusic("Eldoria", "/sound/music/eldoria.wav");
-            registerMusic("Barlogul", "/sound/music/eldoria.wav");
-            registerMusic("Abisul", "/sound/music/eldoria.wav");
-            registerMusic("Citadela", "/sound/music/eldoria.wav");
-            registerMusic("Tundra", "/sound/music/eldoria.wav");
-            registerMusic("Podul", "/sound/music/eldoria.wav");
-            registerMusic("Castelul", "/sound/music/eldoria.wav");
+            registerMusic("Barlogul", "/sound/music/barlog.wav");
+            registerMusic("Abisul", "/sound/music/abisul.wav");
+            registerMusic("Citadela", "/sound/music/citadela.wav");
+            registerMusic("Tundra", "/sound/music/tundra.wav");
+            registerMusic("Podul", "/sound/music/podul.wav");
+            registerMusic("Castelul", "/sound/music/castel.wav");
+            registerMusic("MeniuPrincipal", "/sound/music/meniu.wav");
 
             // --- 2. SOUNDTRACK-URI INAMICI ---
             registerMusic("InamiciEldoria", "/sound/music/inamic_eldoria.wav");

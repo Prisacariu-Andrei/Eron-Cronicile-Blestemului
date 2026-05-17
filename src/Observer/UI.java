@@ -1,13 +1,22 @@
 package Observer;
 
+import Main.Exception.GameExceptionHandler;
 import Main.GamePanel;
 import GameState.*; // Importă toate stările din pachetul nou
 import java.awt.*;
+import java.util.Objects;
 
 public class UI {
     GamePanel gp;
     Graphics2D g2;
     public Font arial_40, arial_80B;
+    public java.awt.image.BufferedImage menuBackground;
+
+
+    // --- ADAUGĂ LA VARIABILELE GLOBALE DIN UI.java ---
+    public FogOfWar fogOfWar;
+
+    // --- ADAUGĂ ÎN CONSTRUCTORUL UI(GamePanel gp) ---
 
     // Proprietate folosită de KeyHandler pentru selecția opțiunilor din meniuri (Start, Death, etc.)
     public int commandNum = 0;
@@ -21,13 +30,22 @@ public class UI {
         this.gp = gp;
         arial_40 = new Font("Arial", Font.PLAIN, 40);
         arial_80B = new Font("Arial", Font.BOLD, 80);
+        this.fogOfWar = new FogOfWar(gp, gp.tileSize*8);
+
+        // ★ OPTIMIZARE: Încărcăm imaginea o SINGURĂ dată la inițializarea UI-ului, nu în loop-ul de draw!
+        try {
+            menuBackground = javax.imageio.ImageIO.read(java.util.Objects.requireNonNull(
+                    getClass().getResourceAsStream("/Backgrounds/menu_bg1.png")));
+        } catch (Exception e) {
+            GameExceptionHandler.getInstance().handleWarning("Nu s-a putut încărca textura pentru Meniul Principal (/Backgrounds/menu_bg1.png)", e);
+        }
     }
 
     public void draw(Graphics2D g2) {
         this.g2 = g2;
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
         g2.setColor(Color.WHITE);
-        g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
+        g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), (int)(gp.screenWidth*0.9), (int)(gp.screenHeight*0.05));
 
         g2.setFont(arial_40);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -36,59 +54,55 @@ public class UI {
         GameState state = gp.getCurrentState();
 
         // --- LAYER-URI UI ÎN FUNCȚIE DE CLASA STĂRII CURENTE ---
-
         if (state instanceof MenuState) {
             drawMenuScreen();
         }
-
         if (state instanceof PlayState) {
-            // HUD-ul de bază (Viața)
+            if (Objects.equals(gp.tileM.currentZone, "Abisul")) {
+                fogOfWar.draw(g2,-5);
+            }
+            if (Objects.equals(gp.tileM.currentZone, "Tundra")){
+                fogOfWar.draw(g2,235);
+            }
             gp.healthUI.draw(g2);
-            drawManaText(g2);      // Textul pentru Mana de dash
+            drawManaText(g2);
             drawInteractionPrompt();
             drawMessage();
-        }
 
+        }
         if (state instanceof PauseState) {
             gp.pauseUI.draw(g2);
         }
-
         if (state instanceof DialogueState) {
             gp.dialogueUI.draw(g2);
         }
-
         if (state instanceof InventoryState) {
             gp.inventoryUI.draw(g2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
             g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
-
         if (state instanceof BattleState) {
             gp.battleUI.draw(g2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
             g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
-
         if (state instanceof DeathState) {
             gp.deathUI.draw(g2);
         }
-
         if (state instanceof RewardState) {
             gp.rewardUI.draw(g2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
             g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
-
         if (state instanceof QuestGameState) {
             gp.questBookUI.draw(g2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
             g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
         }
-
         if (state instanceof LeaderboardState) {
             gp.leaderboardUI.draw(g2);
         }
@@ -100,7 +114,6 @@ public class UI {
         int oldW = gp.player.hitBox.width;
         int oldH = gp.player.hitBox.height;
 
-        // Mărim hitbox-ul doar pentru detecție
         gp.player.hitBox.x -= gp.tileSize;
         gp.player.hitBox.y -= gp.tileSize;
         gp.player.hitBox.width += gp.tileSize * 2;
@@ -108,7 +121,6 @@ public class UI {
 
         int npcIndex = gp.cChecher.checkEntity(gp.player, gp.npc);
 
-        // Resetăm hitbox-ul la normal
         gp.player.hitBox.x = oldX;
         gp.player.hitBox.y = oldY;
         gp.player.hitBox.width = oldW;
@@ -119,65 +131,40 @@ public class UI {
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
 
             int x = getXforCenteredText(text);
-            int y = gp.player.screenY;
+            int y = gp.player.screenY - 15; // Reparat din screenY/4 (care trimitea textul pe tavan)
 
-            // Umbră
             g2.setColor(Color.BLACK);
-            g2.drawString(text, x + 2, y / 4 + 2);
-            // Text principal
+            g2.drawString(text, x + 2, y + 2);
             g2.setColor(Color.YELLOW);
-            g2.drawString(text, x, y / 4);
+            g2.drawString(text, x, y);
         }
     }
 
     private void drawMenuScreen() {
-        // 1. FUNDAL
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        //1. RANDARE FUNDAL
+        if (menuBackground != null) {
+            g2.drawImage(menuBackground, -80, 0, gp.screenWidth+80, gp.screenHeight, null);
 
-        // 2. TITLU PRINCIPAL: ERON
-        g2.setFont(arial_80B.deriveFont(Font.BOLD, 90f));
-        String titleMain = "ERON";
-        int x1 = getXforCenteredText(titleMain);
-        int y1 = gp.tileSize * 3;
+        } else {
+            // Fallback în caz că imaginea nu s-a putut încărca, să nu rămână ecranul gol
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        }
 
-        // Umbră pentru contrast
-        g2.setColor(Color.GRAY);
-        g2.drawString(titleMain, x1 + 5, y1 + 5);
-
-        // Text principal
-        g2.setColor(new Color(255, 215, 0)); // Auriu
-        g2.drawString(titleMain, x1, y1);
-
-        // 3. TITLU SECUNDAR: Cronicile Blestemului
-        g2.setFont(arial_40.deriveFont(Font.PLAIN, 48f));
-        String titleSub = "Cronicile Blestemului";
-        int x2 = getXforCenteredText(titleSub);
-        int y2 = y1 + 50;
-
-        g2.setColor(Color.WHITE);
-        g2.drawString(titleSub, x2, y2);
-
-        // 4. LINIE DECORATIVĂ
-        g2.setColor(new Color(255, 215, 0, 100));
-        g2.fillRect(x1 - 30, y2 + 20, 320, 2);
-
-        // 5. OPȚIUNI MENIU
+        // 2. OPȚIUNI MENIU
         g2.setFont(arial_40.deriveFont(Font.BOLD, 26F));
         String[] menuOptions = {"ÎNCEPE AVENTURA", "CONTINUĂ CĂLĂTORIA", "TOP SCORURI", "OPȚIUNI ȘI SECRETE", "PĂRĂSEȘTE TĂRÂMUL"};
 
+        // În interiorul metodei drawMenuScreen din UI.java:
         for (int i = 0; i < menuOptions.length; i++) {
-            String text = menuOptions[i];
-            int y = (gp.tileSize * 5) + (i * 55);
-            int textX = getXforCenteredText(text);
-
-            // Sincronizat cu variabila centrală `commandNum` din UI (folosită de KeyHandler-ul reparat) ★★★
+            // Folosește direct variabila commandNum a clasei UI
+            int y = (int)(gp.screenHeight * 0.45) + (i * 55);
             if (i == this.commandNum) {
                 g2.setColor(Color.YELLOW);
-                g2.drawString("> " + text + " <", getXforCenteredText("> " + text + " <"), y);
+                g2.drawString("> " + menuOptions[i] + " <", getXforCenteredText("> " + menuOptions[i] + " <"), y);
             } else {
                 g2.setColor(Color.WHITE);
-                g2.drawString(text, textX, y);
+                g2.drawString(menuOptions[i], getXforCenteredText(menuOptions[i]), y);
             }
         }
     }
@@ -222,13 +209,8 @@ public class UI {
         g2.drawString(manaText, x, y);
     }
 
-    /**
-     * Metodă reparată integral. Extrage secundele brute acumulate de cronometrul jocului tau. ★★★
-     */
     public long getPlayTime() {
         if (gp.gameTimer != null) {
-            // Presupunând că obiectul tău gameTimer deține secundele totale (sau o metodă similară de getSeconds)
-            // Dacă clasa ta are altă metodă, înlocuiește `.getSeconds()` cu denumirea ei curentă.
             return gp.gameTimer.getElapsedSeconds();
         }
         return 0;

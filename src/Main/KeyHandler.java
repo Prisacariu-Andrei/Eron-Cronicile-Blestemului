@@ -1,5 +1,6 @@
 package Main;
 
+import Database.SaveLoadManager;
 import Entity.Items.Card;
 import GameState.*; // Importă toate stările noi
 import java.awt.event.KeyEvent;
@@ -13,7 +14,18 @@ public class KeyHandler implements KeyListener {
     GamePanel gp;
 
     @Override
-    public void keyTyped(KeyEvent keyE) {
+    public void keyTyped(KeyEvent e) {
+        GameState state = gp.getCurrentState();
+        // Verificăm dacă state nu este null înainte de a-l folosi
+        if (state instanceof InputNameState) {
+            char c = e.getKeyChar();
+            // Permitem doar caractere vizibile și Backspace
+            if (Character.isLetterOrDigit(c) || Character.isWhitespace(c)) {
+                ((InputNameState)state).addChar(c);
+            } else if (c == KeyEvent.VK_BACK_SPACE) {
+                ((InputNameState)state).removeChar();
+            }
+        }
     }
 
     public KeyHandler(GamePanel gp) {
@@ -36,6 +48,17 @@ public class KeyHandler implements KeyListener {
                 SoundManager.getInstance().playSE("click"); // <--- ADĂUGAT: Pune efect de click!
                 gp.changeState(new PlayState(gp));
                 return;
+            } else if (state instanceof LeaderboardState) {
+                gp.changeState(new MenuState(gp));
+                return;
+            } else if (state instanceof CreditsState) {
+                gp.changeState(new MenuState(gp));
+                return;
+            } else if (state instanceof RewardState) { // <--- ADAUGĂ ACEST BLOC NOU!
+                System.out.println("DEBUG: Jucătorul a refuzat recompensa.");
+                gp.rewardUI.commandNum = 0;
+                gp.changeState(new PlayState(gp));
+                return;
             }
         }
 
@@ -52,11 +75,10 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ENTER) {
                 enterPressed = false;
 
-                if (gp.ui.commandNum == 0) {
-                    gp.changeState(new PlayState(gp));
-                } else if (gp.ui.commandNum == 2) {
-                    gp.changeState(new LeaderboardState(gp));
-                } else if (gp.ui.commandNum == 4) {
+                if (gp.ui.commandNum == 0) gp.changeState(new InputNameState(gp,1));
+                else if (gp.ui.commandNum == 1) {gp. changeState(new PlayState(gp));}
+                else if (gp.ui.commandNum == 2) {gp.changeState(new LeaderboardState(gp));}
+                else if (gp.ui.commandNum == 4) {
                     // MODIFICAT: Închidem baza de date curat înainte de a închide procesul ★★★
                     Database.DatabaseManager.getInstance().close();
                     System.exit(0);
@@ -179,7 +201,7 @@ public class KeyHandler implements KeyListener {
                 } else {
                     // Verificăm ce NPC este cel cu care vorbim în loc să apelăm speak() pe toți simultan
                     // Presupunând că în gp.player salvezi indexul NPC-ului curent interacționat (ex: gp.player.npcIndex)
-                    int npcIndex = gp.cChecher.checkEntity(gp.player, gp.npc);
+                    int npcIndex = gp.activeNpcIndex;
 
                     if (npcIndex != -1 && gp.npc[npcIndex] != null) {
                         gp.npc[npcIndex].speak();

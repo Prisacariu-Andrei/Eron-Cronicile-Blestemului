@@ -9,6 +9,8 @@ import java.util.Objects;
 
 public class NPC_BatranulCronicar extends NPC {
 
+
+
     public NPC_BatranulCronicar(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Bătrânul Înțelept";
@@ -38,7 +40,7 @@ public class NPC_BatranulCronicar extends NPC {
         // 1. Găsim dinamic care este prima misiune principală nefinalizată din listă
         Quest currentQuest = null;
         for (Quest q : gp.questManager.mainQuests) {
-            if (!q.isCompleted || (q.isCompleted && q.isReceived)) {
+            if (!q.isCompleted || q.isReceived) {
                 // Prinde ori misiunea activă, ori cea proaspăt terminată care așteaptă să fie predată
                 currentQuest = q;
                 break;
@@ -64,7 +66,12 @@ public class NPC_BatranulCronicar extends NPC {
                     dialogueIndex = 0;
                     gp.changeState(new PlayState(gp));
 
+                    // 1. Jucătorul primește oficial misiunea
                     gp.questManager.receiveQuest(1, true);
+
+                    // ★ REZOLVARE: Forțăm imediat harta să spawneze inamicii din Eldoria!
+                    gp.aSetter.setEnemyForMap("Eldoria");
+
                     gp.ui.message = "Misiune primită: " + currentQuest.title;
                     gp.ui.messageOn = true;
                     return;
@@ -88,13 +95,21 @@ public class NPC_BatranulCronicar extends NPC {
 
         // CAZUL B: Misiunea este primită, dar NU este completată încă (Reminder)
         else if (!currentQuest.isCompleted) {
+            if (isShowingDialogue) {
+                // A doua apăsare pe [E] → ieșim din dialog
+                isShowingDialogue = false;
+                dialogueIndex = 0;
+                gp.changeState(new PlayState(gp));
+                return;
+            }
+            isShowingDialogue = true;
             gp.changeState(new DialogueState(gp));
             gp.dialogueUI.currentDialogue = getQuestProgressDialogue(currentQuest.id);
             gp.dialogueUI.resetCharIndex();
         }
 
         // CAZUL C: Misiunea este completată! Jucătorul o predă ACUM
-        else if (currentQuest.isCompleted) {
+        else{
             gp.changeState(new DialogueState(gp));
             gp.dialogueUI.currentDialogue = getQuestCompleteDialogue(currentQuest.id);
             gp.dialogueUI.resetCharIndex();

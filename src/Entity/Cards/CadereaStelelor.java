@@ -6,12 +6,12 @@ import Entity.Player.Player;
 
 public class CadereaStelelor extends Card {
 
-    private static final int BASE_DAMAGE = 30;
+    private static final int BASE_DAMAGE = 90;
 
     public CadereaStelelor(Player player) {
         // Trimitem descrierea direct în constructorul clasei părinte (Card)
         super("Căderea Stelelor",
-                3,
+                4,
                 CardType.FOC,
                 "Focul din cer mistuie \noștile potrivnice.\n Paguba: " + (BASE_DAMAGE + player.damage));
     }

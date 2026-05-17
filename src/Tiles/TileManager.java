@@ -123,9 +123,41 @@ public class TileManager {
                 setup(18,zoneName+"/R",true);
                 setup(19,zoneName+"/U2",true);
                 setup(20,zoneName+"/D2",true);
+
+                setup(21 ,zoneName+"/grass",false);
+                setup(22,zoneName+"/CastleGrass",false);
                 break;
 
             case "Castelul":
+                setup(0,zoneName+"/CastleGrass",false);
+                setup(1,zoneName+"/T1",true);
+                setup(2,zoneName+"/T2",true);
+                setup(3,zoneName+"/T3",true);
+                setup(4,zoneName+"/T4",true);
+                setup(5,zoneName+"/T5",true);
+                setup(6,zoneName+"/T6",true);
+                setup(7,zoneName+"/T7",true);
+                setup(8,zoneName+"/T8",true);
+                setup(9,zoneName+"/W1",true);
+                setup(10,zoneName+"/W2",true);
+                setup(11,zoneName+"/W3",true);
+                setup(12,zoneName+"/W4",true);
+                setup(13,zoneName+"/W5",true);
+                setup(14,zoneName+"/W6",true);
+                setup(15,zoneName+"/L",true);
+                setup(16,zoneName+"/R",true);
+                setup(17,zoneName+"/path",false);
+                setup(18,zoneName+"/R1",true);
+                setup(19,zoneName+"/R2",true);
+                setup(20,zoneName+"/R3",true);
+                setup(21,zoneName+"/R4",true);
+                setup(22,zoneName+"/R5",true);
+                setup(23,zoneName+"/R6",true);
+                setup(24,zoneName+"/R7",true);
+                setup(25,zoneName+"/R8",true);
+                setup(26 ,zoneName+"/Abis",false);
+
+
                 break;
         }
     }
@@ -173,14 +205,26 @@ public class TileManager {
             int col;
             int row = 0;
 
+            // ÎNLOCUIEȘTE BUCLA TA ACTUALĂ CU ACEASTA:
             while (row < gp.maxWorldRow) {
                 String line = br.readLine();
                 if (line == null) break;
 
+                // Eliminăm spațiile de la capete și împărțim prin orice secvență de spații albe
                 String[] numbers = line.trim().split("\\s+");
 
                 for (col = 0; col < gp.maxWorldCol && col < numbers.length; col++) {
-                    mapTileNum[col][row] = Integer.parseInt(numbers[col]);
+                    try {
+                        // Trim() curăță orice spațiu accidental din jurul cifrei
+                        String token = numbers[col].trim();
+                        if (!token.isEmpty()) {
+                            mapTileNum[col][row] = Integer.parseInt(token);
+                        }
+                    } catch (NumberFormatException e) {
+                        // Dacă dă eroare, punem un tile "sigur" (ex: 0) și printăm unde e buba
+                        System.err.println("Eroare de formatare la Rândul " + row + ", Coloana " + col + ". Valoare: '" + numbers[col] + "'");
+                        mapTileNum[col][row] = 0;
+                    }
                 }
                 row++;
             }

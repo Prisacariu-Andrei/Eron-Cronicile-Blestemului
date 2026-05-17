@@ -1,5 +1,6 @@
 package Main;
 
+import Database.SaveLoadManager;
 import Entity.Inamici.Enemy;
 import Entity.NPC.NPC;
 import Entity.Player.Player;
@@ -8,6 +9,7 @@ import Tiles.TileManager;
 import ProgressManagement.QuestManager;
 import GameState.GameState;
 import GameState.MenuState;
+import GameState.InputNameState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,10 +41,10 @@ public class GamePanel extends JPanel implements Runnable {
     public EventHandler eHandler = new EventHandler(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public GameTimer gameTimer = new GameTimer();
-
+    public SaveLoadManager saveLoadManager = new SaveLoadManager();
     // ENTITĂȚI
     public Player player = new Player(this, keyH);
-    public Enemy[] enemy = new Enemy[10];
+    public Enemy[] enemy = new Enemy[15];
     public NPC[] npc = new NPC[10];
 
     // UI & OBSERVERS
@@ -61,6 +63,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     // OPȚIUNI MENIU
     public int currentMenuOption = 0;
+    public int activeNpcIndex = -1;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -103,6 +106,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (currentState != null) {
             currentState.enter();
+            System.out.println("DEBUG: Starea s-a schimbat în: " + newState.getClass().getSimpleName());
 
             // =========================================================================
             // GESTIUNE AUTOMATĂ AUDIO ÎN FUNCȚIE DE STARE (OPȚIUNEA B)

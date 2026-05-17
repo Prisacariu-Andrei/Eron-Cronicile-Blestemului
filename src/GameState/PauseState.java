@@ -10,7 +10,10 @@ public class PauseState implements GameState {
         this.gp = gp;
     }
 
-    @Override public void enter() { gp.pauseUI.commandNum = 0; }
+    @Override public void enter() {
+        gp.pauseUI.commandNum = 0;
+        gp.gameTimer.stop();
+    }
 
     @Override
     public void update() {
@@ -32,8 +35,18 @@ public class PauseState implements GameState {
                gp.changeState(new PlayState(gp));
             }
             if (gp.pauseUI.commandNum == 1) { // SAVE
-                Database.SaveManager sm = new Database.SaveManager(gp);
-                sm.saveGame(1);
+                // Preluăm zona curentă în care se află jucătorul
+                String zonaCurenta = gp.tileM.currentZone;
+
+                // Preluăm timpul (adaptează dacă folosești altă metodă de get)
+                long timpJucat = gp.gameTimer.getElapsedSeconds(); // sau gp.ui.getPlayTime() dacă ai în UI
+
+                // Salvăm pe slotul 1 (poți schimba pe viitor dacă faci multiple sloturi)
+                gp.saveLoadManager.saveGame(gp.player, 1, zonaCurenta, timpJucat);
+
+                // Opțional: Afișăm un mesaj pe ecran ca jucătorul să știe că a mers
+                System.out.println("Joc salvat cu succes în: " + zonaCurenta);
+                gp.changeState(new PlayState(gp)); // Opțional: Scoatem jocul din pauză după salvare
             }
             if (gp.pauseUI.commandNum == 3) {
                 gp.changeState(new MenuState(gp));
@@ -51,5 +64,7 @@ public class PauseState implements GameState {
         gp.ui.draw(g2);
     }
 
-    @Override public void exit() {}
+    @Override public void exit() {
+        gp.gameTimer.start();
+    }
 }

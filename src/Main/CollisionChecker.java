@@ -72,24 +72,34 @@ public class CollisionChecker {
 
     }
     public int checkEntity(Entity entity, Entity[] target) {
-        int index = 999;
+        int index = 999; // <--- Pornim de la 999 (fără NPC găsit) în loc de 0!
         for (int i = 0; i < target.length; i++) {
             if (target[i] != null) {
-                // Hitbox-ul entității (Eron)
+                // Salvăm valorile relative originale ca să nu le pierdem
+                int entityOldX = entity.hitBox.x;
+                int entityOldY = entity.hitBox.y;
+                int targetOldX = target[i].hitBox.x;
+                int targetOldY = target[i].hitBox.y;
+
+                // Hitbox-ul entității (Eron) transpus în coordonate globale pe hartă
                 entity.hitBox.x = entity.worldX + entity.hitBox.x;
                 entity.hitBox.y = entity.worldY + entity.hitBox.y;
-                // Hitbox-ul țintei (NPC)
+
+                // Hitbox-ul țintei (NPC) transpus în coordonate globale pe hartă
                 target[i].hitBox.x = target[i].worldX + target[i].hitBox.x;
                 target[i].hitBox.y = target[i].worldY + target[i].hitBox.y;
 
                 if (entity.hitBox.intersects(target[i].hitBox)) {
-                    if (target[i] != entity) index = i;
+                    if (target[i] != entity) {
+                        index = i; // Salvăm indexul NPC-ului lovit
+                    }
                 }
-                // Resetăm coordonatele hitbox-ului la valorile lor relative
-                entity.hitBox.x = 8;
-                entity.hitBox.y = 16;
-                target[i].hitBox.x = 8;
-                target[i].hitBox.y = 16;
+
+                // Resetăm coordonatele la valorile lor relative corecte din obiect
+                entity.hitBox.x = entityOldX;
+                entity.hitBox.y = entityOldY;
+                target[i].hitBox.x = targetOldX;
+                target[i].hitBox.y = targetOldY;
             }
         }
         return index;

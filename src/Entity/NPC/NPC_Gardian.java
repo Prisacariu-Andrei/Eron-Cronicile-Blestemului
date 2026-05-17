@@ -13,6 +13,7 @@ public class NPC_Gardian extends NPC {
     private final String textRefuz;
     private final String textPermisiune;
 
+
     public NPC_Gardian(GamePanel gp, int x, int y, int questIdBariera, String textRefuz, String textPermisiune) {
         super(gp, x, y);
         this.name = "Gardianul Porții";
@@ -27,7 +28,10 @@ public class NPC_Gardian extends NPC {
     public void getImage() {
         try {
             // Poți folosi textura ta de NPC sau una specifică de gardian dacă ai (/NPC/guard.png)
-            down1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/AIGup.png")));
+            down1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/GardaDeFierStaticFata.png")));
+            up1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/GardaDeFierStaticSpate.png")));
+            left1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/GardaDeFierStaticStanga.png")));
+            right1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/GardaDeFierStaticDreapta.png")));
         } catch (Exception e) {
             GameExceptionHandler.getInstance().handleWarning("Nu s-a putut încărca textura pentru NPC Gardian", e);
         }
@@ -40,6 +44,15 @@ public class NPC_Gardian extends NPC {
 
     @Override
     public void speak() {
+
+        if (isShowingDialogue) {
+            isShowingDialogue = false;
+            gp.activeNpcIndex = -1;
+            gp.changeState(new PlayState(gp));
+            return;
+        }
+        isShowingDialogue = true;
+
         Quest q = gp.questManager.getQuestById(questIdBariera, true);
 
         gp.changeState(new DialogueState(gp));

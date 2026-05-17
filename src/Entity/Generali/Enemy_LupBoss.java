@@ -18,8 +18,8 @@ public class Enemy_LupBoss extends Enemy {
         this.name = "Fenris cel Alb";
         this.maxLife = 150;
         this.life = maxLife;
-        this.attackDamage = 12;
-        this.mapSize = 1.3;
+        this.attackDamage = 10;
+        this.mapSize = 1.8;
 
         hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
@@ -41,6 +41,7 @@ public class Enemy_LupBoss extends Enemy {
         right1 = setup("/Enemy/LupBossFight");
         right2 = setup("/Enemy/LupBossFight");
         fightStand = setup("/Enemy/LupBossFight");
+        battleBackground = setup("/Backgrounds/Barlog_bg");
     }
 
     @Override

@@ -12,34 +12,26 @@ public class DatabaseManager {
     private DatabaseManager() {
         try {
             Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection(DB_URL + "?busy_timeout=5000");
 
-            // Adăugăm un parametru de timeout direct în URL-ul de conectare (3000ms = 3 secunde)
-            // Asta previne erorile instantanee de tip [SQLITE_BUSY]
-            String connectionUrl = DB_URL + "?busy_timeout=3000";
-            connection = DriverManager.getConnection(connectionUrl);
-
-            // Configurăm SQLite pentru performanță și concurență crescută
             try (Statement st = connection.createStatement()) {
-                // WAL (Write-Ahead Logging) este mult mai stabil pentru jocuri și previne blocajele de fișier
-                st.execute("PRAGMA journal_mode=WAL;");
                 st.execute("PRAGMA synchronous=NORMAL;");
+                // IMPORTANT: Activăm cheile străine pentru a permite ștergerea în lanț
+                st.execute("PRAGMA foreign_keys=ON;");
             }
-
             createTables();
-            System.out.println("✅ Database connected: eron_save.db (WAL mode active)");
-
-        } catch (ClassNotFoundException e) {
-            GameExceptionHandler.getInstance().handleCriticalError(
-                    "Driverul SQLite JDBC lipsește din classpath!", e);
-        } catch (SQLException e) {
-            GameExceptionHandler.getInstance().handleCriticalError(
-                    "Nu s-a putut inițializa sau conecta la baza de date SQLite!", e);
+        } catch (Exception e) {
+            GameExceptionHandler.getInstance().handleCriticalError("Eroare DB", e);
         }
     }
 
     public static DatabaseManager getInstance() {
         if (instance == null) {
-            instance = new DatabaseManager();
+            synchronized (DatabaseManager.class) {
+                if (instance == null) {
+                    instance = new DatabaseManager();
+                }
+            }
         }
         return instance;
     }
@@ -50,52 +42,23 @@ public class DatabaseManager {
 
     private void createTables() throws SQLException {
         try (Statement st = connection.createStatement()) {
+            // Tabelul principal pentru salvări
+            st.execute("CREATE TABLE IF NOT EXISTS saves (slot INTEGER PRIMARY KEY, player_name TEXT, current_zone TEXT, player_x INTEGER, player_y INTEGER, player_life INTEGER, player_max_life INTEGER, player_shield INTEGER, time_played INTEGER, saved_at TEXT);");
 
-            st.execute("""
-                CREATE TABLE IF NOT EXISTS saves (
-                    slot            INTEGER PRIMARY KEY,
-                    player_name     TEXT    DEFAULT 'Eron',
-                    current_zone    TEXT    DEFAULT 'Eldoria',
-                    player_x        INTEGER DEFAULT 0,
-                    player_y        INTEGER DEFAULT 0,
-                    player_life     INTEGER DEFAULT 100,
-                    player_max_life INTEGER DEFAULT 100,
-                    player_shield   INTEGER DEFAULT 0,
-                    time_played     INTEGER DEFAULT 0,
-                    saved_at        TEXT    DEFAULT (datetime('now'))
-                );
-            """);
+            // Tabelul pentru quest-uri (Legat de saves prin FOREIGN KEY)
+            st.execute("CREATE TABLE IF NOT EXISTS quest_state (slot INTEGER, quest_id INTEGER, is_main INTEGER, is_received INTEGER, is_completed INTEGER, current_amount INTEGER, PRIMARY KEY (slot, quest_id, is_main), FOREIGN KEY(slot) REFERENCES saves(slot) ON DELETE CASCADE);");
 
-            st.execute("""
-                CREATE TABLE IF NOT EXISTS quest_state (
-                    slot           INTEGER,
-                    quest_id       INTEGER,
-                    is_main        INTEGER DEFAULT 1,
-                    is_received    INTEGER DEFAULT 0,
-                    is_completed   INTEGER DEFAULT 0,
-                    current_amount INTEGER DEFAULT 0,
-                    PRIMARY KEY (slot, quest_id, is_main)
-                );
-            """);
+            // Tabelul pentru inventar (Legat de saves prin FOREIGN KEY)
+            st.execute("CREATE TABLE IF NOT EXISTS inventory (slot INTEGER, item_type TEXT, item_name TEXT, quantity INTEGER, PRIMARY KEY (slot, item_type, item_name), FOREIGN KEY(slot) REFERENCES saves(slot) ON DELETE CASCADE);");
 
-            st.execute("""
-                CREATE TABLE IF NOT EXISTS inventory (
-                    slot      INTEGER,
-                    item_type TEXT,
-                    item_name TEXT,
-                    quantity  INTEGER DEFAULT 1,
-                    PRIMARY KEY (slot, item_type, item_name)
-                );
-            """);
+            // Tabelul pentru leaderboard
+            st.execute("CREATE TABLE IF NOT EXISTS scores (id INTEGER PRIMARY KEY AUTOINCREMENT, player_name TEXT, time_seconds INTEGER);");
 
-            st.execute("""
-                CREATE TABLE IF NOT EXISTS scores (
-                    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-                    player_name  TEXT DEFAULT 'Eron',
-                    time_seconds INTEGER,
-                    completed_at TEXT DEFAULT (datetime('now'))
-                );
-            """);
+            st.execute("CREATE TABLE IF NOT EXISTS leaderboard( id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "    player_name TEXT NOT NULL," +
+                    "    time_played INTEGER NOT NULL," +
+                    "    achieved_at TEXT NOT NULL" +
+                    ");");
         }
     }
 
@@ -106,7 +69,7 @@ public class DatabaseManager {
                 System.out.println("Database connection closed cleanly.");
             }
         } catch (SQLException e) {
-            GameExceptionHandler.getInstance().handleWarning("Eroare întâmpinată la închiderea conexiunii bazei de date", e);
+            GameExceptionHandler.getInstance().handleWarning("Eroare la close database", e);
         }
     }
 }

@@ -8,9 +8,9 @@ public class Enemy_Trol extends Enemy {
     public Enemy_Trol(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Trol de Pestera";
-        this.maxLife = 120;
+        this.maxLife = 60;
         this.life = maxLife;
-        this.attackDamage = 15;
+        this.attackDamage = 11;
         this.mapSize = 2;
         getImage();
         setNextIntent();
@@ -26,7 +26,7 @@ public class Enemy_Trol extends Enemy {
         left2 =setup("/Enemy/Trol");
         right2 = setup("/Enemy/Trol");
         fightStand = setup("/Enemy/Trol");
-
+        battleBackground = setup("/Backgrounds/Abisul_bg");
     }
 
     @Override

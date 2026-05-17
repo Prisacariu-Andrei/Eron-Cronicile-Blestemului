@@ -10,6 +10,7 @@ public class EnemyFactory {
 
             // Eldoria
             case "Valerius" -> new Enemy_Valerius(gp,x,y);
+            case "Lup Slăbit" -> new Enemy_LupSlabit(gp,x,y);
 
             // Barlog
             case "Lup" -> new Enemy_Lup(gp, x, y);

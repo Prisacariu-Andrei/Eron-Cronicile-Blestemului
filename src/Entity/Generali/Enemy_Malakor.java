@@ -42,6 +42,7 @@ public class Enemy_Malakor extends Enemy {
         left2 = setup("/Enemy/MalakorPhaseOne");
         right1 = setup("/Enemy/MalakorPhaseOne");
         right2 = setup("/Enemy/MalakorPhaseOne");
+        battleBackground = setup("/Backgrounds/Malakor_bg");
         if(currentPhase==1) {
             fightStand = setup("/Enemy/MalakorPhaseOne");
         }
@@ -189,7 +190,15 @@ public class Enemy_Malakor extends Enemy {
         if(player.areDinteChilimbar){
             amount+=3;
         }
-        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount, Color.RED));
+        if (this.shield < amount) {
+            int remaining = amount - shield;
+            shield = 0;
+            life -= remaining;
+            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + remaining, Color.RED));
+        } else {
+            shield -= amount;
+            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
+        }
 
         // Când viața scade la 0, schimbăm faza instantaneu
         if (life <= 0) {

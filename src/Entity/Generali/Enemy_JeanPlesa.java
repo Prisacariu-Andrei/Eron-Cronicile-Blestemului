@@ -41,6 +41,7 @@ public class Enemy_JeanPlesa extends Enemy {
         right1 = flipImage(setup("/Enemy/JeanPlesa"));
         right2 = flipImage(setup("/Enemy/JeanPlesa"));
         fightStand = setup("/Enemy/JeanPlesa");
+        battleBackground = setup("/Backgrounds/Citadela_bg");
     }
 
     @Override

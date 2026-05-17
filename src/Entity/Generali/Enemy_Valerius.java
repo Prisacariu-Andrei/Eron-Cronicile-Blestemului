@@ -40,6 +40,7 @@ public class Enemy_Valerius extends Enemy {
         right1 = setup("/Enemy/Valerius");
         right2 = setup("/Enemy/Valerius");
         fightStand = setup("/Enemy/Valerius");
+        battleBackground = setup("/Backgrounds/Eldoria_bg");
     }
 
     @Override
