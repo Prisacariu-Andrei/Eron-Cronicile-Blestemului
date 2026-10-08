@@ -1,12 +1,11 @@
 package Entity.NPC;
 
-import GameState.DialogueState;
 import GameState.PlayState;
 import GameState.ShopState;
-import Main.Economy;
 import Main.GamePanel;
 import Main.Json;
 import Main.Exception.GameExceptionHandler;
+import ProgressManagement.QuestLog;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -21,12 +20,18 @@ import java.util.Random;
 /**
  * Un NPC descris în res/Data/npcs.json, nu în cod. Tipuri: "simple", "dialogue", "merchant", "quest"
  * (vezi câmpul "_help" din fișier). Pentru un NPC nou nu scrii nicio clasă: adaugi o intrare în JSON.
+ *
+ * Orice NPC poate oferi, primi sau preda misiuni din quests.json (prin id-ul lui). Când are o misiune de oferit,
+ * de predat sau în desfășurare, aceasta are prioritate față de dialogul lui obișnuit.
  */
 public class DataNPC extends NPC {
     private record Choice(String text, String next, String action) {}
     private record Node(String text, List<Choice> choices, String next, String action) {}
 
     private static final Random RNG = new Random();
+
+    // moduri de conversație
+    private static final int NORMAL = 0, QUEST_OFFER = 1, QUEST_TURN_IN = 2, QUEST_INFO = 3;
 
     private final String id, type, spritePath;
     private final Color tint;
@@ -38,17 +43,15 @@ public class DataNPC extends NPC {
 
     // dialogue / merchant / quest
     private final Map<String, Node> nodes = new LinkedHashMap<>();
-    private final String startNode, startReceivedNode;
+    private final String startNode;
     private String currentNode;
 
     // merchant
     private final List<String> stock = new ArrayList<>();
 
-    // quest giver (câmpul/hook-ul; misiunile propriu-zise vin în sesiunea următoare)
-    private final int questId;
-    private final boolean questMain;
-
     private boolean talking = false;
+    private int mode = NORMAL;
+    private QuestLog.Def pendingQuest;
 
     public DataNPC(GamePanel gp, int x, int y, Map<String, Object> def) {
         super(gp, x, y);
@@ -71,13 +74,8 @@ public class DataNPC extends NPC {
             nodes.put(e.getKey(), new Node(Json.str(n.get("text"), "..."), choices, Json.str(n.get("next"), null), Json.str(n.get("action"), null)));
         }
         this.startNode = Json.str(def.get("start"), null);
-        this.startReceivedNode = Json.str(def.get("startReceived"), null);
 
         for (Object o : Json.list(Json.map(def.get("shop")).get("stock"))) stock.add(String.valueOf(o));
-
-        Map<String, Object> quest = Json.map(def.get("quest"));
-        this.questId = Json.integer(quest.get("id"), -1);
-        this.questMain = Json.bool(quest.get("main"), false);
 
         getImage();
     }
@@ -110,6 +108,17 @@ public class DataNPC extends NPC {
 
     @Override public void setDialogue() { /* replicile vin din JSON */ }
 
+    /** Ce semn apare deasupra capului (vezi NPC.draw): ! misiune de oferit, ? gata de predat / în desfășurare. */
+    @Override
+    public int markerKind() {
+        QuestLog ql = gp.questLog;
+        if (ql.readyFor(id) != null) return MARKER_READY;
+        if (ql.availableFrom(id) != null) return MARKER_AVAILABLE;
+        if (ql.hasActiveTalk(id)) return MARKER_TALK;
+        if (ql.activeFrom(id) != null) return MARKER_ACTIVE;
+        return MARKER_NONE;
+    }
+
     // =====================================================================================
     // CONVERSAȚIE
     // =====================================================================================
@@ -120,18 +129,58 @@ public class DataNPC extends NPC {
         if (!talking) {
             talking = true;
             gp.dialogueUI.speaker = name;
+            mode = NORMAL;
+            pendingQuest = null;
+            QuestLog ql = gp.questLog;
+
+            String reply = ql.onTalk(id); // vorbitul cu acest NPC poate bifa un obiectiv al unei misiuni active
+            QuestLog.Def ready = ql.readyFor(id);
+            if (ready != null) {
+                mode = QUEST_TURN_IN;
+                pendingQuest = ready;
+                String rewards = ql.rewardText(ready);
+                showText(ready.completeText + (rewards.isEmpty() ? "" : "\n" + rewards), null);
+                return;
+            }
+            if (reply != null && !reply.isEmpty()) {
+                mode = QUEST_INFO;
+                showText(reply, null);
+                return;
+            }
+            QuestLog.Def offer = ql.availableFrom(id);
+            if (offer != null) {
+                mode = QUEST_OFFER;
+                pendingQuest = offer;
+                showText(offer.offerText + "\n" + ql.rewardText(offer), List.of("Primesc misiunea.", "Poate mai târziu."));
+                return;
+            }
+            QuestLog.Def active = ql.activeFrom(id);
+            if (active != null) {
+                mode = QUEST_INFO;
+                showText(active.activeText + "\n" + ql.progressText(active), null);
+                return;
+            }
+
+            // dialogul obișnuit
             if ("simple".equals(type)) {
                 showText(nextLine(), null);
+            } else if (startNode == null || !nodes.containsKey(startNode)) {
+                end();
             } else {
-                String start = startNode;
-                if (startReceivedNode != null && questReceived()) start = startReceivedNode;
-                if (start == null || !nodes.containsKey(start)) { end(); return; }
-                goTo(start);
+                goTo(startNode);
             }
             return;
         }
 
-        // Textul curent a fost citit și nu are opțiuni: continuăm sau încheiem
+        // Textul curent a fost citit și nu are opțiuni: predăm misiunea / continuăm / încheiem
+        if (mode == QUEST_TURN_IN) {
+            gp.questLog.turnIn(pendingQuest);
+            gp.fx.rewardBurst(gp.camera.screenX(worldX) + gp.tileSize / 2, gp.camera.screenY(worldY));
+            end();
+            return;
+        }
+        if (mode != NORMAL) { end(); return; }
+
         Node n = currentNode == null ? null : nodes.get(currentNode);
         if (n != null && n.next() != null && nodes.containsKey(n.next())) goTo(n.next());
         else end();
@@ -140,10 +189,21 @@ public class DataNPC extends NPC {
     /** Jucătorul a ales o opțiune (indexul din lista curentă). */
     @Override
     public void choose(int index) {
+        if (mode == QUEST_OFFER) {
+            if (index == 0 && pendingQuest != null) {
+                gp.questLog.accept(pendingQuest);
+                mode = QUEST_INFO; // după replica de acceptare, E încheie conversația
+                showText(pendingQuest.acceptText, null);
+            } else {
+                end();
+            }
+            return;
+        }
+
         Node n = currentNode == null ? null : nodes.get(currentNode);
         if (n == null || index < 0 || index >= n.choices().size()) return;
         Choice c = n.choices().get(index);
-        boolean opensShop = c.action() != null && c.action().equals("shop");
+        boolean opensShop = "shop".equals(c.action());
         if (c.action() != null && !opensShop) runAction(c.action());
         if (opensShop) { end(); openShop(); return; }
         if (c.next() != null && nodes.containsKey(c.next())) goTo(c.next());
@@ -180,6 +240,8 @@ public class DataNPC extends NPC {
 
     private void end() {
         talking = false;
+        mode = NORMAL;
+        pendingQuest = null;
         currentNode = null;
         gp.dialogueUI.clearChoices();
         gp.dialogueUI.speaker = null;
@@ -191,7 +253,7 @@ public class DataNPC extends NPC {
         gp.changeState(new ShopState(gp, name, stock));
     }
 
-    /** Acțiuni din JSON: "heal:N", "coins:N", "quest". ("shop" se tratează la alegerea opțiunii.) */
+    /** Acțiuni din JSON: "heal:N", "coins:N". ("shop" se tratează la alegerea opțiunii.) */
     private void runAction(String action) {
         String[] p = action.split(":");
         int arg = p.length > 1 ? parseInt(p[1]) : 0;
@@ -202,17 +264,8 @@ public class DataNPC extends NPC {
                 gp.fx.healSparkle();
             }
             case "coins" -> gp.player.addCoins(arg);
-            case "quest" -> {
-                if (questId >= 0) gp.questManager.receiveQuest(questId, questMain);
-            }
             default -> GameExceptionHandler.getInstance().handleWarning("Acțiune necunoscută în npcs.json: " + action, null);
         }
-    }
-
-    private boolean questReceived() {
-        if (questId < 0) return false;
-        var q = gp.questManager.getQuestById(questId, questMain);
-        return q != null && q.isReceived;
     }
 
     // =====================================================================================
@@ -228,7 +281,7 @@ public class DataNPC extends NPC {
         try { return Color.decode(hex); } catch (NumberFormatException e) { return null; }
     }
 
-    /** Copie a sprite-ului cu culorile înmulțite cu "tint", ca același desen să dea NPC-uri diferite. */
+    /** Copie a sprite-ului colorată cu "tint", păstrând luminile și umbrele desenului. */
     private static BufferedImage tinted(BufferedImage src, Color tint) {
         BufferedImage out = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < src.getHeight(); y++) {
@@ -236,8 +289,7 @@ public class DataNPC extends NPC {
                 int argb = src.getRGB(x, y);
                 int a = argb >>> 24;
                 int or = (argb >> 16) & 255, og = (argb >> 8) & 255, ob = argb & 255;
-                // Păstrăm luminile și umbrele desenului (luminanța), dar le colorăm cu "tint".
-                // Sprite-ul e foarte închis, deci ridicăm luminozitatea ca tenta să se vadă.
+                // Sprite-ul e foarte închis, deci ridicăm luminozitatea ca tenta să se vadă
                 double luma = 0.30 * or + 0.59 * og + 0.11 * ob;
                 double k = (60 + 0.7 * luma) / 190.0;
                 int r = (int) Math.min(255, tint.getRed() * k * 0.8 + or * 0.2);

@@ -15,6 +15,7 @@ public class PlayState implements GameState {
     @Override
     public void update() {
         gp.ui.update(); // expirarea mesajului din HUD
+        gp.pickups.update(); // obiectele de misiune pe care le atinge Eron
         gp.gameTimer.update();
         gp.player.update();
         gp.eHandler.checkEvent();

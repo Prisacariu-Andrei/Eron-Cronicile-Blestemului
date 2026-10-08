@@ -67,6 +67,35 @@ public abstract class NPC extends Entity {
                 screenY < gp.screenHeight) {
 
             g2.drawImage(down1, screenX, screenY, gp.tileSize, gp.tileSize, null);
+            drawMarker(g2, screenX + gp.tileSize / 2, screenY - 6);
         }
+    }
+
+    // Semne de misiune deasupra capului: ! = are o misiune de oferit, ? = gata de predat / în desfășurare
+    public static final int MARKER_NONE = 0, MARKER_AVAILABLE = 1, MARKER_READY = 2, MARKER_ACTIVE = 3, MARKER_TALK = 4;
+
+    /** Ce semn să apară deasupra acestui NPC (DataNPC îl calculează din starea misiunilor). */
+    public int markerKind() { return MARKER_NONE; }
+
+    private void drawMarker(Graphics2D g2, int cx, int bottomY) {
+        int kind = markerKind();
+        if (kind == MARKER_NONE) return;
+        String sign = (kind == MARKER_AVAILABLE || kind == MARKER_TALK) ? "!" : "?";
+        Color color = switch (kind) {
+            case MARKER_AVAILABLE, MARKER_READY -> new Color(255, 221, 60);   // galben: acțiune pentru tine
+            case MARKER_TALK -> new Color(120, 220, 255);                      // albastru: vorbește cu el
+            default -> new Color(165, 165, 175);                               // gri: misiune în desfășurare
+        };
+        float hop = kind == MARKER_ACTIVE ? 0f : Math.abs((float) Math.sin(gp.fx.ticks * 0.12)) * 7f;
+        Font old = g2.getFont();
+        g2.setFont(old.deriveFont(Font.BOLD, 34F));
+        int x = cx - g2.getFontMetrics().stringWidth(sign) / 2;
+        int y = bottomY - Math.round(hop);
+        g2.setColor(Color.BLACK);
+        g2.drawString(sign, x + 2, y + 2);
+        g2.drawString(sign, x - 1, y + 2);
+        g2.setColor(color);
+        g2.drawString(sign, x, y);
+        g2.setFont(old);
     }
 }

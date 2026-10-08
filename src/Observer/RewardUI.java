@@ -39,13 +39,24 @@ public class RewardUI {
         g2.drawString(title, titleX, 120);
 
         // Monedele primite de la inamicul învins
-        if (gp.player.lastCoinReward > 0) {
+        if (gp.player.lastCoinReward > 0 || gp.player.lastXpReward > 0) {
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 26F));
             g2.setColor(new Color(255, 221, 100));
             String coinText = "+" + gp.player.lastCoinReward + " monede";
-            int cw = g2.getFontMetrics().stringWidth(coinText);
-            ShopUI.drawCoin(g2, gp.screenWidth / 2 - cw / 2 - 40, 150, 28);
-            g2.drawString(coinText, gp.screenWidth / 2 - cw / 2, 175);
+            String xpText = "   +" + gp.player.lastXpReward + " XP";
+            int cw = g2.getFontMetrics().stringWidth(coinText + xpText);
+            int left = gp.screenWidth / 2 - cw / 2;
+            ShopUI.drawCoin(g2, left - 40, 150, 28);
+            g2.drawString(coinText, left, 175);
+            g2.setColor(new Color(200, 170, 255));
+            g2.drawString(xpText, left + g2.getFontMetrics().stringWidth(coinText), 175);
+        }
+        if (gp.progression.leveledThisBattle) {
+            float pulse = 0.5f + 0.5f * (float) Math.sin(gp.fx.ticks * 0.2);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 34F));
+            g2.setColor(new Color(255, 230, 110, 190 + Math.round(65 * pulse)));
+            String up = "NIVEL " + gp.progression.level + "!";
+            g2.drawString(up, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(up) / 2, 215);
         }
 
         // 3. Iterăm prin recompense

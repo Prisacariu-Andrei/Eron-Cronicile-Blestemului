@@ -1,0 +1,59 @@
+{
+  "_help": [
+    "Toată echilibrarea nivelurilor, XP-ului și abilităților. Monedele și prețurile sunt în economy.json, recompensele misiunilor în quests.json.",
+    "XP necesar pentru nivelul următor = round(xpBase * xpGrowth ^ (nivel - 1)). La fiecare nivel: +hpPerLevel viață maximă; la nivelurile din manaBonusAtLevels: +1 esență maximă.",
+    "Abilitățile se deblochează AUTOMAT la unlockLevel (nu există puncte de abilitate). Se folosesc în luptă cu tastele 1-4 și costă esență (mană), ca și cărțile.",
+    "effects (se aplică în ordine): damage {value, scalesWithDamage}, shield {value}, heal {value}, mana {value}, status {status: BURN|POISON|WEAK|VULNERABLE, turns, value}."
+  ],
+
+  "maxLevel": 10,
+  "xpBase": 40,
+  "xpGrowth": 1.35,
+  "hpPerLevel": 8,
+  "healOnLevelUp": true,
+  "baseMana": 3,
+  "manaBonusAtLevels": [5, 9],
+
+  "defaultEnemyXp": 8,
+  "enemyXp": {
+    "Lup Slăbit": 6,
+    "Lup": 12,
+    "Cioara": 8,
+    "Lup de Elită": 30,
+    "Trol de Pestera": 20,
+    "Trol de Elită": 60,
+    "Valerius": 90,
+    "Fenris cel Alb": 120,
+    "Feldgug": 160,
+    "Jean Plesa": 200,
+    "Glaciara": 240,
+    "Charon": 300,
+    "Malakor": 500
+  },
+
+  "abilities": [
+    {
+      "id": "scanteie", "name": "Scânteie Stelară", "unlockLevel": 2, "cost": 1, "color": "#FFD36B",
+      "description": "O lovitură rapidă de lumină: 8 damage.",
+      "effects": [ { "type": "damage", "value": 8, "scalesWithDamage": true } ]
+    },
+    {
+      "id": "scut", "name": "Scut de Rune", "unlockLevel": 3, "cost": 1, "color": "#7FC8FF",
+      "description": "Runele te învelesc: 9 armură.",
+      "effects": [ { "type": "shield", "value": 9 } ]
+    },
+    {
+      "id": "izvor", "name": "Izvorul Luminii", "unlockLevel": 5, "cost": 2, "color": "#7DFFA0",
+      "description": "Te vindecă cu 18 viață.",
+      "effects": [ { "type": "heal", "value": 18 } ]
+    },
+    {
+      "id": "pecete", "name": "Pecetea Slăbiciunii", "unlockLevel": 7, "cost": 2, "color": "#C58BFF",
+      "description": "6 damage și inamicul primește mai mult damage 2 ture (Vulnerabil).",
+      "effects": [
+        { "type": "damage", "value": 6, "scalesWithDamage": true },
+        { "type": "status", "status": "VULNERABLE", "turns": 2, "value": 50 }
+      ]
+    }
+  ]
+}

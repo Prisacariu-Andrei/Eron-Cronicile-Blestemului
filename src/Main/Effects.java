@@ -148,6 +148,48 @@ public class Effects {
         sound("heal");
     }
 
+    /** Acțiune refuzată (nu ai destulă esență / nivel): sunet scurt și jos. */
+    public void denied() {
+        sound("deny");
+    }
+
+    /** Nivel nou: explozie aurie în jurul lui Eron, flash cald, un mic tremur și sunet. */
+    public void levelUp() {
+        if (gp.getCurrentState() instanceof BattleState) {
+            burst(ParticleSystem.FRONT, gp.battleUI.playerCenterX(), gp.battleUI.playerCenterY(), 48, 0xFFE27A, 9f, 64, 7f, 0.04f);
+        } else {
+            burst(ParticleSystem.WORLD, gp.player.worldX + gp.tileSize / 2f, gp.player.worldY + gp.tileSize / 3f, 48, 0xFFE27A, 7f, 64, 7f, 0.03f);
+        }
+        fade(0xFFF2B0, 0.55f, 26);
+        shake(4f, 14);
+        sound("levelup");
+    }
+
+    /** O abilitate folosită în luptă: scântei și un val de culoarea ei din jurul lui Eron (și pe inamic, dacă îl lovește). */
+    public void abilityCast(int rgb, boolean onEnemy) {
+        int px = gp.battleUI.playerCenterX(), py = gp.battleUI.playerCenterY();
+        sparks(ParticleSystem.FRONT, px, py, 10, rgb, 6f);
+        burst(ParticleSystem.FRONT, px, py, 16, rgb, 4f, 38, 6f, -0.02f);
+        if (onEnemy) sparks(ParticleSystem.FRONT, gp.battleUI.enemyCenterX(), gp.battleUI.enemyCenterY(), 10, rgb, 6f);
+        sound("ability");
+    }
+
+    /** Sunet pentru evenimente de misiune: ușor la progres, plin la îndeplinire/predare. */
+    public void questSound(boolean big) {
+        sound(big ? "reward" : "coin");
+    }
+
+    /** Un obiect de misiune a fost cules. */
+    public void pickupBurst(float wx, float wy, int rgb) {
+        burst(ParticleSystem.WORLD, wx, wy, 16, rgb, 3.5f, 32, 5f, -0.03f);
+    }
+
+    /** Scânteie care urcă dintr-un obiect de cules, ca să se observe de departe. */
+    public void pickupGlint(float wx, float wy, int rgb) {
+        particles.spawn(ParticleSystem.WORLD, ParticleSystem.GLOW, wx + (rng.nextFloat() - 0.5f) * 30, wy + 8,
+                (rng.nextFloat() - 0.5f) * 0.3f, -0.4f - rng.nextFloat() * 0.4f, -0.005f, 0.99f, 44, 3f, 1f, 0.9f, rgb);
+    }
+
     /** Explozie aurie (recompensă aleasă, runa primită). */
     public void rewardBurst(int screenX, int screenY) {
         burst(ParticleSystem.FRONT, screenX, screenY, GameFeel.REWARD_BURST, 0xFFD36B, 7f, 46, 6f, 0.08f);
@@ -302,6 +344,7 @@ public class Effects {
     }
 
     public void drawWorld(Graphics2D g2) {
+        gp.pickups.draw(g2); // obiectele de misiune stau sub particule
         particles.draw(g2, ParticleSystem.WORLD, gp.camera.getX(), gp.camera.getY(), gp.screenWidth, gp.screenHeight);
     }
 

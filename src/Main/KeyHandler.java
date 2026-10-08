@@ -151,6 +151,11 @@ public class KeyHandler implements KeyListener {
                 gp.player.endTurn();
                 return;
             }
+            // Abilități (progression.json): tastele 1-4
+            if (code >= KeyEvent.VK_1 && code <= KeyEvent.VK_9) {
+                gp.player.useAbility(code - KeyEvent.VK_1);
+                return;
+            }
         }
 
         // 3. GESTIUNE REWARD SCREEN

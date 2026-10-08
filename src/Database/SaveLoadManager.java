@@ -55,14 +55,18 @@ public class SaveLoadManager {
 
             // Monedele și relicvele (coloanele sunt adăugate în DatabaseManager)
             try (PreparedStatement extra = conn.prepareStatement("UPDATE saves SET coins = ?, are_dinte_chilimbar = ?, " +
-                    "are_diamantul_noptii = ?, are_palos_legendar = ?, are_inel_gheata = ?, are_platosa_valerius = ? WHERE slot = ?")) {
+                    "are_diamantul_noptii = ?, are_palos_legendar = ?, are_inel_gheata = ?, are_platosa_valerius = ?, " +
+                    "level = ?, xp = ?, quest_data = ? WHERE slot = ?")) {
                 extra.setInt(1, player.coins);
                 extra.setInt(2, player.areDinteChilimbar ? 1 : 0);
                 extra.setInt(3, player.areDiamantulNoptii ? 1 : 0);
                 extra.setInt(4, player.arePalosLegendar ? 1 : 0);
                 extra.setInt(5, player.areInelDeGheata ? 1 : 0);
                 extra.setInt(6, player.arePlatosaValerius ? 1 : 0);
-                extra.setInt(7, slot);
+                extra.setInt(7, player.gp.progression.level);
+                extra.setInt(8, player.gp.progression.xp);
+                extra.setString(9, player.gp.questLog.serialize());
+                extra.setInt(10, slot);
                 extra.executeUpdate();
             }
 
@@ -129,6 +133,13 @@ public class SaveLoadManager {
                     gp.player.coins = rs.getInt("coins"); // salvările vechi nu au monede: 0
                 } catch (SQLException e) {
                     gp.player.coins = 0;
+                }
+                try {
+                    gp.progression.restore(rs.getInt("level"), rs.getInt("xp"));
+                    gp.questLog.deserialize(rs.getString("quest_data"));
+                } catch (SQLException e) { // salvare veche, fără progresie
+                    gp.progression.restore(1, 0);
+                    gp.questLog.reset();
                 }
 
                 // Restaurăm relicvele

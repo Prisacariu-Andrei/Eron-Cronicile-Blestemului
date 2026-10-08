@@ -7,6 +7,9 @@ import Entity.Player.Player;
 import Observer.*;
 import Tiles.TileManager;
 import ProgressManagement.QuestManager;
+import ProgressManagement.QuestLog;
+import ProgressManagement.Progression;
+import ProgressManagement.Pickups;
 import GameState.GameState;
 import GameState.MenuState;
 import GameState.InputNameState;
@@ -63,6 +66,10 @@ public class GamePanel extends JPanel implements Runnable {
     public CreditsUI creditsUI = new CreditsUI(this);
     public CutsceneUI cutsceneUI = new CutsceneUI(this);
     public ShopUI shopUI = new ShopUI(this);
+    // Misiuni, niveluri/abilități și obiecte de cules (date în res/Data: quests.json, progression.json)
+    public QuestLog questLog = new QuestLog(this);
+    public Progression progression = new Progression(this);
+    public Pickups pickups = new Pickups(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();
 
     // OPȚIUNI MENIU

@@ -202,6 +202,33 @@ public class UI {
         g2.drawString(text, x + size + 10, y + size - 3);
         g2.setColor(new Color(255, 221, 100));
         g2.drawString(text, x + size + 8, y + size - 5);
+
+        drawLevel(g2, x, y + size + 12);
+    }
+
+    /** Nivelul și bara de XP sub monede. */
+    private void drawLevel(Graphics2D g2, int x, int y) {
+        var pg = gp.progression;
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 17F));
+        String lvl = "Nv. " + pg.level;
+        g2.setColor(Color.BLACK);
+        g2.drawString(lvl, x + 1, y + 15);
+        g2.setColor(new Color(200, 170, 255));
+        g2.drawString(lvl, x, y + 14);
+
+        int barX = x + 62, barY = y + 3, barW = 150, barH = 11;
+        float fill = pg.xpToNext() == 0 ? 1f : Easing.clamp01(pg.xp / (float) pg.xpToNext());
+        g2.setColor(new Color(0, 0, 0, 170));
+        g2.fillRoundRect(barX, barY, barW, barH, 8, 8);
+        g2.setColor(new Color(140, 90, 230));
+        g2.fillRoundRect(barX, barY, Math.round(barW * fill), barH, 8, 8);
+        g2.setColor(new Color(235, 225, 255));
+        g2.setStroke(new BasicStroke(1.2f));
+        g2.drawRoundRect(barX, barY, barW, barH, 8, 8);
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11F));
+        String xpText = pg.xpToNext() == 0 ? "MAX" : pg.xp + "/" + pg.xpToNext();
+        g2.setColor(Color.WHITE);
+        g2.drawString(xpText, barX + barW / 2 - g2.getFontMetrics().stringWidth(xpText) / 2, barY + 9);
     }
 
     /** Un tick: mesajul din HUD expiră după 120 de ticks (2 secunde), indiferent de FPS-ul desenării. */

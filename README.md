@@ -47,6 +47,20 @@ Salvările se scriu în `eron_save.db`, lângă proiect (nu este urmărit de git
 
 Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D schimbă fila, W/S aleg, ENTER cumpără/vinde, ESC iese.
 
+## Misiuni, nivele și abilități (date, nu cod)
+
+- **`res/Data/quests.json`** — misiunile (id, titlu, descriere, `giver`/`turnIn` = id-ul unui NPC din `npcs.json`, obiective
+  `kill` / `collect` / `talk`, recompense: monede, XP, o carte) și obiectele de cules din lume (`pickups`). Stări: nepornită →
+  activă → îndeplinită → predată. NPC-ul cu o misiune de oferit are `!` deasupra capului, cel la care o predai `?` (galben);
+  `?` gri = în desfășurare. Jurnalul (**J**, tasta **Q** schimbă fila) are fila „Misiuni”.
+- **`res/Data/progression.json`** — XP-ul necesar pe nivel, ce primești la fiecare nivel (viață maximă, +1 esență la nivelurile 5 și 9),
+  XP-ul fiecărui inamic și **abilitățile**. Abilitățile se deblochează automat la nivelul lor și se folosesc în luptă cu **1-4**
+  (costă esență, ca cărțile).
+
+**Misiune nouă:** adaugă un obiect în `quests` (vezi `_help` în fișier). Pentru obiectivul `collect`, adaugă și obiectele în `pickups`.
+**Abilitate nouă:** adaugă un obiect în `abilities` din `progression.json` (`unlockLevel`, `cost`, `effects`: `damage`, `shield`, `heal`,
+`mana`, `status`). Slotul (tasta) urmează ordinea nivelului de deblocare.
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

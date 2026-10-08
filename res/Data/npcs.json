@@ -4,10 +4,9 @@
     "type = simple    -> 'lines' (lista de replici) + 'lineMode': 'cycle' sau 'random'.",
     "type = dialogue  -> 'start' + 'nodes'. Un nod are 'text' si fie 'choices' (2-3 optiuni), fie 'next' (continua la apasarea lui E).",
     "type = merchant  -> ca dialogue, plus 'shop': {'stock': [numele cartilor din CardFactory]}. Optiunea cu 'action': 'shop' deschide magazinul.",
-    "type = quest     -> ca dialogue, plus 'quest': {'id': .., 'main': true/false}; actiunea 'quest' o marcheaza ca primita.",
-    "          'startReceived' = nodul de pornire dupa ce misiunea a fost primita.",
-    "O optiune: {'text': .., 'next': nod, 'action': ..}. Fara 'next' dialogul se incheie.",
-    "Actiuni: 'shop', 'quest', 'heal:N' (vindeca N viata), 'coins:N' (da N monede). Pe un nod ruleaza la afisare; pe o optiune la alegere.",
+    "type = quest     -> ca dialogue; misiunile vin din quests.json (orice NPC cu id-ul din 'giver' / 'turnIn' le ofera si le primeste, indiferent de tip).",
+        "O optiune: {'text': .., 'next': nod, 'action': ..}. Fara 'next' dialogul se incheie.",
+    "Actiuni: 'shop', 'heal:N' (vindeca N viata), 'coins:N' (da N monede). Pe un nod ruleaza la afisare; pe o optiune la alegere.",
     "In texte: {name} = numele jucatorului, {coins} = monedele lui."
   ],
 
@@ -88,22 +87,10 @@
     {
       "id": "ilinca", "name": "Vânătoarea Ilinca", "type": "quest", "zone": "Eldoria", "col": 36, "row": 10,
       "sprite": "/Player/Eron_down1.png", "tint": "#90D890",
-      "quest": { "id": 2, "main": false },
-      "start": "offer",
-      "startReceived": "waiting",
+      "start": "idle",
       "nodes": {
-        "offer": {
-          "text": "Am pierdut niște comori pe drumurile din jur. Dacă le găsești pe toate, te răsplătesc, {name}.",
-          "choices": [
-            { "text": "Primesc misiunea.", "action": "quest", "next": "accepted" },
-            { "text": "Poate mai târziu.", "next": null }
-          ]
-        },
-        "accepted": {
-          "text": "Perfect! Caută cu atenție prin toate colțurile. Misiunea e în jurnal (J)."
-        },
-        "waiting": {
-          "text": "Încă n-ai găsit comorile? Mai caută, nu pot fi departe."
+        "idle": {
+          "text": "Nu mai am de lucru pentru tine acum, {name}. Dar drumurile nu stau liniștite mult timp."
         }
       }
     }

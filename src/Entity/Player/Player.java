@@ -1,6 +1,7 @@
 package Entity.Player;
 
 import Entity.Entity;
+import Entity.StatusEffect;
 import Entity.Inamici.Enemy;
 import Entity.Items.Card;
 import Entity.Cards.GeamatulEcoului;
@@ -53,6 +54,7 @@ public class Player extends Entity {
     // Monede (valorile câștigurilor și prețurile sunt în res/Data/economy.json)
     public int coins = 0;
     public int lastCoinReward = 0; // cât a primit la ultima luptă (afișat pe ecranul de recompensă)
+    public int lastXpReward = 0;
 
     public void addCoins(int amount) {
         coins += amount;
@@ -311,6 +313,60 @@ public class Player extends Entity {
         }
     }
 
+    /**
+     * Folosește abilitatea de pe slotul dat (tastele 1-4). Costă esență ca o carte; se deblochează la nivel
+     * (progression.json). Efectele: damage, shield, heal, mana, status.
+     */
+    public void useAbility(int slot) {
+        var ability = gp.progression.abilityAt(slot);
+        if (ability == null || !isPlayerTurn || currentEnemy == null || !currentEnemy.alive || life <= 0) return;
+
+        if (!gp.progression.isUnlocked(ability)) {
+            gp.fx.denied();
+            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "Nivel " + ability.unlockLevel + " necesar", Color.ORANGE));
+            return;
+        }
+        if (currentMana < ability.cost) {
+            gp.fx.denied();
+            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "Esență insuficientă", Color.ORANGE));
+            return;
+        }
+
+        currentMana -= ability.cost;
+        boolean hitsEnemy = false;
+        for (var effect : ability.effects) {
+            int value = Main.Json.integer(effect.get("value"), 0);
+            switch (Main.Json.str(effect.get("type"), "")) {
+                case "damage" -> {
+                    hitsEnemy = true;
+                    currentEnemy.takeDamage(this, value + (Main.Json.bool(effect.get("scalesWithDamage"), true) ? damage : 0));
+                }
+                case "shield" -> addShield(value);
+                case "heal" -> {
+                    int healed = Math.min(value, maxLife - life);
+                    life += healed;
+                    gp.popups.add(new DamagePopUp(gp.tileSize * 3, gp.tileSize * 2, "+" + healed + " HP", Color.GREEN));
+                    notifyObservers();
+                }
+                case "mana" -> addMana(value);
+                case "status" -> {
+                    hitsEnemy = true;
+                    try {
+                        currentEnemy.applyStatus(StatusEffect.Type.valueOf(Main.Json.str(effect.get("status"), "WEAK")),
+                                Main.Json.integer(effect.get("turns"), 1), value);
+                    } catch (IllegalArgumentException e) {
+                        GameExceptionHandler.getInstance().handleWarning("Status necunoscut într-o abilitate: " + effect.get("status"), e);
+                    }
+                }
+                default -> GameExceptionHandler.getInstance().handleWarning("Efect necunoscut într-o abilitate: " + effect.get("type"), null);
+            }
+        }
+        gp.fx.abilityCast(ability.color.getRGB() & 0xFFFFFF, hitsEnemy);
+        notifyObservers();
+
+        if (currentEnemy != null && currentEnemy.life <= 0 && !currentEnemy.alive) winBattle();
+    }
+
     public void endTurn() {
         isPlayerTurn = false;
         isInvulnerable = false;
@@ -480,6 +536,7 @@ public class Player extends Entity {
     public void startBattle() {
         this.moveVelocity = 0f; // nu mai alunecă când revine pe hartă
         this.moveRemainder = 0f;
+        gp.progression.leveledThisBattle = false;
         this.isPlayerTurn = true;
         this.currentMana = this.maxMana;
         this.shield = 0;
@@ -497,6 +554,11 @@ public class Player extends Entity {
             // Folosim doar partea dinaintea virgulei: "Feldgug, Regele Trol" -> "Feldgug",
             // "Glaciara, Stăpânul Inelului de Gheață" -> "Glaciara" etc., ca să se potrivească cu case-urile de mai jos
             String inamicNume = currentEnemy.name.split(",")[0].trim();
+
+            // XP (progression.json -> enemyXp) și progresul misiunilor de tip "învinge"
+            lastXpReward = gp.progression.enemyXp(inamicNume);
+            gp.questLog.onKill(inamicNume);
+            gp.progression.addXp(lastXpReward);
 
             // Monede pentru inamicul învins (cât se primește: economy.json -> enemyDrops)
             lastCoinReward = Main.Economy.get().enemyDrop(inamicNume);
@@ -643,6 +705,8 @@ public class Player extends Entity {
 
     public void resetPlayer() {
         setDefaultValues();
+        gp.progression.reset(); // nivel 1, fără XP, esența de bază
+        gp.questLog.reset();    // misiunile de la capăt
         inventory.hand.clear();
         inventory.discardPile.clear();
         for(int i=0; i<gp.enemy.length; i++) if(gp.enemy[i]!=null) { gp.enemy[i].alive = true; gp.enemy[i].life = gp.enemy[i].maxLife; }

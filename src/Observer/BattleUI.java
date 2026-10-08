@@ -143,6 +143,7 @@ public class BattleUI {
         drawEnemyStats(g2, groundY);
         drawCardHand(g2);
         drawManaPool(g2,groundY);
+        drawAbilities(g2);
         drawEnemyIntent(g2);
         drawControlsAndPopups(g2);
 
@@ -199,7 +200,7 @@ public class BattleUI {
         // Text Info
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 115f));
         g2.setColor(Color.WHITE);
-        g2.drawString("ERON", x, y - (int)(gp.screenHeight * 0.015));
+        g2.drawString("ERON  Nv. " + gp.progression.level, x, y - (int)(gp.screenHeight * 0.015));
 
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 130f));
         String healthText = gp.player.life + " / " + gp.player.maxLife;
@@ -466,6 +467,51 @@ public class BattleUI {
         String mana = gp.player.currentMana + "/" + gp.player.maxMana;
         int mWidth = g2.getFontMetrics().stringWidth(mana);
         g2.drawString(mana, x + (int)(size / 2.0) - (int)(mWidth / 2.0), y + (size / 1.6f));
+    }
+
+    /**
+     * Abilitățile (progression.json) în colțul de sus-stânga: tasta, nume, cost în esență.
+     * Cele nedeblocate arată nivelul necesar; cele pe care nu le poți plăti acum sunt estompate.
+     */
+    private void drawAbilities(Graphics2D g2) {
+        var list = gp.progression.abilities;
+        int x = 16, y = 96, w = 232, h = 40;
+        Font old = g2.getFont();
+        for (int i = 0; i < list.size() && i < 9; i++) {
+            var a = list.get(i);
+            boolean unlocked = gp.progression.isUnlocked(a);
+            boolean affordable = unlocked && gp.player.isPlayerTurn && gp.player.currentMana >= a.cost;
+            int ry = y + i * (h + 6);
+
+            g2.setColor(affordable ? new Color(40, 38, 70, 235) : new Color(24, 24, 36, 215));
+            g2.fillRoundRect(x, ry, w, h, 12, 12);
+            g2.setColor(affordable ? a.color : new Color(90, 90, 105));
+            g2.setStroke(new BasicStroke(affordable ? 2.5f : 1.5f));
+            g2.drawRoundRect(x, ry, w, h, 12, 12);
+
+            // tasta
+            g2.setFont(old.deriveFont(Font.BOLD, 16F));
+            g2.setColor(unlocked ? Color.WHITE : new Color(110, 110, 125));
+            g2.drawString("[" + (i + 1) + "]", x + 10, ry + 26);
+            // nume
+            g2.setFont(old.deriveFont(Font.BOLD, 15F));
+            g2.setColor(unlocked ? (affordable ? Color.WHITE : new Color(165, 165, 180)) : new Color(110, 110, 125));
+            g2.drawString(a.name, x + 44, ry + 26);
+            // cost sau nivelul necesar
+            if (unlocked) {
+                g2.setColor(new Color(41, 128, 185, affordable ? 255 : 130));
+                g2.fillOval(x + w - 36, ry + 7, 26, 26);
+                g2.setColor(Color.WHITE);
+                g2.setFont(old.deriveFont(Font.BOLD, 15F));
+                String cost = String.valueOf(a.cost);
+                g2.drawString(cost, x + w - 23 - g2.getFontMetrics().stringWidth(cost) / 2, ry + 26);
+            } else {
+                g2.setFont(old.deriveFont(Font.PLAIN, 13F));
+                g2.setColor(new Color(150, 150, 165));
+                g2.drawString("Nv. " + a.unlockLevel, x + w - 52, ry + 25);
+            }
+        }
+        g2.setFont(old);
     }
 
     private void drawControlsAndPopups(Graphics2D g2) {

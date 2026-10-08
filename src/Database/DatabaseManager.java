@@ -46,6 +46,14 @@ public class DatabaseManager {
             st.execute("CREATE TABLE IF NOT EXISTS saves (slot INTEGER PRIMARY KEY, player_name TEXT, current_zone TEXT, player_x INTEGER, player_y INTEGER, player_life INTEGER, player_max_life INTEGER, player_shield INTEGER, time_played INTEGER, saved_at TEXT);");
 
             // Monedele jucătorului: coloană adăugată ulterior, deci și pentru baze de date vechi
+            // Progresia: nivel, XP și starea misiunilor din quests.json (text compact, vezi QuestLog.serialize)
+            for (String column : new String[]{"xp INTEGER DEFAULT 0", "level INTEGER DEFAULT 1", "quest_data TEXT DEFAULT ''"}) {
+                try {
+                    st.execute("ALTER TABLE saves ADD COLUMN " + column + ";");
+                } catch (SQLException alreadyThere) {
+                    // coloana există deja
+                }
+            }
             // (la fel și relicvele: loadGame le citea, dar nicio parte din cod nu le crea sau nu le salva)
             for (String column : new String[]{"coins", "are_dinte_chilimbar", "are_diamantul_noptii", "are_palos_legendar",
                     "are_inel_gheata", "are_platosa_valerius"}) {
