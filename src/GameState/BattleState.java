@@ -10,10 +10,11 @@ public class BattleState implements GameState {
         this.gp = gp;
     }
 
-    @Override public void enter() {}
+    @Override public void enter() { gp.battleUI.onBattleStart(); }
 
     @Override
     public void update() {
+        gp.battleUI.update(); // timerele și animațiile din luptă merg pe ticks, nu pe cadre desenate
         if (gp.player.life <= 0) return;
 
         gp.gameTimer.update();

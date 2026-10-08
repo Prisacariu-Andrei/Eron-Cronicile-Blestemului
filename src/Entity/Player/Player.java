@@ -4,8 +4,11 @@ import Entity.Entity;
 import Entity.Inamici.Enemy;
 import Entity.Items.Card;
 import Entity.Cards.GeamatulEcoului;
+import Main.Easing;
+import Main.GameFeel;
 import Main.GamePanel;
 import Main.KeyHandler;
+import Main.SoundManager;
 import Main.Exception.GameExceptionHandler;
 import Observer.Observer;
 import Observer.DamagePopUp;
@@ -40,6 +43,12 @@ public class Player extends Entity {
     public float exploreMana;
     public final float maxExploreMana = 100f;
     public float manaRegen = 0.25f;
+
+    // Mișcare cu accelerare (vezi GameFeel)
+    public float moveVelocity = 0f;   // 0..1: cât de aproape de viteza maximă merge Eron acum
+    private float moveRemainder = 0f; // fracțiunea de pixel neconsumată între ticks
+    private int dustCounter = 0;
+    private int stepSoundCounter = 0;
 
     public boolean isDashing = false;
     public int dashSpeed = 16;
@@ -126,38 +135,85 @@ public class Player extends Entity {
             isDashing = true;
             dashCounter = 0;
             exploreMana -= DASH_COST;
+            gp.fx.dust(feetX(), feetY(), dirX(), dirY(), 9); // nor de praf la start
+            if (GameFeel.SOUND_FEEDBACK) SoundManager.getInstance().playSE("dash");
         }
-        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
+
+        boolean wantsMove = keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed;
+        if (wantsMove) {
+            if (keyH.upPressed) direction = "up";
+            if (keyH.downPressed) direction = "down";
+            if (keyH.leftPressed) direction = "left";
+            if (keyH.rightPressed) direction = "right";
+            // Accelerează treptat până la viteza maximă...
+            moveVelocity = Math.min(1f, moveVelocity + 1f / GameFeel.PLAYER_ACCEL_TICKS);
+        } else {
+            // ...și alunecă puțin înainte să se oprească, în loc să înghețe pe loc
+            moveVelocity = Math.max(0f, moveVelocity - 1f / GameFeel.PLAYER_DECEL_TICKS);
+        }
+
+        if (moveVelocity > 0f) {
             updateMovement();
+        } else {
+            moveRemainder = 0f;
         }
         gp.eHandler.checkEvent();
         checkEnemyCollision();
     }
 
+    // Pozițiile picioarelor (pentru praf) și direcția de mers ca vector
+    private float feetX() { return worldX + gp.tileSize / 2f; }
+    private float feetY() { return worldY + gp.tileSize * 0.88f; }
+    private float dirX() { return "left".equals(direction) ? -1f : "right".equals(direction) ? 1f : 0f; }
+    private float dirY() { return "up".equals(direction) ? -1f : "down".equals(direction) ? 1f : 0f; }
+
     private void updateMovement() {
-        if (keyH.upPressed) direction = "up";
-        if (keyH.downPressed) direction = "down";
-        if (keyH.leftPressed) direction = "left";
-        if (keyH.rightPressed) direction = "right";
+        // Viteza în pixeli pe tick: dash-ul e o explozie de viteză, mersul urmează curba de accelerare.
+        // Viteza fracționară (ex. 4.4 px) se adună între ticks, iar coliziunea se verifică pentru pasul întreg.
+        float pxPerTick = isDashing ? dashSpeed
+                : NORMAL_SPEED * GameFeel.PLAYER_SPEED_SCALE * Easing.outQuad(moveVelocity);
+        moveRemainder += pxPerTick;
+        int step = (int) moveRemainder;
+        moveRemainder -= step;
 
-        collisionOn = false;
-        gp.cChecher.checkTile(this);
+        if (step > 0) {
+            speed = step; // CollisionChecker.checkTile se uită cu "speed" pixeli înainte
+            collisionOn = false;
+            gp.cChecher.checkTile(this);
 
-        if (!collisionOn) {
-            switch (direction) {
-                case "up": worldY -= speed; break;
-                case "down": worldY += speed; break;
-                case "left": worldX -= speed; break;
-                case "right": worldX += speed; break;
+            if (!collisionOn) {
+                switch (direction) {
+                    case "up": worldY -= step; break;
+                    case "down": worldY += step; break;
+                    case "left": worldX -= step; break;
+                    case "right": worldX += step; break;
+                }
+            } else {
+                // Lovit de un zid: un mic nor de praf și oprire pe loc (nu mai "împinge" în perete)
+                if (moveVelocity > 0.6f) gp.fx.dust(feetX(), feetY(), dirX(), dirY(), 3);
+                moveVelocity = 0f;
+                moveRemainder = 0f;
+                if (isDashing) isDashing = false;
             }
-        } else if (isDashing) {
-            isDashing = false;
+            speed = isDashing ? dashSpeed : NORMAL_SPEED;
         }
 
         spriteCounter++;
         if (spriteCounter > 12) {
             spriteNum = (spriteNum == 1) ? 2 : 1;
             spriteCounter = 0;
+        }
+
+        // Praf sub picioare și pași
+        if (isDashing) {
+            if (++dustCounter % 2 == 0) gp.fx.dashTrail(feetX(), worldY + gp.tileSize / 2f, dirX(), dirY());
+        } else if (moveVelocity > 0.5f && ++dustCounter >= GameFeel.DUST_EVERY_TICKS) {
+            dustCounter = 0;
+            gp.fx.dust(feetX(), feetY(), dirX(), dirY(), 2);
+        }
+        if (!isDashing && GameFeel.FOOTSTEPS && moveVelocity > 0.6f && ++stepSoundCounter >= GameFeel.FOOTSTEP_EVERY_TICKS) {
+            stepSoundCounter = 0;
+            if (GameFeel.SOUND_FEEDBACK) SoundManager.getInstance().playSE("step");
         }
     }
 
@@ -330,14 +386,18 @@ public class Player extends Entity {
             return;
         }
 
+        boolean inBattle = gp.getCurrentState() instanceof BattleState;
         if (this.shield < amount) {
             int remaining = amount - shield;
             shield = 0;
             life -= remaining;
             gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "-" + remaining + " HP", Color.RED));
+            if (inBattle) gp.fx.playerHurt(remaining);   // shake, hit-stop, scântei
+            else gp.fx.mapHurt(remaining);               // spike-uri pe hartă
         } else {
             shield -= amount;
             gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
+            if (inBattle) gp.fx.blocked();               // scutul a oprit lovitura
         }
 
         if (this.life <= 0) {
@@ -408,6 +468,8 @@ public class Player extends Entity {
     }
 
     public void startBattle() {
+        this.moveVelocity = 0f; // nu mai alunecă când revine pe hartă
+        this.moveRemainder = 0f;
         this.isPlayerTurn = true;
         this.currentMana = this.maxMana;
         this.shield = 0;
@@ -599,6 +661,20 @@ public class Player extends Entity {
         int tempScreenX = gp.camera.screenX(worldX);
         int tempScreenY = gp.camera.screenY(worldY);
 
+        // Eron nu stă niciodată perfect nemișcat: respiră când stă, sare ușor la fiecare pas
+        // și se alungește pe direcția dash-ului. Picioarele rămân pe loc, doar corpul se deformează.
+        float scaleX = 1f, scaleY = 1f, bob = 0f;
+        if (isDashing) {
+            boolean horizontal = "left".equals(direction) || "right".equals(direction);
+            float stretch = GameFeel.DASH_STRETCH;
+            scaleX = horizontal ? 1f + stretch : 1f - stretch * 0.5f;
+            scaleY = horizontal ? 1f - stretch * 0.5f : 1f + stretch;
+        } else if (moveVelocity > 0.15f) {
+            bob = (float) Math.sin(spriteCounter / 13f * Math.PI) * GameFeel.WALK_BOB_PX * moveVelocity;
+        } else {
+            scaleY += (float) Math.sin(gp.fx.ticks * 0.06) * GameFeel.PLAYER_BREATH_SCALE;
+        }
+
         BufferedImage image = switch (direction) {
             case "up" -> (spriteNum == 1) ? up1 : up2;
             case "down" -> (spriteNum == 1) ? down1 : down2;
@@ -607,7 +683,9 @@ public class Player extends Entity {
             default -> down1;
         };
 
-        g2.drawImage(image, tempScreenX, tempScreenY, gp.tileSize, gp.tileSize, null);
+        int dw = Math.round(gp.tileSize * scaleX);
+        int dh = Math.round(gp.tileSize * scaleY);
+        g2.drawImage(image, tempScreenX - (dw - gp.tileSize) / 2, tempScreenY - (dh - gp.tileSize) - Math.round(bob), dw, dh, null);
     }
 
     public void primesteDiamantulNoptii() {

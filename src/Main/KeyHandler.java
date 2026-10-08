@@ -75,10 +75,12 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
                 gp.ui.commandNum--;
                 if (gp.ui.commandNum < 0) gp.ui.commandNum = 4; // Ajustat la 4 pentru că ai 5 opțiuni în UI!
+                SoundManager.getInstance().playSE("click");
             }
             if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
                 gp.ui.commandNum++;
                 if (gp.ui.commandNum > 4) gp.ui.commandNum = 0;
+                SoundManager.getInstance().playSE("click");
             }
             if (code == KeyEvent.VK_ENTER) {
                 enterPressed = false;
@@ -122,10 +124,10 @@ public class KeyHandler implements KeyListener {
         // 2. GESTIUNE BATTLE
         if (state instanceof BattleState) {
             if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
-                if (gp.battleUI.commandNum > 0) gp.battleUI.commandNum--;
+                if (gp.battleUI.commandNum > 0) { gp.battleUI.commandNum--; SoundManager.getInstance().playSE("click"); }
             }
             if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
-                if (gp.battleUI.commandNum < gp.player.inventory.hand.size() - 1) gp.battleUI.commandNum++;
+                if (gp.battleUI.commandNum < gp.player.inventory.hand.size() - 1) { gp.battleUI.commandNum++; SoundManager.getInstance().playSE("click"); }
             }
             if (code == KeyEvent.VK_ENTER) {
                 gp.player.playSelectedCard();
@@ -142,13 +144,16 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_LEFT) {
                 gp.rewardUI.commandNum--;
                 if (gp.rewardUI.commandNum < 0) gp.rewardUI.commandNum = 2;
+                SoundManager.getInstance().playSE("click");
             }
             if (code == KeyEvent.VK_RIGHT) {
                 gp.rewardUI.commandNum++;
                 if (gp.rewardUI.commandNum > 2) gp.rewardUI.commandNum = 0;
+                SoundManager.getInstance().playSE("click");
             }
             if (code == KeyEvent.VK_ENTER) {
                 Card selectedGarde = gp.rewardUI.rewardCards.get(gp.rewardUI.commandNum);
+                gp.fx.rewardBurst(gp.rewardUI.selectedCenterX(), gp.rewardUI.selectedCenterY());
                 gp.player.inventory.cards.add(selectedGarde);
                 gp.changeState(new PlayState(gp));
                 gp.player.worldY -= 10;

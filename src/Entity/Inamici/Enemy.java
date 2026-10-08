@@ -3,6 +3,7 @@ package Entity.Inamici;
 import Entity.Entity;
 import Entity.Player.Player;
 import Entity.StatusEffect;
+import Main.GameFeel;
 import Main.GamePanel;
 import Observer.DamagePopUp;
 import java.awt.*;
@@ -137,8 +138,14 @@ public abstract class Enemy extends Entity {
 
     public void draw(Graphics2D g2) {
         if (alive) {
+            // Leagăn lent pe verticală (mai nervos când te urmărește), ca să nu stea nimic perfect nemișcat
+            float bobRate = isChasing ? 2.2f : 1f;
+            float bobPhase = (startWorldX * 7 + startWorldY * 13) % (int) GameFeel.IDLE_BOB_PERIOD_TICKS;
+            int bob = Math.round((float) Math.sin((gp.fx.ticks * bobRate + bobPhase) * 2 * Math.PI / GameFeel.IDLE_BOB_PERIOD_TICKS)
+                    * GameFeel.IDLE_BOB_PX * (isChasing ? 1.5f : 1f));
+
             int screenX = gp.camera.screenX(worldX);
-            int screenY = gp.camera.screenY(worldY);
+            int screenY = gp.camera.screenY(worldY) + bob;
             int drawSize = (int)(gp.tileSize * mapSize);
 
             // Desenăm doar ce se vede pe ecran
@@ -164,6 +171,13 @@ public abstract class Enemy extends Entity {
     }
 
     // În Entity.Inamici.Enemy.java
+
+    /** Feedback în luptă când inamicul e lovit: shake, hit-stop, scântei, sunet (reglaje în GameFeel). */
+    protected void hitFeedback(int dealt, boolean blocked) {
+        if (!(gp.getCurrentState() instanceof GameState.BattleState)) return;
+        if (blocked) gp.fx.enemyBlocked();
+        else gp.fx.enemyHurt(dealt);
+    }
 
     public void takeDamage(Player player, int amount) {
         int finalDamage = amount;
@@ -198,9 +212,11 @@ public abstract class Enemy extends Entity {
             shield = 0;
             life -= remaining;
             gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + remaining, Color.RED));
+            hitFeedback(remaining, false);
         } else {
             shield -= finalDamage;
             gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + finalDamage + " BLOCK", Color.GRAY));
+            hitFeedback(0, true);
         }
 
         if (life <= 0) {

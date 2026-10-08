@@ -61,6 +61,8 @@ public class PauseState implements GameState {
         for (var n : gp.npc) if (n != null) n.draw(g2);
         for (var e : gp.enemy) if (e != null) e.draw(g2);
         gp.player.draw(g2);
+        gp.fx.drawWorld(g2);
+        gp.fx.drawAmbient(g2);
         gp.ui.draw(g2);
     }
 

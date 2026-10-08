@@ -49,6 +49,7 @@ public class EventHandler {
                             gp.player.life = Math.min(gp.player.life + 50, gp.player.maxLife);
                             gp.player.notifyObservers();
                             usedHealTiles[playerCol][playerRow] = true;
+                            gp.fx.healSparkle();
                             System.out.println("Campfire Eldoria folosit la [" + playerCol + "," + playerRow + "]");
                             eventCooldown = 60;
                         }

@@ -1,6 +1,8 @@
 package Observer;
 
+import Main.Easing;
 import Main.Exception.GameExceptionHandler;
+import Main.GameFeel;
 import Main.GamePanel;
 import GameState.*; // Importă toate stările din pachetul nou
 import java.awt.*;
@@ -63,6 +65,7 @@ public class UI {
             }
             if (Objects.equals(gp.tileM.currentZone, "Tundra")){
                 fogOfWar.draw(g2,235);
+                gp.fx.drawAmbient(g2); // ninsoarea cade prin ceață, nu sub ea
             }
             gp.healthUI.draw(g2);
             drawManaText(g2);
@@ -132,7 +135,8 @@ public class UI {
 
             // Deasupra lui Eron, oriunde este el pe ecran (lângă marginile hărții nu mai e în centru)
             int x = gp.camera.screenX(gp.player.worldX) + gp.tileSize / 2 - g2.getFontMetrics().stringWidth(text) / 2;
-            int y = gp.camera.screenY(gp.player.worldY) - 15; // Reparat din screenY/4 (care trimitea textul pe tavan)
+            int y = gp.camera.screenY(gp.player.worldY) - 15 // Reparat din screenY/4 (care trimitea textul pe tavan)
+                    - Math.round((float) Math.abs(Math.sin(gp.fx.ticks * 0.1)) * 5); // saltă ușor ca să atragă atenția
 
             g2.setColor(Color.BLACK);
             g2.drawString(text, x + 2, y + 2);
@@ -152,6 +156,8 @@ public class UI {
             g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
         }
 
+        gp.fx.drawAmbient(g2); // luminițe care plutesc în spatele meniului
+
         // 2. OPȚIUNI MENIU
         g2.setFont(arial_40.deriveFont(Font.BOLD, 26F));
         String[] menuOptions = {"ÎNCEPE AVENTURA", "CONTINUĂ CĂLĂTORIA", "TOP SCORURI", "OPȚIUNI ȘI SECRETE", "PĂRĂSEȘTE TĂRÂMUL"};
@@ -161,8 +167,11 @@ public class UI {
             // Folosește direct variabila commandNum a clasei UI
             int y = (int)(gp.screenHeight * 0.45) + (i * 55);
             if (i == this.commandNum) {
-                g2.setColor(Color.YELLOW);
-                g2.drawString("> " + menuOptions[i] + " <", getXforCenteredText("> " + menuOptions[i] + " <"), y);
+                // Opțiunea aleasă se leagănă ușor și pulsează, ca meniul să nu fie un ecran înghețat
+                float pulse = 0.5f + 0.5f * (float) Math.sin(gp.fx.ticks * 0.12);
+                int sway = Math.round((float) Math.sin(gp.fx.ticks * 0.15) * 3);
+                g2.setColor(new Color(255, 255, 90 + Math.round(120 * (1f - pulse))));
+                g2.drawString("> " + menuOptions[i] + " <", getXforCenteredText("> " + menuOptions[i] + " <") + sway, y);
             } else {
                 g2.setColor(Color.WHITE);
                 g2.drawString(menuOptions[i], getXforCenteredText(menuOptions[i]), y);
@@ -170,15 +179,31 @@ public class UI {
         }
     }
 
-    private void drawMessage() {
+    private static final int MESSAGE_TICKS = 120;
+
+    /** Un tick: mesajul din HUD expiră după 120 de ticks (2 secunde), indiferent de FPS-ul desenării. */
+    public void update() {
         if (messageOn) {
-            g2.setFont(g2.getFont().deriveFont(20F));
-            g2.drawString(message, gp.tileSize / 2, gp.tileSize * 5);
             messageCounter++;
-            if (messageCounter > 120) {
+            if (messageCounter > MESSAGE_TICKS) {
                 messageCounter = 0;
                 messageOn = false;
             }
+        }
+    }
+
+    private void drawMessage() {
+        if (messageOn) {
+            // Intră și iese lin: alunecă din stânga și se estompează, în loc să apară și să dispară brusc
+            float in = Easing.clamp01(messageCounter / (float) GameFeel.MESSAGE_FADE_TICKS);
+            float out = Easing.clamp01((MESSAGE_TICKS - messageCounter) / (float) GameFeel.MESSAGE_FADE_TICKS);
+            float alpha = Easing.outCubic(Math.min(in, out));
+            int slide = Math.round((1f - Easing.outCubic(in)) * -28);
+            Composite old = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, alpha)));
+            g2.setFont(g2.getFont().deriveFont(20F));
+            g2.drawString(message, gp.tileSize / 2 + slide, gp.tileSize * 5);
+            g2.setComposite(old);
         }
     }
 

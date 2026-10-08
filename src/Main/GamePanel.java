@@ -34,6 +34,7 @@ public class GamePanel extends JPanel implements Runnable {
     // SISTEM
     int FPS = 60;
     public Camera camera = new Camera(this); // înaintea TileManager, care o folosește la încărcarea hărții
+    public Effects fx = new Effects(this);   // shake, hit-stop, fade-uri, particule (vezi GameFeel pentru reglaje)
     public TileManager tileM = new TileManager(this);
     public QuestManager questManager = new QuestManager();
     public KeyHandler keyH = new KeyHandler(this);
@@ -100,6 +101,7 @@ public class GamePanel extends JPanel implements Runnable {
      * și actualizează automat SoundTrack-ul în mod inteligent.
      */
     public void changeState(GameState newState) {
+        GameState previous = currentState;
         if (currentState != null) {
             currentState.exit();
         }
@@ -108,6 +110,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (currentState != null) {
             currentState.enter();
+            fx.onStateChanged(previous, currentState); // fade-uri / flash-uri între scene
             System.out.println("DEBUG: Starea s-a schimbat în: " + newState.getClass().getSimpleName());
 
             // =========================================================================
@@ -191,11 +194,18 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         long t0 = System.nanoTime();
+        if (fx.consumeHitStop()) {
+            // Hit-stop: câteva cadre în care totul stă pe loc, ca lovitura să aibă greutate
+            DebugStats.onUpdate(System.nanoTime() - t0);
+            return;
+        }
         if (currentState != null) {
             currentState.update();
         }
         camera.update();
         updatePopups();
+        healthUI.update();
+        fx.update();
         DebugStats.onUpdate(System.nanoTime() - t0);
     }
 
@@ -214,9 +224,13 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        fx.beginFrame(g2); // screen shake
         if (currentState != null) {
             currentState.draw(g2);
         }
+        fx.drawFront(g2);
+        fx.endFrame(g2);
+        fx.drawOverlay(g2); // fade-uri / flash-uri peste tot ecranul
 
         DebugStats.onRender(System.nanoTime() - t0);
         if (DebugStats.visible) DebugStats.draw(g2, this);

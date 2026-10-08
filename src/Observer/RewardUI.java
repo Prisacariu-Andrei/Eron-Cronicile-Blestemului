@@ -2,6 +2,7 @@ package Observer;
 
 import Entity.Items.Card;
 import Entity.Player.CardDatabase;
+import Main.Easing;
 import Main.GamePanel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -11,10 +12,19 @@ public class RewardUI {
     GamePanel gp;
     public ArrayList<Card> rewardCards = new ArrayList<>();
     public int commandNum = 0;
+    private int openTicks = 0; // de câte ticks e deschis ecranul (cărțile intră pe rând)
 
     public RewardUI(GamePanel gp) {
         this.gp = gp;
     }
+
+    public void onOpen() { openTicks = 0; }
+
+    public void update() { openTicks++; }
+
+    // Centrul cărții selectate pe ecran (pentru explozia de particule la alegere)
+    public int selectedCenterX() { return (int)(gp.screenWidth * 0.1) + (int)(commandNum * gp.screenWidth * 0.3) + (int)(gp.screenWidth * 0.1); }
+    public int selectedCenterY() { return (int)(gp.screenHeight * 0.3) + (int)(gp.screenHeight * 0.25); }
 
     public void draw(Graphics2D g2) {
         // 1. Fundal semi-transparent
@@ -33,15 +43,22 @@ public class RewardUI {
             Card currentCard = rewardCards.get(i); // Luăm obiectul Card curent
 
             int cardX = (int)(gp.screenWidth * 0.1)  + (int)(i * gp.screenWidth * 0.3); // Spațiere mai generoasă
-            int cardY = (int)(gp.screenHeight*0.3);
+            // Cărțile urcă pe rând din partea de jos, cu un mic overshoot, și apar din transparență
+            float appear = (openTicks - i * 5) / 16f;
+            int cardY = (int)(gp.screenHeight*0.3) + Math.round((1f - Easing.outBack(appear)) * 140);
             int cardWidth = (int)(gp.screenWidth * 0.2);
             int cardHeight = (int)(gp.screenHeight * 0.5);
+            Composite cardComposite = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, Easing.clamp01(appear * 1.6f))));
 
             // --- EFECT DE SELECȚIE ---
             if (i == commandNum) {
-                g2.setColor(new Color(255, 215, 0)); // Auriu
+                // Conturul auriu pulsează încet, ca să se vadă că așteaptă alegerea
+                float pulse = 0.5f + 0.5f * (float) Math.sin(gp.fx.ticks * 0.15);
+                int grow = Math.round(4 * pulse);
+                g2.setColor(new Color(255, 215, 0, 190 + Math.round(65 * pulse))); // Auriu
                 g2.setStroke(new BasicStroke(6));
-                g2.drawRoundRect(cardX - 10, cardY - 10, cardWidth + 20, cardHeight + 20, 25, 25);
+                g2.drawRoundRect(cardX - 10 - grow, cardY - 10 - grow, cardWidth + 20 + 2 * grow, cardHeight + 20 + 2 * grow, 25, 25);
 
                 // Un mic glow interior
                 g2.setColor(new Color(255, 255, 255, 50));
@@ -86,6 +103,7 @@ public class RewardUI {
             g2.setFont(g2.getFont().deriveFont(Font.ITALIC, 14F));
             g2.setColor(Color.CYAN);
             g2.drawString("[" + currentCard.type + "]", cardX + 20, cardY + cardHeight - 20);
+            g2.setComposite(cardComposite);
         }
 
         // --- INSTRUCȚIUNI JOS ---

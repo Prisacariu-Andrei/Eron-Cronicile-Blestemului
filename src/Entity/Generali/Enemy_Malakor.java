@@ -155,6 +155,7 @@ public class Enemy_Malakor extends Enemy {
             }
         }
         gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "SCHIMBARE FAZĂ: CAVALERUL MORȚII", Color.ORANGE));
+        gp.fx.phaseChange();
     }
 
     private void transitionToPhase3() {
@@ -183,6 +184,7 @@ public class Enemy_Malakor extends Enemy {
             }
         }
         gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "SCHIMBARE FAZĂ: AMURGUL ABSOLUT", Color.BLACK));
+        gp.fx.phaseChange();
     }
 
     @Override
@@ -195,9 +197,11 @@ public class Enemy_Malakor extends Enemy {
             shield = 0;
             life -= remaining;
             gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + remaining, Color.RED));
+            hitFeedback(remaining, false);
         } else {
             shield -= amount;
             gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
+            hitFeedback(0, true);
         }
 
         // Când viața scade la 0, schimbăm faza instantaneu

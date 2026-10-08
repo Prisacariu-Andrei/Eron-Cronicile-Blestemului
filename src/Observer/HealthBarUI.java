@@ -24,9 +24,33 @@ public class HealthBarUI extends Observer {
 		}
 	}
 
+	// Animație: inima "pocnește" când viața se schimbă și bate agitat când viața e mică
+	private int lastLife = -1;
+	private int pulseTicks = 0;
+	private int beatTick = 0;
+	private boolean lowLife = false;
+
+	private static final int PULSE_TICKS = 16;
+
 	@Override
 	public void OnNotify(String eventData) {
 		this.currentLifeDisplay = eventData;
+		try {
+			String[] parts = eventData.split("/");
+			int life = Integer.parseInt(parts[0].trim());
+			int maxLife = (parts.length > 1) ? Integer.parseInt(parts[1].trim()) : 100;
+			if (lastLife >= 0 && life != lastLife) pulseTicks = PULSE_TICKS;
+			lastLife = life;
+			lowLife = life > 0 && life * 4 <= maxLife;
+		} catch (NumberFormatException ignored) {
+			// datele incomplete sunt raportate la desenare
+		}
+	}
+
+	/** Un tick de animație (60 pe secundă, indiferent de FPS-ul desenării). */
+	public void update() {
+		beatTick++;
+		if (pulseTicks > 0) pulseTicks--;
 	}
 
 	public void draw(Graphics2D g2) {
@@ -52,7 +76,12 @@ public class HealthBarUI extends Observer {
 				int heartY = 25;
 				int heartSize = 32;
 
-				g2.drawImage(imageToDraw, heartX, heartY, heartSize, heartSize, null);
+				// Puls la schimbarea vieții + bătaie rapidă când mai e puțină viață
+				float scale = 1f + 0.35f * Main.Easing.outQuad(pulseTicks / (float) PULSE_TICKS);
+				if (lowLife) scale += 0.12f * (float) Math.pow(Math.max(0, Math.sin(beatTick * 0.22)), 3);
+				int drawSize = Math.round(heartSize * scale);
+				int off = (drawSize - heartSize) / 2;
+				g2.drawImage(imageToDraw, heartX - off, heartY - off, drawSize, drawSize, null);
 
 				if (life == 0) {
 					g2.setColor(Color.DARK_GRAY);

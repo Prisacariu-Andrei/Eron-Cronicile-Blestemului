@@ -21,6 +21,8 @@ public class InventoryState implements GameState {
     public void draw(Graphics2D g2) {
         gp.tileM.draw(g2);
         gp.player.draw(g2);
+        gp.fx.drawWorld(g2);
+        gp.fx.drawAmbient(g2);
         gp.ui.draw(g2);
     }
 

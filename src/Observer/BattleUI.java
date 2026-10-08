@@ -3,11 +3,15 @@ package Observer;
 import Entity.Inamici.Enemy;
 import Entity.Items.Card;
 import Entity.StatusEffect;
+import Main.Easing;
+import Main.GameFeel;
 import Main.GamePanel;
 import Entity.Entity;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BattleUI {
     GamePanel gp;
@@ -20,13 +24,89 @@ public class BattleUI {
     private String transitionPhaseName = "";
     private Color transitionColor;
 
+    // --- Animații (se actualizează în update(), în ticks fixe, nu în draw()) ---
+    private static final int HIT_ANIM_TICKS = 14;
+    private static final int TURN_MESSAGE_TICKS = 30;
+    private final float[] cardLift = new float[16];        // 0 = jos, 1 = ridicată (selectată), cu easing
+    private final int[] cardDealDelay = new int[16];       // întârziere până apare cartea trasă
+    private final int[] cardDealAge = new int[16];
+    private int dealtCards = 0;                            // câte cărți din mână au început să intre
+    private int enemyHitTimer = 0, playerHitTimer = 0;
+
     public BattleUI(GamePanel gp) {
         this.gp = gp;
     }
 
     public void announceTurn(String text) {
         this.turnMessage = text;
-        this.turnMessageTimer = 30;
+        this.turnMessageTimer = TURN_MESSAGE_TICKS;
+    }
+
+    /** Apelată la începutul fiecărei lupte: cărțile vor intra în mână una câte una. */
+    public void onBattleStart() {
+        dealtCards = 0;
+        enemyHitTimer = 0;
+        playerHitTimer = 0;
+        Arrays.fill(cardLift, 0f);
+        Arrays.fill(cardDealDelay, 0);
+        Arrays.fill(cardDealAge, 0);
+    }
+
+    public void onEnemyHit() { enemyHitTimer = HIT_ANIM_TICKS; }
+
+    public void onPlayerHit() { playerHitTimer = HIT_ANIM_TICKS; }
+
+    // Pozițiile personajelor pe ecran (aceleași formule ca la desenare), pentru particule
+    public int groundY() { return (int)(gp.screenHeight * 0.87); }
+    public int playerCenterX() { return (int)(gp.screenWidth * 0.08) + (int)(gp.screenWidth * 0.10) / 2; }
+    public int playerCenterY() { return groundY() - (int)(gp.screenWidth * 0.10); }
+    private int enemySize() {
+        return gp.player.currentEnemy == null ? 0 : (int)(gp.screenWidth * 0.20 * gp.player.currentEnemy.battleSize);
+    }
+    public int enemyCenterX() { return (int)(gp.screenWidth * 0.9) - enemySize() / 2; }
+    public int enemyCenterY() { return groundY() - enemySize() / 2; }
+
+    /**
+     * Un tick de animație. Înainte, timerele banerelor creșteau în draw(), deci dacă desenarea încetinea,
+     * mesajele rămâneau mai mult pe ecran. Acum durează la fel indiferent de FPS.
+     */
+    public void update() {
+        if (isTransitioning) {
+            transitionTimer++;
+            if (transitionTimer > 40) { isTransitioning = false; transitionTimer = 0; }
+        } else if (turnMessageTimer > 0) {
+            turnMessageTimer--;
+        }
+
+        int n = Math.min(gp.player.inventory.hand.size(), 8);
+        if (n > dealtCards) { // cărți nou trase: intră pe rând
+            for (int i = dealtCards; i < n; i++) {
+                cardDealDelay[i] = (i - dealtCards) * GameFeel.CARD_DEAL_STAGGER_TICKS;
+                cardDealAge[i] = 0;
+            }
+        }
+        dealtCards = n;
+
+        for (int i = 0; i < cardLift.length; i++) {
+            float target = (i == commandNum && i < n) ? 1f : 0f;
+            cardLift[i] = Easing.approach(cardLift[i], target, GameFeel.CARD_LIFT_SMOOTHING);
+            if (cardDealDelay[i] > 0) cardDealDelay[i]--;
+            else if (cardDealAge[i] < GameFeel.CARD_DEAL_TICKS) cardDealAge[i]++;
+        }
+
+        if (enemyHitTimer > 0) enemyHitTimer--;
+        if (playerHitTimer > 0) playerHitTimer--;
+    }
+
+    /** Desenează un personaj de luptă: respiră ușor când stă și se strivește/dă înapoi când e lovit. */
+    private void drawFighter(Graphics2D g2, BufferedImage img, int x, int groundY, int w, int h, int hitTimer, float phase) {
+        float breath = (float) Math.sin((gp.fx.ticks + phase) * 0.07) * GameFeel.BATTLE_BREATH_SCALE;
+        float t = hitTimer / (float) HIT_ANIM_TICKS;               // 1 la lovitură, scade spre 0
+        float squash = 0.14f * Easing.outQuad(t);
+        int recoil = (int) (Math.sin(hitTimer * 1.9) * t * 16);
+        int dw = Math.round(w * (1 + squash));
+        int dh = Math.round(h * (1 + breath - squash));
+        g2.drawImage(img, x - (dw - w) / 2 + recoil, groundY - dh, dw, dh, null);
     }
 
     public void draw(Graphics2D g2) {
@@ -43,7 +123,7 @@ public class BattleUI {
 
         if (gp.player.fightStand != null) {
             int playerX = (int)(gp.screenWidth * 0.08);
-            g2.drawImage(gp.player.fightStand, playerX, groundY - eronHeight, eronWidth, eronHeight, null);
+            drawFighter(g2, gp.player.fightStand, playerX, groundY, eronWidth, eronHeight, playerHitTimer, 0f);
         }
 
         // 3. DESENARE INAMIC
@@ -54,7 +134,7 @@ public class BattleUI {
             if (enemy.fightStand != null) {
                 // Anchored to the right (80%)
                 int enemyX = (int)(gp.screenWidth * 0.9) - enemySize;
-                g2.drawImage(enemy.fightStand, enemyX, groundY - enemySize, enemySize, enemySize, null);
+                drawFighter(g2, enemy.fightStand, enemyX, groundY, enemySize, enemySize, enemyHitTimer, 40f);
             }
         }
 
@@ -268,11 +348,16 @@ public class BattleUI {
 
         // --- 2. DRAWING LOOP ---
         for (int i = 0; i < numCards; i++) {
+            if (i >= dealtCards || cardDealDelay[i] > 0) continue; // încă nu a fost trasă
             Card card = currentHand.get(i);
             int x = startX + (i * (cardWidth + spacing));
 
-            // Ridicăm complet cartea când este selectată pentru a putea fi citită perfect
-            int y = (i == commandNum) ? gp.screenHeight - cardHeight - 20 : baseSlotY;
+            // Cartea selectată se ridică lin (easing), ca să poată fi citită perfect
+            int selectedY = gp.screenHeight - cardHeight - 20;
+            int y = Math.round(baseSlotY + (selectedY - baseSlotY) * cardLift[i]);
+            // O carte nou trasă intră de jos, cu un mic overshoot
+            float deal = Easing.outBack(cardDealAge[i] / (float) GameFeel.CARD_DEAL_TICKS);
+            y += Math.round((1f - deal) * cardHeight * 1.2f);
 
             // Salvează stroke-ul inițial
             Stroke originalStroke = g2.getStroke();
@@ -388,34 +473,50 @@ public class BattleUI {
         g2.setColor(Color.WHITE);
         g2.drawString("[T] END TURN", (int)(gp.screenWidth * 0.88), gp.screenHeight - (int)(gp.screenHeight * 0.03));
 
-        for (int i = 0; i < gp.popups.size(); i++) {
-            DamagePopUp p = gp.popups.get(i);
+        Font baseFont = g2.getFont();
+        // Copie a listei: popup-urile se pot adăuga/șterge între timp (alt thread), iar un indice vechi ar da eroare
+        DamagePopUp[] popups = gp.popups.toArray(new DamagePopUp[0]);
+        for (DamagePopUp p : popups) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, p.alpha));
+            // "Pop": apare mai mare decât final și se așază (easing cu overshoot)
+            if (Math.abs(p.scale - 1f) > 0.02f) g2.setFont(baseFont.deriveFont(baseFont.getSize2D() * p.scale));
+            else g2.setFont(baseFont);
             g2.setColor(Color.BLACK);
             g2.drawString(p.text, p.x + 2, p.y + 2);
             g2.setColor(p.color);
             g2.drawString(p.text, p.x, p.y);
         }
+        g2.setFont(baseFont);
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
     }
 
     private void drawMessages(Graphics2D g2) {
         if (isTransitioning) {
-            transitionTimer++;
-            g2.setColor(new Color(0, 0, 0, Math.min(200, transitionTimer * 5)));
+            // Întunericul vine lin și pleacă lin; textul apare cu un "pop"
+            float in = Easing.outCubic(transitionTimer / 18f);
+            float out = Easing.clamp01((40 - transitionTimer) / 10f);
+            g2.setColor(new Color(0, 0, 0, Math.round(200 * in * out)));
             g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+            float pop = Easing.outBack(transitionTimer / 16f);
             g2.setColor(transitionColor);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 40f));
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 40f * (0.6f + 0.4f * pop)));
             String text = transitionPhaseName;
             int x = gp.screenWidth/2 - g2.getFontMetrics().stringWidth(text)/2;
+            Composite old = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, in * out)));
             g2.drawString(text, x, gp.screenHeight/2);
-            if (transitionTimer > 40) { isTransitioning = false; transitionTimer = 0; }
+            g2.setComposite(old);
         } else if (turnMessageTimer > 0) {
+            float progress = 1f - (float) turnMessageTimer / TURN_MESSAGE_TICKS;   // 0 -> 1
+            float pop = Easing.outBack(progress * 3f);                              // apare în primul sfert
+            float alpha = Easing.clamp01(turnMessageTimer / 8f);                    // se stinge la final
             g2.setColor(Color.YELLOW);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 45f));
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 45f * (0.7f + 0.3f * pop)));
             int x = gp.screenWidth/2 - g2.getFontMetrics().stringWidth(turnMessage)/2;
+            Composite old = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, alpha)));
             g2.drawString(turnMessage, x, gp.screenHeight/2);
-            turnMessageTimer--;
+            g2.setComposite(old);
         }
     }
 }

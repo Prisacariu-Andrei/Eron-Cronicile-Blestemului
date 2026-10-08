@@ -14,6 +14,7 @@ public class PlayState implements GameState {
 
     @Override
     public void update() {
+        gp.ui.update(); // expirarea mesajului din HUD
         gp.gameTimer.update();
         gp.player.update();
         gp.eHandler.checkEvent();
@@ -37,6 +38,8 @@ public class PlayState implements GameState {
         for (var n : gp.npc) if (n != null) n.draw(g2);
         for (var e : gp.enemy) if (e != null) e.draw(g2);
         gp.player.draw(g2);
+        gp.fx.drawWorld(g2);   // praf, scântei de vindecare
+        if (!gp.fx.ambientAboveFog()) gp.fx.drawAmbient(g2); // ambianța zonei (licurici, scântei...), sub interfață
         gp.ui.draw(g2);
     }
 

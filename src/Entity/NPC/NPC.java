@@ -50,8 +50,12 @@ public abstract class NPC extends Entity {
 
     public void draw(Graphics2D g2) {
         // Poziția pe ecran vine din cameră (aceeași pentru tile-uri, Eron, inamici)
+        // Leagăn lent pe verticală: personajele nu stau perfect nemișcate
+        float bobPhase = (worldX * 7 + worldY * 13) % (int) Main.GameFeel.IDLE_BOB_PERIOD_TICKS;
+        int bob = Math.round((float) Math.sin((gp.fx.ticks + bobPhase) * 2 * Math.PI / Main.GameFeel.IDLE_BOB_PERIOD_TICKS)
+                * Main.GameFeel.IDLE_BOB_PX);
         int screenX = gp.camera.screenX(worldX);
-        int screenY = gp.camera.screenY(worldY);
+        int screenY = gp.camera.screenY(worldY) + bob;
 
         // Verificăm dacă NPC-ul se află în interiorul ferestrei
         if (screenX + gp.tileSize > 0 &&

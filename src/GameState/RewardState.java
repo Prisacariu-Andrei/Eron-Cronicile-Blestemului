@@ -11,10 +11,11 @@ public class RewardState implements GameState {
         this.gp = gp;
     }
 
-    @Override public void enter() {}
+    @Override public void enter() { gp.rewardUI.onOpen(); }
 
     @Override
     public void update() {
+        gp.rewardUI.update();
         if (gp.keyH.leftPressed) {
             gp.keyH.leftPressed = false;
             gp.rewardUI.commandNum--;
@@ -30,6 +31,7 @@ public class RewardState implements GameState {
             gp.keyH.enterPressed = false;
             Card selected = gp.rewardUI.getSelectedCard();
             if (selected != null) {
+                gp.fx.rewardBurst(gp.rewardUI.selectedCenterX(), gp.rewardUI.selectedCenterY());
                 gp.player.inventory.addCardToDeck(selected.name, gp.player);
                 gp.rewardUI.commandNum = 0;
                 gp.changeState(new PlayState(gp));
