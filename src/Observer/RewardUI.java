@@ -38,6 +38,16 @@ public class RewardUI {
         int titleX = gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(title) / 2;
         g2.drawString(title, titleX, 120);
 
+        // Monedele primite de la inamicul învins
+        if (gp.player.lastCoinReward > 0) {
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 26F));
+            g2.setColor(new Color(255, 221, 100));
+            String coinText = "+" + gp.player.lastCoinReward + " monede";
+            int cw = g2.getFontMetrics().stringWidth(coinText);
+            ShopUI.drawCoin(g2, gp.screenWidth / 2 - cw / 2 - 40, 150, 28);
+            g2.drawString(coinText, gp.screenWidth / 2 - cw / 2, 175);
+        }
+
         // 3. Iterăm prin recompense
         for (int i = 0; i < rewardCards.size(); i++) {
             Card currentCard = rewardCards.get(i); // Luăm obiectul Card curent

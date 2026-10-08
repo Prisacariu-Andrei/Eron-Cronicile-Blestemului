@@ -235,6 +235,14 @@ public class SoundManager {
             case "block":
                 return render(0.15, 0.5, (t, u) -> (sine(880, t) + 0.7 * sine(1330, t) + 0.4 * sine(2110, t)) * decay(u, 9) * 0.45
                         + (rnd.nextDouble() * 2 - 1) * 0.25 * decay(u, 40));
+            case "coin": // două note scurte și strălucitoare, ca un clinchet de monedă
+                return render(0.22, 0.45, (t, u) -> {
+                    double f = t < 0.07 ? 1318.5 : 1760.0;
+                    double local = t < 0.07 ? t : t - 0.07;
+                    return (sine(f, t) + 0.35 * sine(f * 2.01, t)) * Math.min(1, local / 0.004) * Math.exp(-14 * local);
+                });
+            case "deny": // un bâzâit scurt și jos: "nu se poate"
+                return render(0.2, 0.5, (t, u) -> (Math.signum(sine(110, t)) * 0.5 + sine(82, t) * 0.5) * (1 - u) * (t % 0.1 < 0.07 ? 1 : 0.2));
             case "heal":
                 return render(0.62, 0.42, (t, u) -> arpeggio(new double[]{523.25, 659.25, 783.99}, 0.16, t, u));
             case "reward":

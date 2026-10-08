@@ -1,0 +1,111 @@
+{
+  "_help": [
+    "Fiecare NPC: id, name, type, zone, col, row (pozitia in tile-uri), sprite (optional), tint (optional, culoare #RRGGBB).",
+    "type = simple    -> 'lines' (lista de replici) + 'lineMode': 'cycle' sau 'random'.",
+    "type = dialogue  -> 'start' + 'nodes'. Un nod are 'text' si fie 'choices' (2-3 optiuni), fie 'next' (continua la apasarea lui E).",
+    "type = merchant  -> ca dialogue, plus 'shop': {'stock': [numele cartilor din CardFactory]}. Optiunea cu 'action': 'shop' deschide magazinul.",
+    "type = quest     -> ca dialogue, plus 'quest': {'id': .., 'main': true/false}; actiunea 'quest' o marcheaza ca primita.",
+    "          'startReceived' = nodul de pornire dupa ce misiunea a fost primita.",
+    "O optiune: {'text': .., 'next': nod, 'action': ..}. Fara 'next' dialogul se incheie.",
+    "Actiuni: 'shop', 'quest', 'heal:N' (vindeca N viata), 'coins:N' (da N monede). Pe un nod ruleaza la afisare; pe o optiune la alegere.",
+    "In texte: {name} = numele jucatorului, {coins} = monedele lui."
+  ],
+
+  "npcs": [
+    {
+      "id": "mira", "name": "Mira", "type": "simple", "zone": "Eldoria", "col": 20, "row": 10,
+      "sprite": "/Player/Eron_down1.png", "tint": "#F0A0B0",
+      "lineMode": "random",
+      "lines": [
+        "Am văzut un lup mare lângă pădure. Eu nu mă duc acolo!",
+        "Bunica zice că ceața nu s-a ridicat de când a dispărut Inelul.",
+        "Ai o mantie frumoasă. Ești vrăjitor adevărat?",
+        "Luminițele astea mici... sunt singurele care n-au uitat să strălucească."
+      ]
+    },
+    {
+      "id": "elda", "name": "Bătrâna Elda", "type": "simple", "zone": "Eldoria", "col": 24, "row": 10,
+      "sprite": "/Player/Eron_down1.png", "tint": "#C8C8E0",
+      "lineMode": "cycle",
+      "lines": [
+        "Pe vremuri, moartea era doar un cuvânt din cărți.",
+        "Cronicarul ține minte tot. Eu am uitat chiar și gustul pâinii.",
+        "Dacă pleci spre munți, ia-ți răbdare. Și pelerină."
+      ]
+    },
+    {
+      "id": "radu", "name": "Paznicul Radu", "type": "dialogue", "zone": "Eldoria", "col": 28, "row": 10,
+      "sprite": "/Player/Eron_down1.png", "tint": "#98B8F0",
+      "start": "hello",
+      "nodes": {
+        "hello": {
+          "text": "Bună, {name}. Garda de Fier veghează, dar suntem tot mai puțini. Cu ce te pot ajuta?",
+          "choices": [
+            { "text": "Cum stau lucrurile în sat?", "next": "village" },
+            { "text": "Ai nevoie de ajutor?", "next": "help" },
+            { "text": "Sunt rănit. Pot să mă odihnesc?", "next": "rest" }
+          ]
+        },
+        "village": {
+          "text": "Liniște, dacă nu pui la socoteală monștrii. Negustorul Vasile a rămas totuși, nu-l sperie nimic.",
+          "next": "hello"
+        },
+        "help": {
+          "text": "Nu încă. Dar dacă întâlnești Fiare ale Blestemului, nu le înfrunta flămând de cărți. Cumpără ceva de la Vasile.",
+          "choices": [
+            { "text": "Mulțumesc, voi trece pe la el.", "next": null },
+            { "text": "Am înțeles. Mai întreb ceva.", "next": "hello" }
+          ]
+        },
+        "rest": {
+          "text": "Stai pe băncuța de lângă foc. Ți-am pregătit niște supă caldă.",
+          "action": "heal:25"
+        }
+      }
+    },
+    {
+      "id": "vasile", "name": "Negustorul Vasile", "type": "merchant", "zone": "Eldoria", "col": 32, "row": 10,
+      "sprite": "/Player/Eron_down1.png", "tint": "#F4D060",
+      "start": "greet",
+      "nodes": {
+        "greet": {
+          "text": "Ia te uită, un client! Am vrăji de toate felurile, {name}. Ai {coins} monede, văd.",
+          "choices": [
+            { "text": "Arată-mi marfa.", "action": "shop" },
+            { "text": "Ce știi despre blestem?", "next": "curse" },
+            { "text": "Altă dată.", "next": null }
+          ]
+        },
+        "curse": {
+          "text": "Că se plătește în monede, ca orice. Și că cine ține Manuscrisul bine, rămâne în picioare mai mult.",
+          "next": "greet"
+        }
+      },
+      "shop": {
+        "stock": ["ParjolulSferic", "FulgerDeSange", "PavazaGlaciara", "PavazaAmurgului", "Dezolare", "SuflulVietii", "GeamatulEcoului", "UraganDeAzur"]
+      }
+    },
+    {
+      "id": "ilinca", "name": "Vânătoarea Ilinca", "type": "quest", "zone": "Eldoria", "col": 36, "row": 10,
+      "sprite": "/Player/Eron_down1.png", "tint": "#90D890",
+      "quest": { "id": 2, "main": false },
+      "start": "offer",
+      "startReceived": "waiting",
+      "nodes": {
+        "offer": {
+          "text": "Am pierdut niște comori pe drumurile din jur. Dacă le găsești pe toate, te răsplătesc, {name}.",
+          "choices": [
+            { "text": "Primesc misiunea.", "action": "quest", "next": "accepted" },
+            { "text": "Poate mai târziu.", "next": null }
+          ]
+        },
+        "accepted": {
+          "text": "Perfect! Caută cu atenție prin toate colțurile. Misiunea e în jurnal (J)."
+        },
+        "waiting": {
+          "text": "Încă n-ai găsit comorile? Mai caută, nu pot fi departe."
+        }
+      }
+    }
+  ]
+}

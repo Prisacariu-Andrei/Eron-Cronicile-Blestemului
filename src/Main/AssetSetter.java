@@ -3,6 +3,7 @@ package Main;
 import Entity.Inamici.*;
 import Entity.NPC.NPC_BatranulCronicar;
 import Entity.NPC.NPC_Gardian;
+import Main.Exception.GameExceptionHandler;
 
 import java.util.Arrays;
 
@@ -89,6 +90,12 @@ public class AssetSetter {
 
     public void setNPC(String currentZone) {
         Arrays.fill(gp.npc, null);
+        // NPC-urile din res/Data/npcs.json se plasează după cei trei din cod (locurile 0-2)
+        try {
+            Entity.NPC.DataNPC.spawnForZone(gp, currentZone, 3);
+        } catch (Exception e) {
+            GameExceptionHandler.getInstance().handleWarning("Nu s-au putut încărca NPC-urile din npcs.json", e);
+        }
 
         if (currentZone.equals("Eldoria")) {
 

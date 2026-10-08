@@ -1,0 +1,49 @@
+{
+  "_comment": "Toate valorile economiei jocului. Cheile din cardPrices sunt numele din CardFactory. Pretul de vanzare = pret * sellRatio.",
+
+  "startingCoins": 30,
+  "sellRatio": 0.5,
+  "minDeckSize": 5,
+
+  "defaultCardPrice": 40,
+  "cardPrices": {
+    "ParjolulSferic": 30,
+    "FulgerDeSange": 35,
+    "PavazaGlaciara": 30,
+    "PavazaAmurgului": 40,
+    "Dezolare": 45,
+    "SuflulVietii": 50,
+    "DeslusireaRunelor": 55,
+    "ManiorulIernii": 55,
+    "GeamatulEcoului": 60,
+    "FluxulStrabun": 60,
+    "PovaraAnilor": 65,
+    "UraganDeAzur": 70,
+    "CadereaStelelor": 80
+  },
+
+  "_comment_drops": "[min, max] monede la invingerea unui inamic (numele dinaintea virgulei).",
+  "defaultEnemyDrop": [2, 5],
+  "enemyDrops": {
+    "Lup Slăbit": [2, 3],
+    "Lup": [3, 6],
+    "Cioara": [2, 5],
+    "Lup de Elită": [10, 16],
+    "Trol de Pestera": [6, 10],
+    "Trol de Elită": [25, 35],
+    "Valerius": [40, 40],
+    "Fenris cel Alb": [60, 60],
+    "Feldgug": [80, 80],
+    "Jean Plesa": [100, 100],
+    "Glaciara": [120, 120],
+    "Charon": [150, 150],
+    "Malakor": [250, 250]
+  },
+
+  "_comment_quests": "Monede la terminarea unei misiuni, dupa id. Cele neprecizate primesc defaultQuestReward.",
+  "defaultQuestReward": 15,
+  "questRewards": {
+    "main": { "1": 10, "2": 20, "3": 50, "4": 10, "5": 25, "6": 40, "7": 60, "8": 15, "9": 70, "10": 20, "11": 90, "12": 100, "13": 30, "14": 200 },
+    "side": { "1": 25, "2": 30, "3": 40, "4": 35 }
+  }
+}

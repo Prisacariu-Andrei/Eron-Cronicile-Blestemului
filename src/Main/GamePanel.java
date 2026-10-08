@@ -62,6 +62,7 @@ public class GamePanel extends JPanel implements Runnable {
     public LeaderboardUI leaderboardUI = new LeaderboardUI(this);
     public CreditsUI creditsUI = new CreditsUI(this);
     public CutsceneUI cutsceneUI = new CutsceneUI(this);
+    public ShopUI shopUI = new ShopUI(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();
 
     // OPȚIUNI MENIU
@@ -76,6 +77,16 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
 
         player.addObserver(healthUI);
+
+        // Terminarea unei misiuni aduce monede (cât: economy.json -> questRewards)
+        questManager.onComplete = (quest, isMain) -> {
+            int reward = Economy.get().questReward(quest.id, isMain);
+            if (reward > 0) {
+                player.addCoins(reward);
+                ui.message = "Misiune încheiată: +" + reward + " monede";
+                ui.messageOn = true;
+            }
+        };
     }
 
     public void setupGame() {

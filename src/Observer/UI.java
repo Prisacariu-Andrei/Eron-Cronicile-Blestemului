@@ -69,6 +69,7 @@ public class UI {
             }
             gp.healthUI.draw(g2);
             drawManaText(g2);
+            drawCoins(g2);
             drawInteractionPrompt();
             drawMessage();
 
@@ -78,6 +79,9 @@ public class UI {
         }
         if (state instanceof DialogueState) {
             gp.dialogueUI.draw(g2);
+        }
+        if (state instanceof ShopState) {
+            gp.shopUI.draw(g2);
         }
         if (state instanceof InventoryState) {
             gp.inventoryUI.draw(g2);
@@ -130,7 +134,8 @@ public class UI {
         gp.player.hitBox.height = oldH;
 
         if (npcIndex != 999) {
-            String text = "[E] TO TALK";
+            String npcName = gp.npc[npcIndex].name;
+            String text = "[E] – talk" + (npcName != null ? "  (" + npcName + ")" : "");
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
 
             // Deasupra lui Eron, oriunde este el pe ecran (lângă marginile hărții nu mai e în centru)
@@ -181,8 +186,31 @@ public class UI {
 
     private static final int MESSAGE_TICKS = 120;
 
+    // Contorul de monede din HUD: numărul "curge" spre valoarea reală și sare când primești monede
+    public int coinPulse = 0;
+    private float coinsShown = -1;
+
+    private void drawCoins(Graphics2D g2) {
+        if (coinsShown < 0) coinsShown = gp.player.coins;
+        float scale = 1f + 0.25f * Easing.outQuad(coinPulse / 18f);
+        int size = Math.round(24 * scale);
+        int x = gp.tileSize / 2, y = (gp.tileSize / 2) + 58;
+        ShopUI.drawCoin(g2, x, y, size);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F * scale));
+        String text = String.valueOf(Math.round(coinsShown));
+        g2.setColor(Color.BLACK);
+        g2.drawString(text, x + size + 10, y + size - 3);
+        g2.setColor(new Color(255, 221, 100));
+        g2.drawString(text, x + size + 8, y + size - 5);
+    }
+
     /** Un tick: mesajul din HUD expiră după 120 de ticks (2 secunde), indiferent de FPS-ul desenării. */
     public void update() {
+        if (coinPulse > 0) coinPulse--;
+        if (coinsShown >= 0) {
+            coinsShown += (gp.player.coins - coinsShown) * 0.2f;
+            if (Math.abs(gp.player.coins - coinsShown) < 0.5f) coinsShown = gp.player.coins;
+        }
         if (messageOn) {
             messageCounter++;
             if (messageCounter > MESSAGE_TICKS) {

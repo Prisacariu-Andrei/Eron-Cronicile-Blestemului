@@ -31,6 +31,9 @@ public abstract class NPC extends Entity {
     public abstract void getImage();
     public abstract void setDialogue();
 
+    /** Jucătorul a ales o opțiune dintr-un dialog cu variante (doar NPC-urile din date, vezi DataNPC, o folosesc). */
+    public void choose(int index) {}
+
     // Metoda apelată când apeși [E] (Modificată pentru State Pattern)
     public void speak() {
         if (dialogues[dialogueIndex] == null) {

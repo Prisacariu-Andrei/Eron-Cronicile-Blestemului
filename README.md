@@ -31,6 +31,22 @@ Salvările se scriu în `eron_save.db`, lângă proiect (nu este urmărit de git
 | F3 | Afișează/ascunde panoul de performanță (FPS, durata update/desenare, tile-uri desenate, entități, memorie) |
 | În prolog: ENTER, SPACE (ținut), ESC | Continuă, text mai rapid, sari peste prolog |
 
+## Monede, magazin și NPC-uri (date, nu cod)
+
+- **`res/Data/economy.json`** — monedele de start, câte monede dă fiecare inamic (`enemyDrops`) și fiecare misiune
+  (`questRewards`), prețul fiecărei cărți (`cardPrices`), raportul de vânzare (`sellRatio`, 0.5 = 50%) și pachetul minim.
+- **`res/Data/npcs.json`** — toți NPC-urile. Fiecare are `id`, `name`, `type`, `zone`, `col`, `row` (poziția în tile-uri),
+  opțional `sprite` și `tint` (culoare `#RRGGBB`). Tipuri: `simple` (replici, `lineMode`: `cycle`/`random`), `dialogue`
+  (noduri cu 2-3 opțiuni), `merchant` (dialog + magazin), `quest` (dialog + misiune). Explicații complete în câmpul `_help` al fișierului.
+
+**NPC nou:** copiază o intrare din `npcs.json`, schimbă `id`, `name`, `zone`, `col`, `row` și replicile. Alege un tile liber
+(fără copac/casă) și nu pune doi NPC în același loc. Nu scrii nicio clasă (vezi `DataNPC`).
+
+**Carte nouă în magazin:** adaugă numele din `CardFactory` (ex. `"UraganDeAzur"`) în `shop.stock` al negustorului, iar prețul în
+`cardPrices`. Prețul de vânzare se calculează singur.
+
+Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D schimbă fila, W/S aleg, ENTER cumpără/vinde, ESC iese.
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

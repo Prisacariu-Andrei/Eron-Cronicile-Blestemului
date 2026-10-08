@@ -53,6 +53,19 @@ public class SaveLoadManager {
 
             pstmt.executeUpdate();
 
+            // Monedele și relicvele (coloanele sunt adăugate în DatabaseManager)
+            try (PreparedStatement extra = conn.prepareStatement("UPDATE saves SET coins = ?, are_dinte_chilimbar = ?, " +
+                    "are_diamantul_noptii = ?, are_palos_legendar = ?, are_inel_gheata = ?, are_platosa_valerius = ? WHERE slot = ?")) {
+                extra.setInt(1, player.coins);
+                extra.setInt(2, player.areDinteChilimbar ? 1 : 0);
+                extra.setInt(3, player.areDiamantulNoptii ? 1 : 0);
+                extra.setInt(4, player.arePalosLegendar ? 1 : 0);
+                extra.setInt(5, player.areInelDeGheata ? 1 : 0);
+                extra.setInt(6, player.arePlatosaValerius ? 1 : 0);
+                extra.setInt(7, slot);
+                extra.executeUpdate();
+            }
+
             // Salvăm inventarul separat
             saveInventory(player, slot, conn);
 
@@ -112,6 +125,11 @@ public class SaveLoadManager {
                 gp.player.life = rs.getInt("player_life");
                 gp.player.maxLife = rs.getInt("player_max_life");
                 gp.player.shield = rs.getInt("player_shield");
+                try {
+                    gp.player.coins = rs.getInt("coins"); // salvările vechi nu au monede: 0
+                } catch (SQLException e) {
+                    gp.player.coins = 0;
+                }
 
                 // Restaurăm relicvele
                 gp.player.areDinteChilimbar = rs.getInt("are_dinte_chilimbar") == 1;

@@ -50,6 +50,15 @@ public class Player extends Entity {
     private int dustCounter = 0;
     private int stepSoundCounter = 0;
 
+    // Monede (valorile câștigurilor și prețurile sunt în res/Data/economy.json)
+    public int coins = 0;
+    public int lastCoinReward = 0; // cât a primit la ultima luptă (afișat pe ecranul de recompensă)
+
+    public void addCoins(int amount) {
+        coins += amount;
+        gp.ui.coinPulse = 18; // HUD-ul "sare" când primești monede
+    }
+
     public boolean isDashing = false;
     public int dashSpeed = 16;
     public int dashCounter = 0;
@@ -79,6 +88,7 @@ public class Player extends Entity {
     }
 
     public void setDefaultValues() {
+        coins = Main.Economy.get().startingCoins();
         worldX = gp.tileSize * 12;
         worldY = gp.tileSize * 12;
         speed = NORMAL_SPEED;
@@ -487,6 +497,14 @@ public class Player extends Entity {
             // Folosim doar partea dinaintea virgulei: "Feldgug, Regele Trol" -> "Feldgug",
             // "Glaciara, Stăpânul Inelului de Gheață" -> "Glaciara" etc., ca să se potrivească cu case-urile de mai jos
             String inamicNume = currentEnemy.name.split(",")[0].trim();
+
+            // Monede pentru inamicul învins (cât se primește: economy.json -> enemyDrops)
+            lastCoinReward = Main.Economy.get().enemyDrop(inamicNume);
+            if (lastCoinReward > 0) {
+                addCoins(lastCoinReward);
+                gp.ui.message = "+" + lastCoinReward + " monede";
+                gp.ui.messageOn = true;
+            }
 
             // --- 1. ATRIBUIRE RUNE DE LA GENERALI ---
             switch (inamicNume) {

@@ -62,12 +62,26 @@ public class KeyHandler implements KeyListener {
             } else if (state instanceof CutsceneState) {
                 ((CutsceneState) state).skip();
                 return;
+            } else if (state instanceof ShopState) {
+                SoundManager.getInstance().playSE("click");
+                gp.changeState(new PlayState(gp));
+                return;
             } else if (state instanceof RewardState) { // <--- ADAUGĂ ACEST BLOC NOU!
                 System.out.println("DEBUG: Jucătorul a refuzat recompensa.");
                 gp.rewardUI.commandNum = 0;
                 gp.changeState(new PlayState(gp));
                 return;
             }
+        }
+
+        // Dialog cu opțiuni de răspuns (NPC-uri din npcs.json): W/S aleg, E sau ENTER confirmă
+        if (state instanceof DialogueState && gp.dialogueUI.hasChoices() && !gp.dialogueUI.isWriting()) {
+            if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) gp.dialogueUI.moveChoice(-1);
+            if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) gp.dialogueUI.moveChoice(1);
+            if ((code == KeyEvent.VK_E || code == KeyEvent.VK_ENTER) && gp.activeNpcIndex != -1 && gp.npc[gp.activeNpcIndex] != null) {
+                gp.npc[gp.activeNpcIndex].choose(gp.dialogueUI.choice);
+            }
+            return;
         }
 
         // 0. GESTIUNE MENIU PRINCIPAL

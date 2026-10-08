@@ -90,9 +90,14 @@ public class QuestManager {
     public void updateQuestProgress(int id, boolean isMain, int amount) {
         Quest q = getQuestById(id, isMain);
         if (q != null) {
+            boolean wasCompleted = q.isCompleted;
             q.addProgress(amount);
+            if (!wasCompleted && q.isCompleted && onComplete != null) onComplete.accept(q, isMain);
         }
     }
+
+    /** Apelat o singură dată când o misiune se încheie (GamePanel îl folosește ca să dea monedele). */
+    public java.util.function.BiConsumer<Quest, Boolean> onComplete;
 
     // Adaugă această metodă în clasa QuestManager
     public void resetAllQuests() {
