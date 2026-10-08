@@ -130,8 +130,9 @@ public class UI {
             String text = "[E] TO TALK";
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
 
-            int x = getXforCenteredText(text);
-            int y = gp.player.screenY - 15; // Reparat din screenY/4 (care trimitea textul pe tavan)
+            // Deasupra lui Eron, oriunde este el pe ecran (lângă marginile hărții nu mai e în centru)
+            int x = gp.camera.screenX(gp.player.worldX) + gp.tileSize / 2 - g2.getFontMetrics().stringWidth(text) / 2;
+            int y = gp.camera.screenY(gp.player.worldY) - 15; // Reparat din screenY/4 (care trimitea textul pe tavan)
 
             g2.setColor(Color.BLACK);
             g2.drawString(text, x + 2, y + 2);

@@ -19,10 +19,7 @@ public class BattleState implements GameState {
         gp.gameTimer.update();
         gp.player.update();
 
-        for (int i = 0; i < gp.popups.size(); i++) {
-            gp.popups.get(i).update();
-            if (gp.popups.get(i).lifeSpan <= 0) gp.popups.remove(i--);
-        }
+        // Popup-urile se actualizează acum în GamePanel.update(), pentru toate stările
 
         if (gp.player.currentEnemy != null && !gp.player.currentEnemy.alive) {
             gp.player.winBattle();

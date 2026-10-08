@@ -4,62 +4,76 @@ import Main.GamePanel;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FogOfWar {
 
+    private static final int EDGE_ALPHA = 245; // Întunericul maxim, în afara cercului de lumină
+
     private final GamePanel gp;
     private final int circleSize; // Diametrul cercului de lumină
+
+    // Discul de lumină se desenează o singură dată per culoare și apoi se reutilizează la fiecare cadru
+    private final Map<Integer, BufferedImage> discs = new HashMap<>();
 
     public FogOfWar(GamePanel gp, int circleSize) {
         this.gp = gp;
         this.circleSize = circleSize;
     }
 
+    /**
+     * Ceața = o culoare aproape opacă peste tot ecranul, cu un disc de lumină (gradient) în jurul lui Eron.
+     * Înainte, la fiecare cadru se crea o imagine de 1600x900 și se umplea cu gradient (~6 MB gunoi pe cadru).
+     * Acum se desenează discul pre-calculat și patru dreptunghiuri simple în jurul lui.
+     */
     public void draw(Graphics2D g2, int colour) {
-        // 1. Creăm imaginea tampon (ARGB)
-        BufferedImage fogImage = new BufferedImage(gp.screenWidth, gp.screenHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2Fog = (Graphics2D) fogImage.getGraphics();
+        // Centrul luminii = unde se desenează Eron pe ecran (nu mereu centrul ecranului: lângă marginile hărții se mută)
+        int centerX = gp.camera.screenX(gp.player.worldX) + gp.tileSize / 2;
+        int centerY = gp.camera.screenY(gp.player.worldY) + gp.tileSize / 2;
 
-        g2Fog.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        BufferedImage disc = discs.computeIfAbsent(colour, this::buildDisc);
+        int r = disc.getWidth() / 2;
+        int left = centerX - r, top = centerY - r, size = disc.getWidth();
+        int right = left + size, bottom = top + size;
+        int w = gp.screenWidth, h = gp.screenHeight;
 
-        // Calculăm centrul exact al lui Eron pe ecran
-        int centerX = gp.player.screenX + (gp.tileSize / 2);
-        int centerY = gp.player.screenY + (gp.tileSize / 2);
+        g2.setColor(fogColor(colour, EDGE_ALPHA));
+        if (top > 0) g2.fillRect(0, 0, w, Math.min(top, h));                              // deasupra
+        if (bottom < h) g2.fillRect(0, Math.max(bottom, 0), w, h - Math.max(bottom, 0));  // dedesubt
+        int bandTop = Math.max(top, 0), bandBottom = Math.min(bottom, h);
+        if (bandBottom > bandTop) {
+            if (left > 0) g2.fillRect(0, bandTop, Math.min(left, w), bandBottom - bandTop);                          // stânga
+            if (right < w) g2.fillRect(Math.max(right, 0), bandTop, w - Math.max(right, 0), bandBottom - bandTop);   // dreapta
+        }
+        g2.drawImage(disc, left, top, null);
+    }
 
-        float radius = circleSize / 2f;
+    private static Color fogColor(int colour, int alpha) {
+        return new Color(5 + colour, 5 + colour, 15 + colour, alpha);
+    }
 
-        // 2. CONFIGURARE GRADIENT INVERS (Lumină -> Întuneric)
+    private BufferedImage buildDisc(int colour) {
+        int radius = (int) Math.ceil(circleSize / 2f);
+        int size = radius * 2;
+        BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+
+        // GRADIENT INVERS (Lumină -> Întuneric)
         float[] fractions = {0.0f, 0.2f, 0.6f, 1.0f};
-
         Color[] colors = {
-                new Color(5+colour, 5+colour, 15+colour, 0),    // Centru: Complet transparent (se vede Eron perfect)
-                new Color(5+colour, 5+colour, 15+colour, 30),   // Pasul 2: Început de penumbră
-                new Color(5+colour, 5+colour, 15+colour, 150),  // Pasul 3: Ceață deasă
-                new Color(5+colour, 5+colour, 15+colour, 245)   // Margine (100%): Întunericul maxim al Abisului
+                fogColor(colour, 0),     // Centru: complet transparent (se vede Eron perfect)
+                fogColor(colour, 30),    // Început de penumbră
+                fogColor(colour, 150),   // Ceață deasă
+                fogColor(colour, EDGE_ALPHA) // Margine: întunericul maxim
         };
 
-        // ★ SOLUȚIA: Adăugăm parametrii de focalizare și metoda NO_CYCLE
-        // NO_CYCLE îi spune Java-ului: "Tot ce depășește raza acestui cerc, umple la infinit cu ultima culoare din array (adică opacitate 245)"
-        RadialGradientPaint rgp = new RadialGradientPaint(
-                new Point(centerX, centerY),
-                radius,
-                fractions,
-                colors,
-                MultipleGradientPaint.CycleMethod.NO_CYCLE
-        );
-
-        // Aplicăm gradientul direct
-        g2Fog.setComposite(AlphaComposite.SrcOver);
-        g2Fog.setPaint(rgp);
-
-        // 3. UMPLEM EFECTIV TOT ECRANUL CU ACEST STIL ★★★
-        // Nu mai desenăm doar un cerc mic, ci umplem tot dreptunghiul ferestrei.
-        // Gradientul va avea grijă să lase centrul transparent și să pună negru peste tot în rest, fără nicio linie vizibilă!
-        g2Fog.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-
-        g2Fog.dispose();
-
-        // 4. Desenăm imaginea finală peste joc
-        g2.drawImage(fogImage, 0, 0, null);
+        // NO_CYCLE: tot ce depășește raza se umple cu ultima culoare, deci colțurile pătratului se potrivesc cu restul ceții
+        g.setPaint(new RadialGradientPaint(new Point(radius, radius), circleSize / 2f, fractions, colors,
+                MultipleGradientPaint.CycleMethod.NO_CYCLE));
+        g.setComposite(AlphaComposite.Src);
+        g.fillRect(0, 0, size, size);
+        g.dispose();
+        return img;
     }
 }

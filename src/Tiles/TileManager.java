@@ -1,9 +1,11 @@
 package Tiles;
 
+import Main.DebugStats;
 import Main.GamePanel;
 import Main.Exception.GameExceptionHandler;
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class TileManager {
@@ -11,6 +13,10 @@ public class TileManager {
     public Tile[] tile;
     public int[][] mapTileNum;
     public String currentZone = "Eldoria";
+
+    // Dimensiunea reală a hărții încărcate (în tile-uri), citită din fișier. Camera se oprește la ea.
+    public int actualMapCols = 0;
+    public int actualMapRows = 0;
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
@@ -171,7 +177,7 @@ public class TileManager {
 
             if (is != null) {
                 tile[index] = new Tile();
-                tile[index].image = ImageIO.read(is);
+                tile[index].image = scaleToTile(ImageIO.read(is));
                 tile[index].collision = collision;
             } else {
                 // Dacă resursa este complet absentă, trimitem un Warning controlat
@@ -181,6 +187,20 @@ public class TileManager {
         } catch (Exception e) {
             GameExceptionHandler.getInstance().handleWarning("Eroare neprevăzută întâmpinată la citirea imaginii: " + imageName, e);
         }
+    }
+
+    /**
+     * Mărește imaginea la dimensiunea unui tile o singură dată, la încărcare (cu aceeași interpolare "nearest"
+     * pe care o folosea desenarea), ca să nu fie scalată din nou la fiecare cadru pentru fiecare tile.
+     */
+    private BufferedImage scaleToTile(BufferedImage src) {
+        if (src == null || (src.getWidth() == gp.tileSize && src.getHeight() == gp.tileSize)) return src;
+        BufferedImage scaled = new BufferedImage(gp.tileSize, gp.tileSize, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = scaled.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        g.drawImage(src, 0, 0, gp.tileSize, gp.tileSize, null);
+        g.dispose();
+        return scaled;
     }
 
     public void loadMap(String filePath) {
@@ -204,6 +224,8 @@ public class TileManager {
 
             int col;
             int row = 0;
+            int maxCols = 0;
+            int lastFilledRow = -1;
 
             // ÎNLOCUIEȘTE BUCLA TA ACTUALĂ CU ACEASTA:
             while (row < gp.maxWorldRow) {
@@ -212,6 +234,12 @@ public class TileManager {
 
                 // Eliminăm spațiile de la capete și împărțim prin orice secvență de spații albe
                 String[] numbers = line.trim().split("\\s+");
+
+                // Reținem dimensiunea reală a hărții (rândurile goale de la final nu contează)
+                if (!line.isBlank()) {
+                    lastFilledRow = row;
+                    maxCols = Math.max(maxCols, Math.min(numbers.length, gp.maxWorldCol));
+                }
 
                 for (col = 0; col < gp.maxWorldCol && col < numbers.length; col++) {
                     try {
@@ -229,66 +257,42 @@ public class TileManager {
                 row++;
             }
             br.close();
-            System.out.println("✅ SUCCES: Harta " + filePath + " a fost încărcată corect!");
+            actualMapCols = maxCols;
+            actualMapRows = lastFilledRow + 1;
+            // harta nouă: camera se mută direct, fără deplasare animată (nu există încă la prima încărcare)
+            if (gp.camera != null && gp.player != null) gp.camera.snap();
+            System.out.println("✅ SUCCES: Harta " + filePath + " (" + actualMapCols + "x" + actualMapRows + ") a fost încărcată corect!");
 
         } catch (Exception e) {
             GameExceptionHandler.getInstance().handleCriticalError("A apărut o eroare structurală la citirea fișierului de configurare a hărții: " + filePath, e);
         }
     }
 
+    /**
+     * Desenează doar tile-urile care încap pe ecran (în jur de 375), nu toată grila de 200x200.
+     * Poziția pe ecran vine din Camera, deci arată la fel și când camera este oprită la marginea hărții.
+     */
     public void draw(Graphics2D g2) {
-        int worldCol = 0;
-        int worldRow = 0;
+        int camX = gp.camera.getX();
+        int camY = gp.camera.getY();
 
-        while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            int tileNum = mapTileNum[worldCol][worldRow];
+        int startCol = Math.max(0, camX / gp.tileSize);
+        int endCol = Math.min(gp.maxWorldCol - 1, (camX + gp.screenWidth) / gp.tileSize);
+        int startRow = Math.max(0, camY / gp.tileSize);
+        int endRow = Math.min(gp.maxWorldRow - 1, (camY + gp.screenHeight) / gp.tileSize);
 
-            int worldX = worldCol * gp.tileSize;
-            int worldY = worldRow * gp.tileSize;
-
-            int screenX = worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = worldY - gp.player.worldY + gp.player.screenY;
-
-            if (gp.player.worldX < gp.player.screenX) {
-                screenX = worldX;
-            }
-            if (gp.player.worldY < gp.player.screenY) {
-                screenY = worldY;
-            }
-            int rightOffset = gp.screenWidth - gp.player.screenX;
-            if (rightOffset > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX) {
-                screenX = gp.screenWidth - ((gp.maxWorldCol * gp.tileSize) - worldX);
-            }
-            int bottomOffset = gp.screenHeight - gp.player.screenY;
-            if (bottomOffset > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
-                screenY = gp.screenHeight - ((gp.maxWorldRow * gp.tileSize) - worldY);
-            }
-
-            if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
-                    worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
-                    worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
-                    worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
-
+        int drawn = 0; // pentru overlay-ul F3
+        for (int worldRow = startRow; worldRow <= endRow; worldRow++) {
+            int screenY = worldRow * gp.tileSize - camY;
+            for (int worldCol = startCol; worldCol <= endCol; worldCol++) {
+                int tileNum = mapTileNum[worldCol][worldRow];
                 if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null) {
-                    g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                    // Imaginile sunt deja la dimensiunea unui tile (vezi scaleToTile), deci copiere simplă, fără scalare
+                    g2.drawImage(tile[tileNum].image, worldCol * gp.tileSize - camX, screenY, null);
+                    drawn++;
                 }
-            } else {
-                if (gp.player.worldX < gp.player.screenX ||
-                        gp.player.worldY < gp.player.screenY ||
-                        rightOffset > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX ||
-                        bottomOffset > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
-
-                    if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null) {
-                        g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
-                    }
-                }
-            }
-
-            worldCol++;
-            if (worldCol == gp.maxWorldCol) {
-                worldCol = 0;
-                worldRow++;
             }
         }
+        DebugStats.tilesDrawn = drawn;
     }
 }

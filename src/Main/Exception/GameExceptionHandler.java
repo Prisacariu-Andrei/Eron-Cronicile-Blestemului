@@ -8,6 +8,7 @@ public class GameExceptionHandler {
 
     private static GameExceptionHandler instance;
     private static final String LOG_FILE = "error_log.txt";
+    private final java.util.Set<String> seenWarnings = new java.util.HashSet<>();
 
     private GameExceptionHandler() {}
 
@@ -22,7 +23,12 @@ public class GameExceptionHandler {
      * Tratează o eroare non-critică (jocul poate continua, dar logăm problema).
      */
     public void handleWarning(String message, java.lang.Exception e) {
-        System.err.println("[WARNING] " + message + ": " + e.getMessage());
+        // Fiecare avertisment distinct se raportează o singură dată pe rulare: altfel o resursă lipsă
+        // (de ex. o imagine) scrie același stack trace pe disc la fiecare inamic creat și încetinește jocul.
+        synchronized (seenWarnings) {
+            if (!seenWarnings.add(message)) return;
+        }
+        System.err.println("[WARNING] " + message + (e != null ? ": " + e.getMessage() : ""));
         logToFile("WARNING", message, e);
     }
 

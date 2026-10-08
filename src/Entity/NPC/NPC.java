@@ -49,25 +49,11 @@ public abstract class NPC extends Entity {
     }
 
     public void draw(Graphics2D g2) {
-        // 1. Calculăm poziția relativă față de player
-        int screenX = worldX - gp.player.worldX + gp.player.screenX;
-        int screenY = worldY - gp.player.worldY + gp.player.screenY;
+        // Poziția pe ecran vine din cameră (aceeași pentru tile-uri, Eron, inamici)
+        int screenX = gp.camera.screenX(worldX);
+        int screenY = gp.camera.screenY(worldY);
 
-        // 2. Gestionarea marginilor ecranului (Screen Locking) pe axa X
-        if (gp.player.worldX < gp.player.screenX) {
-            screenX = worldX;
-        } else if (gp.screenWidth - gp.player.screenX > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX) {
-            screenX = worldX - (gp.maxWorldCol * gp.tileSize - gp.screenWidth);
-        }
-
-        // 3. Gestionarea marginilor ecranului (Screen Locking) pe axa Y
-        if (gp.player.worldY < gp.player.screenY) {
-            screenY = worldY;
-        } else if (gp.screenHeight - gp.player.screenY > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
-            screenY = worldY - (gp.maxWorldRow * gp.tileSize - gp.screenHeight);
-        }
-
-        // 4. Verificăm dacă NPC-ul se află în interiorul ferestrei
+        // Verificăm dacă NPC-ul se află în interiorul ferestrei
         if (screenX + gp.tileSize > 0 &&
                 screenX < gp.screenWidth &&
                 screenY + gp.tileSize > 0 &&

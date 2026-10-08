@@ -33,7 +33,7 @@ public class CollisionChecker {
 
         switch(entity.direction){
             case "up":
-                entityTopRow=(entityTopWorldY-entity.speed)/gp.tileSize;
+                entityTopRow=Math.max(0, (entityTopWorldY-entity.speed)/gp.tileSize);
                 tileNum1= gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
                 tileNum2= gp.tileM.mapTileNum[entityRightCol][entityTopRow];
                 if (gp.tileM.tile[tileNum1] != null && gp.tileM.tile[tileNum1].collision ||
@@ -42,7 +42,7 @@ public class CollisionChecker {
                 }
                 break;
             case "down":
-                entityBottomRow=(entityBottomWorldY+entity.speed)/gp.tileSize;
+                entityBottomRow=Math.min(gp.maxWorldRow - 1, (entityBottomWorldY+entity.speed)/gp.tileSize); // fără ieșire din matrice la limita hărții
                 tileNum1= gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
                 tileNum2= gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
                 if (gp.tileM.tile[tileNum1] != null && gp.tileM.tile[tileNum1].collision ||
@@ -51,7 +51,7 @@ public class CollisionChecker {
                 }
                 break;
             case "left":
-                entityLeftCol=(entityLeftWorldX-entity.speed)/gp.tileSize;
+                entityLeftCol=Math.max(0, (entityLeftWorldX-entity.speed)/gp.tileSize);
                 tileNum1= gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
                 tileNum2= gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
                 if (gp.tileM.tile[tileNum1] != null && gp.tileM.tile[tileNum1].collision ||
@@ -60,7 +60,7 @@ public class CollisionChecker {
                 }
                 break;
             case "right":
-                entityRightCol=(entityRightWorldX+entity.speed)/gp.tileSize;
+                entityRightCol=Math.min(gp.maxWorldCol - 1, (entityRightWorldX+entity.speed)/gp.tileSize); // fără ieșire din matrice la limita hărții
                 tileNum1= gp.tileM.mapTileNum[entityRightCol][entityTopRow];
                 tileNum2= gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
                 if (gp.tileM.tile[tileNum1] != null && gp.tileM.tile[tileNum1].collision ||

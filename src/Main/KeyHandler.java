@@ -37,6 +37,11 @@ public class KeyHandler implements KeyListener {
         int code = keyE.getKeyCode();
         GameState state = gp.getCurrentState();
 
+        if (code == KeyEvent.VK_F3) {
+            DebugStats.visible = !DebugStats.visible; // FPS / performanță
+            return;
+        }
+
         if (code == KeyEvent.VK_ESCAPE) {
             if (state instanceof PlayState) {
                 System.out.println("DEBUG: Jocul a trecut în PAUZĂ.");

@@ -33,6 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     // SISTEM
     int FPS = 60;
+    public Camera camera = new Camera(this); // înaintea TileManager, care o folosește la încărcarea hărții
     public TileManager tileM = new TileManager(this);
     public QuestManager questManager = new QuestManager();
     public KeyHandler keyH = new KeyHandler(this);
@@ -157,39 +158,68 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
 
+    /**
+     * Bucla jocului cu pas fix: logica rulează de FPS ori pe secundă indiferent cât durează desenarea,
+     * deci viteza jocului nu depinde de FPS-ul de pe ecran. Între cadre thread-ul doarme, în loc să
+     * ocupe un nucleu de procesor la 100% (cum făcea vechea buclă "while(true)" fără pauză).
+     */
     @Override
     public void run() {
-        double drawInterval = (double) 1000000000 / FPS;
-        double delta = 0;
-        double lastTime = System.nanoTime();
+        final long step = 1_000_000_000L / FPS;
+        final long maxLag = step * 5; // dacă rămânem în urmă cu >5 cadre (ex. fereastra a fost mutată), renunțăm la restul
+        long previous = System.nanoTime();
+        long lag = 0;
 
         while (gameThread != null) {
-            long currentTime = System.nanoTime();
-            delta += (currentTime - lastTime) / drawInterval;
-            lastTime = currentTime;
+            long now = System.nanoTime();
+            lag = Math.min(maxLag, lag + (now - previous));
+            previous = now;
 
-            if (delta >= 1) {
+            boolean updated = false;
+            while (lag >= step) {
                 update();
-                repaint();
-                delta--;
+                lag -= step;
+                updated = true;
             }
+            if (updated) repaint();
+
+            // Dormim până aproape de următorul tick (lăsăm ~1 ms marjă pentru precizia somnului)
+            long sleep = step - lag - 1_000_000L;
+            if (sleep > 0) java.util.concurrent.locks.LockSupport.parkNanos(sleep);
         }
     }
 
     public void update() {
+        long t0 = System.nanoTime();
         if (currentState != null) {
             currentState.update();
+        }
+        camera.update();
+        updatePopups();
+        DebugStats.onUpdate(System.nanoTime() - t0);
+    }
+
+    /** Numerele care plutesc dispar singure după ce expiră, în orice stare a jocului (nu doar în luptă). */
+    private void updatePopups() {
+        for (int i = popups.size() - 1; i >= 0; i--) {
+            DamagePopUp p = popups.get(i);
+            p.update();
+            if (p.lifeSpan <= 0) popups.remove(i);
         }
     }
 
     @Override
     public void paintComponent(Graphics g) {
+        long t0 = System.nanoTime();
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
         if (currentState != null) {
             currentState.draw(g2);
         }
+
+        DebugStats.onRender(System.nanoTime() - t0);
+        if (DebugStats.visible) DebugStats.draw(g2, this);
 
         g2.dispose();
     }

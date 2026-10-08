@@ -100,12 +100,25 @@ public class Entity {
         }
     }
 
+    // Imaginile sunt citite de pe disc o singură dată și partajate (ex. 8 lupi = un singur fișier citit, nu 64).
+    // Sunt doar citite la desenare, deci pot fi folosite de mai multe entități.
+    private static final java.util.Map<String, BufferedImage> IMAGE_CACHE = new java.util.HashMap<>();
+    private static final java.util.Set<String> MISSING_IMAGES = new java.util.HashSet<>();
+
     protected BufferedImage setup(String imagePath) {
-        try {
-            return javax.imageio.ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(imagePath + ".png")));
-        } catch (Exception e) {
-            GameExceptionHandler.getInstance().handleWarning("Eroare la încărcarea imaginii prin metoda setup: " + imagePath, e);
-            return null;
+        synchronized (IMAGE_CACHE) {
+            BufferedImage cached = IMAGE_CACHE.get(imagePath);
+            if (cached != null) return cached;
+            if (MISSING_IMAGES.contains(imagePath)) return null; // deja raportată o dată, nu mai încercăm
+            try {
+                BufferedImage image = javax.imageio.ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(imagePath + ".png")));
+                IMAGE_CACHE.put(imagePath, image);
+                return image;
+            } catch (Exception e) {
+                MISSING_IMAGES.add(imagePath);
+                GameExceptionHandler.getInstance().handleWarning("Eroare la încărcarea imaginii prin metoda setup: " + imagePath, e);
+                return null;
+            }
         }
     }
 

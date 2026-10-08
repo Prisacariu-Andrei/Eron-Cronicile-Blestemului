@@ -36,3 +36,6 @@ eron_save.db
 eron_save.db-shm
 eron_save.db-wal
 
+### Log file written by the game ###
+error_log.txt
+

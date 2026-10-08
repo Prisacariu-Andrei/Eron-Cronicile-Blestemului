@@ -596,21 +596,8 @@ public class Player extends Entity {
 
     public void draw(Graphics2D g2) {
 
-        int tempScreenX = screenX;
-        int tempScreenY = screenY;
-
-        if (worldX < screenX) {
-            tempScreenX = worldX;
-        }
-        if (gp.screenWidth - screenX > (gp.maxWorldCol * gp.tileSize) - worldX) {
-            tempScreenX = gp.screenWidth - ((gp.maxWorldCol * gp.tileSize) - worldX);
-        }
-        if (worldY < screenY) {
-            tempScreenY = worldY;
-        }
-        if (gp.screenHeight - screenY > (gp.maxWorldRow * gp.tileSize) - worldY) {
-            tempScreenY = gp.screenHeight - ((gp.maxWorldRow * gp.tileSize) - worldY);
-        }
+        int tempScreenX = gp.camera.screenX(worldX);
+        int tempScreenY = gp.camera.screenY(worldY);
 
         BufferedImage image = switch (direction) {
             case "up" -> (spriteNum == 1) ? up1 : up2;

@@ -137,26 +137,13 @@ public abstract class Enemy extends Entity {
 
     public void draw(Graphics2D g2) {
         if (alive) {
-            int screenX = worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = worldY - gp.player.worldY + gp.player.screenY;
+            int screenX = gp.camera.screenX(worldX);
+            int screenY = gp.camera.screenY(worldY);
             int drawSize = (int)(gp.tileSize * mapSize);
 
-            if (gp.player.worldX < gp.player.screenX) {
-                screenX = worldX;
-            } else if (gp.screenWidth - gp.player.screenX > (gp.maxWorldCol * gp.tileSize) - gp.player.worldX) {
-                screenX = worldX - (gp.maxWorldCol * gp.tileSize - gp.screenWidth);
-            }
-
-            if (gp.player.worldY < gp.player.screenY) {
-                screenY = worldY;
-            } else if (gp.screenHeight - gp.player.screenY > (gp.maxWorldRow * gp.tileSize) - gp.player.worldY) {
-                screenY = worldY - (gp.maxWorldRow * gp.tileSize - gp.screenHeight);
-            }
-
-            if (worldX + drawSize > gp.player.worldX - gp.player.screenX &&
-                    worldX - drawSize < gp.player.worldX + gp.player.screenX &&
-                    worldY + drawSize > gp.player.worldY - gp.player.screenY &&
-                    worldY - drawSize < gp.player.worldY + gp.player.screenY) {
+            // Desenăm doar ce se vede pe ecran
+            if (screenX + drawSize > 0 && screenX < gp.screenWidth &&
+                    screenY + drawSize > 0 && screenY < gp.screenHeight) {
 
                 BufferedImage image = switch(direction) {
                     case "up" -> (spriteNum == 1) ? up1 : up2;
