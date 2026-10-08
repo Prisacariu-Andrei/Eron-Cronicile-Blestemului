@@ -54,6 +54,9 @@ public class KeyHandler implements KeyListener {
             } else if (state instanceof CreditsState) {
                 gp.changeState(new MenuState(gp));
                 return;
+            } else if (state instanceof CutsceneState) {
+                ((CutsceneState) state).skip();
+                return;
             } else if (state instanceof RewardState) { // <--- ADAUGĂ ACEST BLOC NOU!
                 System.out.println("DEBUG: Jucătorul a refuzat recompensa.");
                 gp.rewardUI.commandNum = 0;

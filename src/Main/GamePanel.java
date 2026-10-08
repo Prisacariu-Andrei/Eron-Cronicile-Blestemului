@@ -59,6 +59,7 @@ public class GamePanel extends JPanel implements Runnable {
     public QuestBookUI questBookUI = new QuestBookUI(this);
     public LeaderboardUI leaderboardUI = new LeaderboardUI(this);
     public CreditsUI creditsUI = new CreditsUI(this);
+    public CutsceneUI cutsceneUI = new CutsceneUI(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();
 
     // OPȚIUNI MENIU
