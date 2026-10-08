@@ -8,9 +8,9 @@ public class Enemy_Lup extends Enemy {
     public Enemy_Lup(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Lup";
-        this.maxLife = 80;
+        this.maxLife = 40;
         this.life = maxLife;
-        this.attackDamage = 12;
+        this.attackDamage = 7;
         this.speed = 2;
         getImage();
         setNextIntent();
@@ -33,7 +33,7 @@ public class Enemy_Lup extends Enemy {
         right1 = setup("/Enemy/Wolf");
         right2 = setup("/Enemy/Wolf");
         fightStand = setup("/Enemy/WolfFight");
-        battleBackground = setup("/Enemy/Barlog");
+        battleBackground = setup("/Backgrounds/Barlog_bg");
 
     }
 

@@ -12,11 +12,20 @@ public class LeaderboardUI {
 
     public void draw(Graphics2D g2) {
         // 1. Fundal întunecat de atmosferă
-        g2.setColor(new Color(20, 15, 25, 240));
-        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        if (gp.ui.menuBackground != null) {
+            g2.drawImage(gp.ui.menuBackground, -80, 0, gp.screenWidth+80, gp.screenHeight, null);
+            // Opțional: adăugăm o mască neagră semi-transparentă (30%) ca să aibă textul contrast bun
+            g2.setColor(new Color(0, 0, 0, 150));
+            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        } else {
+            // Fallback în caz că imaginea nu s-a putut încărca, să nu rămână ecranul gol
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        }
 
         // 2. Margine decorativă dublă (Stil RPG medieval)
-        g2.setColor(new Color(255, 215, 0)); // Culoare aurie
+        g2.setColor(new Color(153, 0, 255)); // Culoare aurie
         g2.setStroke(new BasicStroke(4));
         g2.drawRoundRect(50, 50, gp.screenWidth - 100, gp.screenHeight - 100, 30, 30);
         g2.setStroke(new BasicStroke(1));
@@ -32,36 +41,36 @@ public class LeaderboardUI {
         g2.fillRect(titleX - 50, 150, g2.getFontMetrics().stringWidth(title) + 100, 3);
 
         // 4. Preluarea datelor din baza de date
-        Database.SaveManager sm = new Database.SaveManager(gp);
+        Database.SaveLoadManager sm = new Database.SaveLoadManager();
         String[] topScores = sm.getTopScores();
 
         // 5. Desenarea tabelului cu scoruri
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
-        int startY = 240;
-        int spacing = 65;
+        int startY = (int)(gp.screenHeight*0.45);
+        int spacing = (int)(gp.screenHeight*0.05);
 
         boolean hasScores = false;
 
         if (topScores != null) {
-            for (int i = 0; i < topScores.length; i++) {
+            for (int i = 0; i < 5; i++) {
                 if (topScores[i] != null && !topScores[i].trim().isEmpty()) {
                     hasScores = true;
 
                     // Scoatem numerotarea duplicată din string deoarece sm.getTopScores() o include deja! ★★★
                     String entryText = topScores[i];
-
+                    gp.ui.getXforCenteredText(entryText);
                     if (i == 0) {
-                        g2.setColor(new Color(255, 223, 0)); // Coroană de aur pentru Locul 1
-                        g2.drawString("👑 " + entryText, gp.screenWidth / 2 - 200, startY );
+                        g2.setColor(new Color(153, 0, 255)); // ROYAL!!!
+                        g2.drawString("👑 " + entryText, gp.ui.getXforCenteredText("👑 " + entryText) , startY );
                     } else if (i == 1) {
                         g2.setColor(new Color(192, 192, 192)); // Argint pentru Locul 2
-                        g2.drawString("🥈 " + entryText, gp.screenWidth / 2 - 200, startY + (i * spacing));
+                        g2.drawString("🥈 " + entryText, gp.ui.getXforCenteredText("🥈 " + entryText), startY + (i * spacing));
                     } else if (i == 2) {
                         g2.setColor(new Color(205, 127, 50)); // Bronz pentru Locul 3
-                        g2.drawString("🥉 " + entryText, gp.screenWidth / 2 - 200, startY + (i * spacing));
+                        g2.drawString("🥉 " + entryText, gp.ui.getXforCenteredText("🥉 " + entryText), startY + (i * spacing));
                     } else {
-                        g2.setColor(Color.LIGHT_GRAY);
-                        g2.drawString("   " + entryText, gp.screenWidth / 2 - 200, startY + (i * spacing));
+                        g2.setColor(Color.GRAY);
+                        g2.drawString("  " + entryText, gp.ui.getXforCenteredText("  " + entryText), startY + (i * spacing));
                     }
                 }
             }
@@ -86,9 +95,10 @@ public class LeaderboardUI {
      * Trimite noul scor direct în baza de date folosind logica nativă din SaveManager. ★★★
      */
     public void checkAndSaveNewScore(long finalTimeSeconds, String playerName) {
-        Database.SaveManager sm = new Database.SaveManager(gp);
+        Database.SaveLoadManager sm = new Database.SaveLoadManager();
 
         // Înregistrăm scorul brut (baza de date va face automat sortarea și limitarea la citire)
         sm.recordScore(playerName, (int) finalTimeSeconds);
     }
+
 }

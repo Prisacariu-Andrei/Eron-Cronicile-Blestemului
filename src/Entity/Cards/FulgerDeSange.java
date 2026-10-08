@@ -6,7 +6,7 @@ import Entity.Player.Player;
 
 
 public class FulgerDeSange extends Card {
-    public static final int baseDamage= 15;
+    public static final int baseDamage= 24;
 
     public FulgerDeSange(Player player) {
         super("Fulger de Sânge",

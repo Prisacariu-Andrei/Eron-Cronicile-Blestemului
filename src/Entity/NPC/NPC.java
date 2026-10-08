@@ -11,6 +11,7 @@ public abstract class NPC extends Entity {
     public String name;
     public String[] dialogues = new String[20]; // Rezervăm 20 de linii de dialog
     public int dialogueIndex = 0;
+    public boolean isShowingDialogue = false;
 
     // Indicator pentru a ști dacă NPC-ul este în dialog de introducere
     public boolean isTalking = false;
@@ -34,6 +35,7 @@ public abstract class NPC extends Entity {
     public void speak() {
         if (dialogues[dialogueIndex] == null) {
             dialogueIndex = 0;
+            gp.activeNpcIndex = -1;
             gp.changeState(new PlayState(gp)); // Schimbare prin interfață înapoi la joc
             isTalking = false;
             return;

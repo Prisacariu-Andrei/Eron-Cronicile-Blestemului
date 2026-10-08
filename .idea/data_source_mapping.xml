@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/src/Database/DatabaseManager.java" value="fc3266c8-9358-4c3f-baca-c5db59dd754e" />
+    <file url="file://$PROJECT_DIR$/src/Database/SaveLoadManager.java" value="fc3266c8-9358-4c3f-baca-c5db59dd754e" />
+  </component>
+</project>

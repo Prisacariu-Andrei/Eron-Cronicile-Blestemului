@@ -6,11 +6,11 @@ import Entity.Player.Player;
 
 public class PavazaAmurgului extends Card {
     public PavazaAmurgului(Player player) {
-        super("Păvaza Amurgului", 1, CardType.NEUTRU, "Ridici un zid de spirit ce \noprește orice asalt. \nArmura "+(9+player.bonusShield));
+        super("Păvaza Amurgului", 2, CardType.NEUTRU, "Ridici un zid de spirit ce \noprește orice asalt. \nArmura "+(16+player.bonusShield));
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        int amount = 9 + player.bonusShield;
+        int amount = 16 + player.bonusShield;
         if(player.areInelDeGheata){
             amount += 3;
         }

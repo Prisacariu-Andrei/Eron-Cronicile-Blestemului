@@ -16,7 +16,7 @@ public abstract class Enemy extends Entity {
     public String battleMusicKey;
     public double battleSize = 1;
     public double mapSize = 1;
-
+    public int nextActionValue = 0;
 
     // Logica de Bătălie
     public enum EnemyAction { ATTACK, HEAL, DEFEND, SPECIAL, BUFF}

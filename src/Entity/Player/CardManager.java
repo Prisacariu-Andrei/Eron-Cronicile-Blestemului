@@ -10,8 +10,8 @@ public class CardManager {
 
         // Definim numele cărților de start
         String[] startNames = {
-                "UraganDeAzur", "GeamatulEcoului", "Dezolare", "DeslusireaRunelor", "DeslusireaRunelor",
-                "UraganDeAzur", "GeamatulEcoului", "Dezolare", "DeslusireaRunelor", "DeslusireaRunelor"
+                "ParjolulSferic", "ParjolulSferic", "Dezolare", "PavazaGlaciara", "PavazaGlaciara",
+                "ParjolulSferic", "ParjolulSferic", "SuflulVietii", "PavazaGlaciara", "PavazaGlaciara"
         };
 
         for (String name : startNames) {

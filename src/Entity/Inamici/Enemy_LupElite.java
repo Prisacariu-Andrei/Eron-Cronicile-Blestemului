@@ -9,9 +9,9 @@ public class Enemy_LupElite extends Enemy {
     public Enemy_LupElite(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Lup de Elită";
-        this.maxLife = 100;
+        this.maxLife = 60;
         this.life = maxLife;
-        this.attackDamage = 15;
+        this.attackDamage = 10;
         this.speed = 1; // <--- ASIGURĂ-TE CĂ ARE VITEZĂ
         hitBox = new Rectangle(8, 16, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize)); // Hitbox mai mic decât tile-ul (recomandat)
         hitBoxDefaultX = hitBox.x;
@@ -33,6 +33,7 @@ public class Enemy_LupElite extends Enemy {
         right1 = setup("/Enemy/LupElite");
         right2 = setup("/Enemy/LupElite");
         fightStand = setup("/Enemy/LupEliteFight");
+        battleBackground = setup("/Backgrounds/Barlog_bg");
 
     }
     @Override

@@ -3,16 +3,23 @@ package Main;
 public class GameTimer {
     private int elapsedSeconds;
     private int fpsCounter;
+    private boolean isRunning; // ★ VARIABILĂ NOUĂ: Controlează dacă timpul curge sau nu
 
     public GameTimer() {
         this.elapsedSeconds = 0;
         this.fpsCounter = 0;
+        this.isRunning = false; // Jocul începe cu timer-ul oprit (în meniu)
     }
 
     /**
      * Metodă apelată în update()-ul principal din GamePanel (rulează de 60 de ori pe secundă).
      */
     public void update() {
+        // ★ VERIFICARE: Dacă timer-ul este oprit, ignorăm update-urile!
+        if (!isRunning) {
+            return;
+        }
+
         fpsCounter++;
 
         // Dacă jocul rulează la 60 FPS, 60 de update-uri înseamnă exact 1 secundă
@@ -20,6 +27,29 @@ public class GameTimer {
             elapsedSeconds++;
             fpsCounter = 0;
         }
+    }
+
+    // ★ METODE NOI PENTRU CONTROLUL TIMPULUI ★
+
+    /**
+     * Pornește numărătoarea timpului.
+     */
+    public void start() {
+        this.isRunning = true;
+    }
+
+    /**
+     * Oprește temporar numărătoarea timpului (util pentru Pauză sau Cutscene).
+     */
+    public void stop() {
+        this.isRunning = false;
+    }
+
+    /**
+     * Returnează dacă timerul rulează în acest moment.
+     */
+    public boolean isRunning() {
+        return isRunning;
     }
 
     /**
@@ -43,6 +73,7 @@ public class GameTimer {
     public void reset() {
         this.elapsedSeconds = 0;
         this.fpsCounter = 0;
+        this.isRunning = false;
     }
 
     /**

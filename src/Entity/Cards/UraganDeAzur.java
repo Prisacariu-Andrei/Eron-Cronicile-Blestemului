@@ -5,8 +5,8 @@ import Entity.Items.Card;
 import Entity.Player.Player;
 
 public class UraganDeAzur extends Card {
-    private final int baseDamage = 600;
-    private final int scalePerVolt = 4;
+    private final int baseDamage = 10;
+    private final int scalePerVolt = 8;
 
     public UraganDeAzur(Player player) {
         // Punem o descriere generică în constructor, oricum va fi suprascrisă vizual

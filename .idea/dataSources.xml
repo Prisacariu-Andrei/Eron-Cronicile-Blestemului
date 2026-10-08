@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="eron_save.db" uuid="8bb06f01-3ba4-48c2-9023-a87e4e2295ab">
+    <data-source source="LOCAL" name="eron_save.db" uuid="fc3266c8-9358-4c3f-baca-c5db59dd754e">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>

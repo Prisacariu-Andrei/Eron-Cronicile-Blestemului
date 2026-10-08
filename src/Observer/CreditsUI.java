@@ -41,10 +41,26 @@ public class CreditsUI {
 
         // Lista de credite
         String[][] credits = {
-                {"POVESTE & DESIGN", "Echipa Ta"},
-                {"PROGRAMARE", "Tu & State Pattern-ul reparați"},
-                {"GRAFICĂ & ASSETS", "Eldoria Pixel Artists"},
-                {"MULȚUMIRI SPECIALE", "Tuturor jucătorilor!"}
+                {"POVESTE & DESIGN", "Prisacariu Andrei"},
+                {"PROGRAMARE", "Mihalache Costin-Daniel & Prisacariu Andrei"},
+                {"GRAFICĂ & ASSETS", "Prisacariu Andrei"},
+                {"MULȚUMIRI SPECIALE", "Tuturor jucătorilor!"},
+                {"ARCHITECTURA", "Mihalache Costin-Daniel"},
+                {"DOCUMENTATIA", "Mihalache Costin-Daniel"},
+                {"DATABASE MANAGE & SAVES", "Prisacariu Andrei"},
+                {"USER INTERFACE (UI) & UX", "Mihalache Costin-Daniel & Prisacariu Andrei"},
+                {"LEVEL DESIGN / MAP CREATOR", "Prisacariu Andrei"},
+                {"CHARACTER DESIGN & ANIMATION", "Mihalache Costin-Daniel"},
+                {"PRODUS ÎN", "Java JDK & IntelliJ IDEA"},
+                {"UNELTE DE DESIGN", "GIMP"},
+                {"BAZĂ DE DATE", "SQLite JDBC"},
+                {"MULȚUMIRI SPECIALE", "Profesorilor coordonatori & Tuturor jucătorilor!"},
+                {"",""},
+                {"",""},
+                {"",""},
+                {"",""},
+                {"",""},
+                {"ERON:CRONICILE BLESTEMULUI"}
         };
 
         int currentY = textY + 80;

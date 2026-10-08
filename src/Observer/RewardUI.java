@@ -32,10 +32,10 @@ public class RewardUI {
         for (int i = 0; i < rewardCards.size(); i++) {
             Card currentCard = rewardCards.get(i); // Luăm obiectul Card curent
 
-            int cardX = gp.tileSize * 2-5 + (i * gp.tileSize * 6); // Spațiere mai generoasă
-            int cardY = gp.screenHeight / 2 - gp.tileSize * 2;
-            int cardWidth = gp.tileSize * 4;
-            int cardHeight = gp.tileSize * 6;
+            int cardX = (int)(gp.screenWidth * 0.1)  + (int)(i * gp.screenWidth * 0.3); // Spațiere mai generoasă
+            int cardY = (int)(gp.screenHeight*0.3);
+            int cardWidth = (int)(gp.screenWidth * 0.2);
+            int cardHeight = (int)(gp.screenHeight * 0.5);
 
             // --- EFECT DE SELECȚIE ---
             if (i == commandNum) {

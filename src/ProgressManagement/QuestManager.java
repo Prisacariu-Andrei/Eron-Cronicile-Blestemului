@@ -56,7 +56,7 @@ public class QuestManager {
     }
 
     private void initMainQuests() {
-        mainQuests.add(new Quest(1, "Tutorial", "Învață mecanicile jocului și află ce trebuie să faci.", true, 1));
+        mainQuests.add(new Quest(1, "Tutorial", "Învață mecanicile jocului și află ce trebuie să faci. Învinge lupul ce protejează Bârlogul", true, 1));
         mainQuests.add(new Quest(2, "Inamici în Bârlog", "Învinge 5 inamici în Bârlog.", true, 5));
         mainQuests.add(new Quest(3, "Lupul cel Bătrân", "Învinge Lupul cel Bătrân din Bârlog și obține runa sa.", true, 1));
         mainQuests.add(new Quest(4, "Deblochează Abisul", "Vorbește cu gardienii pentru a obține permisiunea de a trece în Abisul de Piatra.", true, 1));
@@ -91,6 +91,20 @@ public class QuestManager {
         Quest q = getQuestById(id, isMain);
         if (q != null) {
             q.addProgress(amount);
+        }
+    }
+
+    // Adaugă această metodă în clasa QuestManager
+    public void resetAllQuests() {
+        for (Quest q : mainQuests) {
+            q.isReceived = false;
+            q.isCompleted = false;
+            q.currentAmount = 0;
+        }
+        for (Quest q : sideQuests) {
+            q.isReceived = false;
+            q.isCompleted = false;
+            q.currentAmount = 0;
         }
     }
 }

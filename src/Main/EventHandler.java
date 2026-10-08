@@ -62,7 +62,7 @@ public class EventHandler {
                 // TELEPORTARE BÂRLOG (ID 42) - Permisă dacă ai primit Quest 2
                 if (tileNum == 42) {
                     var q2 = gp.questManager.getQuestById(2, true);
-                    if (q2 != null && q2.isReceived) {
+                    if (q2 != null || (q2.isReceived || q2.isCompleted)) {
                         changeMap("/Maps/Barlogul", "Barlogul", 47, 14);
                     } else {
                         gp.ui.message = "Bârlogul e blocat! Vorbește cu Bătrânul Înțelept.";
@@ -74,7 +74,7 @@ public class EventHandler {
                 // TELEPORTARE ABIS (ID 43) - Quest 4: Trebuie să ai permisiunea/să fii la Quest 4 primit
                 if (tileNum == 43) {
                     var q4 = gp.questManager.getQuestById(4, true);
-                    if (q4 != null && q4.isReceived) {
+                    if (q4 != null || (q4.isReceived || q4.isCompleted)) {
                         // Dacă pășești aici și ai misiunea 4 activă, o completăm automat (în loc de gardian)!
                         if (!q4.isCompleted) {
                             gp.questManager.updateQuestProgress(4, true, 1);
@@ -90,7 +90,7 @@ public class EventHandler {
                 // TELEPORTARE CITADELA (ID 44) - Quest 8: Descoperă Citadela Haiducilor
                 if (tileNum == 44) {
                     var q8 = gp.questManager.getQuestById(8, true);
-                    if (q8 != null && q8.isReceived) {
+                    if (q8 != null && (q8.isReceived || q8.isCompleted)) {
                         // Dacă ai ajuns aici, înseamnă că ai descoperit locația pentru Quest 8!
                         if (!q8.isCompleted) {
                             gp.questManager.updateQuestProgress(8, true, 1);
@@ -106,7 +106,7 @@ public class EventHandler {
                 // TELEPORTARE TUNDRA (ID 45) - Quest 11: Stăpânul Gheții (Glaciara)
                 if (tileNum == 45) {
                     var q11 = gp.questManager.getQuestById(11, true);
-                    if (q11 != null && q11.isReceived) {
+                    if (q11 != null && (q11.isReceived || q11.isCompleted)) {
                         changeMap("/Maps/Tundra", "Tundra", 87, 60);
                     } else {
                         gp.ui.message = "Un viscol teribil blochează trecerea spre Nord!";
@@ -118,7 +118,7 @@ public class EventHandler {
                 // TELEPORTARE POD / CASTEL (ID 46) - Quest 12: Învinge-l pe Charon
                 if (tileNum == 46) {
                     var q12 = gp.questManager.getQuestById(12, true);
-                    if (q12 != null && q12.isReceived) {
+                    if (q12 != null || (q12.isReceived || q12.isCompleted)) {
                         changeMap("/Maps/Podul", "Podul", 5, 24); // Sau direct spre "Castelul" depinzând de mapa ta
                     } else {
                         gp.ui.message = "Calea către Castelul de Obsidian este interzisă muritorilor.";
@@ -148,8 +148,17 @@ public class EventHandler {
                     changeMap("/Maps/Eldoria", "Eldoria", 12, 39);
                 }
             }
+            case "Podul" ->{
+                if (tileNum == 21){
+                    changeMap("/Maps/Eldoria", "Eldoria", 12, 39);
+                }
+                else if(tileNum == 22){
+                    changeMap("/Maps/Castelul", "Castelul", 6, 35);
+
+                }
+            }
             case "Castelul" -> {
-                if (tileNum == 1) {
+                if (tileNum == 21) {
                     changeMap("/Maps/Eldoria", "Eldoria", 31, 39);
                 }
             }
@@ -157,33 +166,27 @@ public class EventHandler {
     }
 
     public void changeMap(String mapPath, String zoneFolder, int nextCol, int nextRow) {
-
-        // --- RESETĂM HEAL-URILE CÂND JUCĂTORUL SCHIMBĂ MAPA ---
         resetHealTiles();
-
         gp.tileM.currentZone = zoneFolder;
 
-        // 1. Schimbăm imaginile hărții
+        System.out.println("DEBUG: Începe încărcarea texturilor pentru: " + zoneFolder);
         gp.tileM.loadZoneTiles(zoneFolder);
 
-        // 2. Schimbăm matricea hărții (.txt)
+        System.out.println("DEBUG: Începe încărcarea matricei text din: " + mapPath);
         gp.tileM.loadMap(mapPath);
 
-        // 3. ACTUALIZĂM ENTITĂȚILE
+        System.out.println("DEBUG: Se populează inamicii pentru: " + mapPath);
         gp.aSetter.setEnemyForMap(mapPath);
+
+        System.out.println("DEBUG: Se populează NPC-urile pentru: " + zoneFolder);
         gp.aSetter.setNPC(zoneFolder);
 
-        // 4. Mutăm jucătorul
         gp.player.worldX = gp.tileSize * nextCol;
         gp.player.worldY = gp.tileSize * nextRow - 2;
 
         eventCooldown = 60;
-
-        // =====================================================================
-        // 5. REFRESH AUDIO: Forțăm starea curentă să prindă noua piesă din zonă
-        // =====================================================================
         gp.changeState(gp.getCurrentState());
-        // =====================================================================
+        System.out.println("DEBUG: Schimbare mapă finalizată cu succes!");
     }
 
     public void resetHealTiles() {

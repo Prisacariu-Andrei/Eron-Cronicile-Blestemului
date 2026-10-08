@@ -21,6 +21,8 @@ import java.util.Objects;
 
 public class Player extends Entity {
 
+    public String playerName ;
+
     KeyHandler keyH;
     public Inventory inventory = new Inventory();
     private final List<Observer> observers = new ArrayList<>();
@@ -73,6 +75,7 @@ public class Player extends Entity {
         speed = NORMAL_SPEED;
         direction = "down";
         spriteNum = 1;
+
 
         name = "Eron";
         life = maxLife;
@@ -248,7 +251,7 @@ public class Player extends Entity {
 
         if (currentEnemy != null) {
             String enemyName = currentEnemy.name;
-            if (!"Fenris cel Alb".equals(enemyName) && !"Valerius, Cavalerul Neinvins".equals(enemyName)) {
+            if (!"Valerius, Cavalerul Neinvins".equals(enemyName)) {
                 currentEnemy.shield = 0;
             }
         }
@@ -259,6 +262,7 @@ public class Player extends Entity {
         gp.battleUI.commandNum = 0;
 
         if (currentEnemy != null) {
+
             currentEnemy.updateStatuses();
 
             if (currentEnemy.life <= 0 && !currentEnemy.alive) {
@@ -289,15 +293,6 @@ public class Player extends Entity {
         }
 
         gp.battleUI.commandNum = 0;
-
-        if (currentEnemy != null) {
-            currentEnemy.updateStatuses();
-
-            if (currentEnemy.life <= 0 && !currentEnemy.alive) {
-                winBattle();
-                return;
-            }
-        }
 
         this.updateStatuses();
 
@@ -406,6 +401,7 @@ public class Player extends Entity {
         hitBox.height = oldH;
 
         if (npcIndex != 999) {
+            gp.activeNpcIndex = npcIndex;
             gp.changeState(new DialogueState(gp));
             gp.npc[npcIndex].speak();
         }
@@ -462,7 +458,11 @@ public class Player extends Entity {
             // --- 2. ACTUALIZARE AUTOMATĂ PROGRES QUEST-URI PRINCIPALE ---
             // Verificăm ce monstru a murit și trimitem progresul către QuestManager
             switch (inamicNume) {
+
                 case "Lup":
+                case "Cioara":
+                case "Lup de Elită":
+                case "Lup Slăbit":
                     // Quest 2: Învinge 5 inamici în Bârlog
                     var q2 = gp.questManager.getQuestById(2, true);
                     if (q2 != null && q2.isReceived && !q2.isCompleted) {
@@ -618,6 +618,7 @@ public class Player extends Entity {
 
     public void primesteDiamantulNoptii() {
         this.areDiamantulNoptii = true;
+        this.maxLife += 10;
         this.maxLife += 10;
         this.life += 10; // Îi dăm și viața curentă ca bonus instant
         this.notifyObservers(); // Actualizează HealthBarUI-ul!

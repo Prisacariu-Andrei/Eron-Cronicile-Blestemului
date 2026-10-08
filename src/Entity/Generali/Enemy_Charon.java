@@ -39,6 +39,7 @@ public class Enemy_Charon extends Enemy {
         left2 = setup("/Enemy/Charon");
         right1 = setup("/Enemy/Charon");
         right2 = setup("/Enemy/Charon");
+        battleBackground = setup("/Backgrounds/Podul_bg");
         fightStand = setup("/Enemy/Charon");
     }
 

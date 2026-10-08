@@ -10,7 +10,7 @@ public class Enemy_Cioara extends Enemy {
         this.name = "Cioara";
         this.maxLife = 30;
         this.life = maxLife;
-        this.attackDamage = 16;
+        this.attackDamage = 3;
         this.speed = 1; // <--- ASIGURĂ-TE CĂ ARE VITEZĂ
         hitBox = new Rectangle(8, 16, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize)); // Hitbox mai mic decât tile-ul (recomandat)
         hitBoxDefaultX = hitBox.x;
@@ -32,12 +32,13 @@ public class Enemy_Cioara extends Enemy {
         right1 = setup("/Enemy/Crow");
         right2 = setup("/Enemy/Crow");
         fightStand = setup("/Enemy/CrowFight");
+        battleBackground = setup("/Backgrounds/Barlog_bg");
     }
 
     @Override
     public void setNextIntent() {
         // Logica specifică Lupului: Atacă mult, nu se vindecă
         nextAction = EnemyAction.ATTACK;
-        intentValue = attackDamage + new Random().nextInt(5);
+        intentValue = attackDamage + new Random().nextInt(10);
     }
 }

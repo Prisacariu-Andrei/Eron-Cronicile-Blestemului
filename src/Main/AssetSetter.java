@@ -28,9 +28,19 @@ public class AssetSetter {
     // --- Metode dedicate pentru fiecare zonă ---
 
     private void spawnEldoria() {
-        gp.enemy[1] = EnemyFactory.createEnemy("Malakor, Monarhul Amurgului", gp, gp.tileSize * 13, gp.tileSize * 13);
-        gp.enemy[0] = EnemyFactory.createEnemy("Lup", gp, gp.tileSize * 31, gp.tileSize * 37);
-        gp.enemy[3] = EnemyFactory.createEnemy("Valerius", gp, gp.tileSize * 39, gp.tileSize * 5);
+        // Luăm informațiile despre Quest-ul 1 (Tutorial) din QuestManager
+        var q1 = gp.questManager.getQuestById(1, true);
+
+        // Inamicii se vor încărca DOAR dacă jucătorul a vorbit cu Cronicarul și a primit quest-ul
+        if (q1 != null && q1.isReceived) {
+            gp.enemy[0] = EnemyFactory.createEnemy("Lup Slăbit", gp, gp.tileSize * 31, gp.tileSize * 37);
+            gp.enemy[1] = EnemyFactory.createEnemy("Valerius", gp, gp.tileSize * 39, gp.tileSize * 5);
+            gp.enemy[2] = EnemyFactory.createEnemy("Malakor, Monarhul Amurgului", gp, gp.tileSize * 12, gp.tileSize * 12);
+
+            System.out.println("DEBUG: Eldoria populate - Quest-ul 1 este activ!");
+        } else {
+            System.out.println("DEBUG: Eldoria e goală - Jucătorul nu a acceptat încă misiunea de la Cronicar.");
+        }
     }
 
     private void spawnBarlogul() {
@@ -38,11 +48,14 @@ public class AssetSetter {
         gp.enemy[1] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 48, gp.tileSize * 26);
         gp.enemy[2] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 47, gp.tileSize * 27);
         gp.enemy[3] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 49, gp.tileSize * 25);
-        gp.enemy[4] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 21, gp.tileSize * 26);
-        gp.enemy[5] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 23, gp.tileSize * 28);
+        gp.enemy[4] = EnemyFactory.createEnemy("Lup", gp, gp.tileSize * 49, gp.tileSize * 25);
+        gp.enemy[5] = EnemyFactory.createEnemy("Lup", gp, gp.tileSize * 49, gp.tileSize * 25);
+        gp.enemy[6] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 21, gp.tileSize * 26);
+        gp.enemy[7] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 23, gp.tileSize * 28);
     }
 
     private void spawnAbisul() {
+        gp.enemy[1] = EnemyFactory.createEnemy("Trol", gp, gp.tileSize*20,gp.tileSize*20);
         gp.enemy[2] = EnemyFactory.createEnemy("Feldgug", gp, gp.tileSize * 60, gp.tileSize * 51 + 32);
     }
 
@@ -55,16 +68,15 @@ public class AssetSetter {
     }
 
     private void spawnPodul() {
-        gp.enemy[6] = EnemyFactory.createEnemy("Charon, Străjerul Umbrelor fără Tihnă", gp, gp.tileSize * 150, gp.tileSize * 22);
+        gp.enemy[6] = EnemyFactory.createEnemy("Charon, Străjerul Umbrelor fără Tihnă", gp, gp.tileSize * 130, gp.tileSize * 24);
     }
 
     private void spawnCastelul() {
-        gp.enemy[7] = EnemyFactory.createEnemy("Malakor, Monarhul Amurgului", gp, gp.tileSize * 33, gp.tileSize * 9);
+        gp.enemy[7] = EnemyFactory.createEnemy("Malakor, Monarhul Amurgului", gp, gp.tileSize * 27, gp.tileSize * 13);
     }
 
     public void setNPC(String currentZone) {
         Arrays.fill(gp.npc, null);
-        String zone = currentZone != null ? currentZone.toLowerCase() : "";
 
         if (currentZone.equals("Eldoria")) {
 

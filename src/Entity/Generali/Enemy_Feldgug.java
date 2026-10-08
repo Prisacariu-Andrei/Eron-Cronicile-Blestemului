@@ -42,6 +42,7 @@ public class Enemy_Feldgug extends Enemy {
         right1 = setup("/Enemy/FeldgugRegeleTrol");
         right2 = setup("/Enemy/FeldgugRegeleTrol");
         fightStand = setup("/Enemy/FeldgugRegeleTrol");
+        battleBackground = setup("/Backgrounds/Abisul_bg");
     }
 
     @Override
@@ -57,7 +58,7 @@ public class Enemy_Feldgug extends Enemy {
         } else if (chance < 40) {
             // trebuie implementat UI de block, atunci cand isi da block hp-ul sau sa devina albastru!
             nextAction = EnemyAction.DEFEND; // Piele de Piatră
-            intentValue = 25; // Valoarea scutului
+            intentValue = 10; // Valoarea scutului
         } else {
             nextAction = EnemyAction.ATTACK;
             intentValue = attackDamage; // Atac normal
@@ -69,8 +70,8 @@ public class Enemy_Feldgug extends Enemy {
         if (stunTurns == 0) {
             // 1. Regenerare pasivă (Sânge de Trol)
             if (life < maxLife) {
-                life = Math.min(maxLife, life + 10);
-                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "+10 HP (Regen)", Color.GREEN));
+                life = Math.min(maxLife, life + 5);
+                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "+5 HP (Regen)", Color.GREEN));
             }
 
             // 2. Acțiunea aleasă
