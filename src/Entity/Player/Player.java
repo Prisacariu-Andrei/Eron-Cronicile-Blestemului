@@ -422,7 +422,9 @@ public class Player extends Entity {
         notifyObservers();
 
         if (currentEnemy != null) {
-            String inamicNume = currentEnemy.name;
+            // Folosim doar partea dinaintea virgulei: "Feldgug, Regele Trol" -> "Feldgug",
+            // "Glaciara, Stăpânul Inelului de Gheață" -> "Glaciara" etc., ca să se potrivească cu case-urile de mai jos
+            String inamicNume = currentEnemy.name.split(",")[0].trim();
 
             // --- 1. ATRIBUIRE RUNE DE LA GENERALI ---
             switch (inamicNume) {
@@ -439,6 +441,7 @@ public class Player extends Entity {
 
                 case "Jean":
                 case "Jean Pleșa":
+                case "Jean Plesa":
                     this.arePalosLegendar = true;
                     System.out.println("⭐ DEBLOCAT: Paloșul Legendar (Dezolarea dă x1.75 damage)!");
                     break;
@@ -478,6 +481,11 @@ public class Player extends Entity {
                         gp.ui.message = "Misiune completată: Tutorial";
                         gp.ui.messageOn = true;
                     }
+
+                    // Side Quest 1: Învinge un Lup de Elită
+                    if ("Lup de Elită".equals(inamicNume)) {
+                        gp.questManager.updateQuestProgress(1, false, 1);
+                    }
                     break;
 
                 case "Fenris":
@@ -487,8 +495,7 @@ public class Player extends Entity {
                     gp.questManager.updateQuestProgress(3, true, 1);
                     break;
 
-                case "Orc":
-                case "InamicAbis": // Înlocuiește cu numele text al inamicilor normali din Abis
+                case "Trol de Pestera":
                     // Quest 5: Învinge 5 inamici în Abisul de Piatra
                     var q5 = gp.questManager.getQuestById(5, true);
                     if (q5 != null && q5.isReceived && !q5.isCompleted) {
@@ -498,8 +505,7 @@ public class Player extends Entity {
                     }
                     break;
 
-                case "Mini-Boss Abis":
-                case "Locotenent Orc": // Înlocuiește cu numele exact din clasa mini-boss-ului
+                case "Trol de Elită":
                     // Quest 6: Învinge mini-boss-ul din zona Abisul de Piatra
                     gp.questManager.updateQuestProgress(6, true, 1);
                     break;
@@ -511,6 +517,7 @@ public class Player extends Entity {
 
                 case "Jean":
                 case "Jean Pleșa":
+                case "Jean Plesa":
                     // Quest 9: Învinge-l / Recrutează-l pe Jean Pleșa
                     gp.questManager.updateQuestProgress(9, true, 1);
                     break;

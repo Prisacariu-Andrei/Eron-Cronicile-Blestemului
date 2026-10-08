@@ -219,25 +219,7 @@ public abstract class Enemy extends Entity {
         if (life <= 0) {
             life = 0;
             alive = false;
-            checkQuestProgress();
-        }
-    }
-
-    private void checkQuestProgress() {
-        if (this.name != null && this.name.equals("Lup")) {
-            var quest2 = gp.questManager.getQuestById(2, true);
-            if (quest2 != null && quest2.isReceived && !quest2.isCompleted) {
-                gp.questManager.updateQuestProgress(2, true, 1);
-                gp.ui.message = "Progres: " + quest2.currentAmount + "/5";
-                gp.ui.messageOn = true;
-            } else {
-                var quest1 = gp.questManager.getQuestById(1, true);
-                if (quest1 != null && quest1.isReceived && !quest1.isCompleted) {
-                    gp.questManager.updateQuestProgress(1, true, 1);
-                    gp.ui.message = "Misiune completată: Tutorial";
-                    gp.ui.messageOn = true;
-                }
-            }
+            // Progresul quest-urilor se actualizează în Player.winBattle()
         }
     }
 

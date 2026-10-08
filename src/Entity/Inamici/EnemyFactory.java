@@ -15,13 +15,13 @@ public class EnemyFactory {
             // Barlog
             case "Lup" -> new Enemy_Lup(gp, x, y);
             case "Cioara" -> new Enemy_Cioara(gp, x, y);
-            case "Lup de Elită"    -> new Enemy_Lup(gp, x, y);
+            case "Lup de Elită"    -> new Enemy_LupElite(gp, x, y);
             case "Fenris cel Alb"   -> new Enemy_LupBoss(gp, x, y);
 
             // Abis
             case "Trol" -> new Enemy_Trol(gp, x, y);
 
-            //case "Trol Elita" -> new Enemy_Cioara(gp, x, y);
+            case "Trol de Elită" -> new Enemy_TrolElite(gp, x, y);
             case "Feldgug" -> new Enemy_Feldgug(gp, x, y);
 
             // Citadela
