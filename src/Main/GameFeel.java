@@ -101,9 +101,8 @@ public final class GameFeel {
     // =====================================================================================
     // CUTSCENE
     // =====================================================================================
-    public static final int LETTERBOX_HEIGHT = 96;             // înălțimea benzilor negre (pixeli)
+    public static final int LETTERBOX_HEIGHT = 110;            // înălțimea benzilor negre (pixeli)
     public static final int LETTERBOX_SLIDE_TICKS = 50;
-    public static final float CUTSCENE_ZOOM_PER_SECOND = 0.012f; // push-in lent al camerei
     public static final int CUTSCENE_TEXT_TICKS_PER_CHAR = 2;  // viteza literelor (mai mic = mai repede)
     public static final int CUTSCENE_SPEEDUP_FACTOR = 4;       // cât de repede merge textul cât ții SPACE
 }

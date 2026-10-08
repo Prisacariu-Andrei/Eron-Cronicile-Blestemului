@@ -3,6 +3,7 @@ package GameState;
 import Main.GamePanel;
 import java.awt.Graphics2D;
 
+/** Prologul: vezi CutsceneUI. Se termină singur în PlayState, la Eldoria. */
 public class CutsceneState implements GameState {
     private final GamePanel gp;
 
@@ -14,26 +15,32 @@ public class CutsceneState implements GameState {
     public void enter() {
         // ENTER-ul din InputNameState e încă apăsat; îl consumăm ca să nu sară prima pagină
         gp.keyH.enterPressed = false;
+        gp.camera.beginCinematic();
         gp.cutsceneUI.reset();
     }
 
     @Override
     public void update() {
-        gp.cutsceneUI.update();
+        // SPACE ținut apăsat (keyH.dashPressed) = text mai rapid
+        gp.cutsceneUI.update(gp.keyH.dashPressed);
 
         if (gp.keyH.enterPressed) {
             gp.keyH.enterPressed = false;
             if (gp.cutsceneUI.isWriting()) {
                 gp.cutsceneUI.skipTypewriter();
-            } else if (!gp.cutsceneUI.nextPage()) {
-                skip();
+            } else {
+                gp.cutsceneUI.next();
             }
+        }
+
+        if (gp.cutsceneUI.isFinished()) {
+            gp.changeState(new PlayState(gp));
         }
     }
 
-    /** Încheie prologul și pornește jocul în Eldoria. */
+    /** ESC: sare peste prolog, dar cu aceeași ieșire lină (benzile se retrag, ecranul se întunecă). */
     public void skip() {
-        gp.changeState(new PlayState(gp));
+        gp.cutsceneUI.beginOutro();
     }
 
     @Override
@@ -41,5 +48,12 @@ public class CutsceneState implements GameState {
         gp.cutsceneUI.draw(g2);
     }
 
-    @Override public void exit() {}
+    @Override
+    public void exit() {
+        // Nimic din cutscene nu rămâne activ după ea: camera revine la jucător, particulele dispar
+        gp.camera.endCinematic();
+        gp.fx.clearAll();
+        gp.player.direction = "down";
+        gp.player.moveVelocity = 0f;
+    }
 }

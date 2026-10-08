@@ -348,7 +348,7 @@ public class Effects {
         if (!GameFeel.AMBIENT_ENABLED || GameFeel.AMBIENT_DENSITY <= 0) return;
 
         GameState s = gp.getCurrentState();
-        boolean worldVisible = s instanceof PlayState || isOverlay(s);
+        boolean worldVisible = s instanceof PlayState || isOverlay(s) || s instanceof CutsceneState;
         boolean menu = s instanceof MenuState;
         if (!worldVisible && !menu) return;
 

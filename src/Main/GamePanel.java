@@ -143,6 +143,11 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                     break;
 
+                case "CutsceneState":
+                    // Muzica din Eldoria începe odată cu prologul (sub fade-ul din negru) și continuă în joc
+                    SoundManager.getInstance().playMusic("Eldoria");
+                    break;
+
                 case "DeathState":
                     // Oprim muzica complet când jucătorul moare pentru un efect dramatic
                     SoundManager.getInstance().stopMusic();

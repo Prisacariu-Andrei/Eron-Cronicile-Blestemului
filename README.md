@@ -28,6 +28,19 @@ Salvările se scriu în `eron_save.db`, lângă proiect (nu este urmărit de git
 | J | Jurnalul de misiuni (Q schimbă tab-ul) |
 | ESC | Pauză |
 | În luptă: A / D, ENTER, T | Alege cartea, joac-o, termină tura |
+| F3 | Afișează/ascunde panoul de performanță (FPS, durata update/desenare, tile-uri desenate, entități, memorie) |
+| În prolog: ENTER, SPACE (ținut), ESC | Continuă, text mai rapid, sari peste prolog |
+
+## Cum se simte jocul ("game feel")
+
+Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare
+valoare (viteza de mers și accelerarea, camera, intensitatea shake-ului, hit-stop, particule, sunet, cutscene).
+Duratele sunt în *ticks* (60 pe secundă), deci nu depind de FPS. Orice efect se oprește punându-l pe 0 sau `false`.
+
+- `Effects` — shake, hit-stop, fade-uri între scene, particule și ambianța fiecărei zone.
+- `ParticleSystem` — particule într-un pool fix (nu creează obiecte la fiecare particulă).
+- `Camera` — urmărire lină, privire înainte, limitată la dimensiunea reală a hărții.
+- `SoundManager` — dacă nu există fișiere în `res/sound/se`, efectele sunt create în cod.
 
 ## Structura
 

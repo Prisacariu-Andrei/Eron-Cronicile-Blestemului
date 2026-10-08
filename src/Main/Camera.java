@@ -17,6 +17,9 @@ public class Camera {
     // Cât se uită camera înainte (pixeli), netezit ca să nu salte când Eron își schimbă direcția
     private double lookX, lookY;
 
+    // În timpul unei cutscene camera nu mai urmărește jucătorul: o conduce scena (vezi CutsceneUI)
+    private boolean cinematic = false;
+
     public Camera(GamePanel gp) {
         this.gp = gp;
     }
@@ -52,8 +55,26 @@ public class Camera {
         y = targetY();
     }
 
+    /** Preia controlul camerei pentru o cutscene. */
+    public void beginCinematic() {
+        cinematic = true;
+    }
+
+    /** Pune centrul camerei într-un punct al lumii (în pixeli), fără să iasă din hartă. Doar în modul cinematic. */
+    public void setCinematicCenter(double worldCenterX, double worldCenterY) {
+        x = clamp(worldCenterX - gp.screenWidth / 2.0, 0, maxX());
+        y = clamp(worldCenterY - gp.screenHeight / 2.0, 0, maxY());
+    }
+
+    /** Redă camera jucătorului; sare direct pe el, fără deplasare. */
+    public void endCinematic() {
+        cinematic = false;
+        snap();
+    }
+
     /** Apelată o dată pe tick de update. */
     public void update() {
+        if (cinematic) return;
         // Privirea înainte: în direcția în care merge Eron, proporțional cu cât de repede merge
         double wantLookX = 0, wantLookY = 0;
         if (gp.getCurrentState() instanceof GameState.PlayState) {
