@@ -28,3 +28,11 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+### Local IntelliJ settings ###
+.idea/workspace.xml
+
+### Save files (created when the game runs) ###
+eron_save.db
+eron_save.db-shm
+eron_save.db-wal
+
