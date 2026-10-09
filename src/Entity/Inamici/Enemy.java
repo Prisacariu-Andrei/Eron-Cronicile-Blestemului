@@ -176,6 +176,7 @@ public abstract class Enemy extends Entity {
                     default -> null;
                 };
 
+                drawPackMembers(g2, screenX, screenY, bob);
                 if(image != null) {
                     g2.drawImage(image, screenX, screenY, drawSize, drawSize, null);
                 } else {
@@ -183,6 +184,33 @@ public abstract class Enemy extends Entity {
                     g2.fillRect(screenX + 4, screenY + 4, drawSize - 8, drawSize - 8);
                 }
             }
+        }
+    }
+
+    private java.util.List<Enemy> packVisuals;
+
+    /**
+     * Grupul se vede pe hartă: ceilalți membri (enemies.json -> pack/with) stau în jurul liderului, cu sprite-ul lor, și îl urmează.
+     * Sunt doar desen; lupta pornește când te atingi de grup.
+     */
+    private void drawPackMembers(Graphics2D g2, int screenX, int screenY, int bob) {
+        if (packExtras.isEmpty()) return;
+        if (packVisuals == null) {
+            packVisuals = new java.util.ArrayList<>();
+            for (String id : packExtras) {
+                Enemy e = EnemyFactory.createEnemy(id, gp, 0, 0);
+                if (e != null) packVisuals.add(e);
+            }
+        }
+        double[][] spots = {{0.62, 0.30}, {-0.62, 0.30}, {0.0, -0.50}};
+        for (int i = 0; i < packVisuals.size(); i++) {
+            Enemy m = packVisuals.get(i);
+            BufferedImage img = m.down1 != null ? m.down1 : m.fightStand;
+            if (img == null) continue;
+            double[] s = spots[i % spots.length];
+            int size = (int) (gp.tileSize * Math.max(0.8, m.mapSize));
+            int mb = Math.round((float) Math.sin((gp.fx.ticks + i * 23) * 2 * Math.PI / GameFeel.IDLE_BOB_PERIOD_TICKS) * GameFeel.IDLE_BOB_PX);
+            g2.drawImage(img, screenX + (int) (s[0] * gp.tileSize), screenY + (int) (s[1] * gp.tileSize) + mb, size, size, null);
         }
     }
 

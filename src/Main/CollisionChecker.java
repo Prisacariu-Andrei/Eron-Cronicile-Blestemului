@@ -112,7 +112,7 @@ public class CollisionChecker {
         int playerHitBoxWorldY = gp.player.worldY + gp.player.hitBox.y;
 
         // 2. Creăm o zonă de detectare mai mare (Trigger Zone) pentru BĂTĂLIE
-        int activationRange = gp.tileSize;
+        int activationRange = gp.tileSize + ((entity instanceof Enemy pe && !pe.packExtras.isEmpty()) ? gp.tileSize / 2 : 0);   // grupurile se ating mai de departe
 
         // Calculăm distanța dintre centrul inamicului și centrul jucătorului
         int centerX = entity.worldX + (gp.tileSize / 2);
