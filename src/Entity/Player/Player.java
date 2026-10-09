@@ -794,6 +794,13 @@ public class Player extends Entity {
             // Progresul poveștii: boss-ul învins deschide pasajul spre zona următoare și dă artefactul
             boolean areaBoss = gp.story.isBoss(inamicNume) && !gp.story.has(gp.story.flagOf(inamicNume)); // primul triumf asupra lui
             var artifact = gp.story.onEnemyDefeated(inamicNume);
+            // Quest 10 "Inelul Blestemului": cu Diamantul Nopții și Inelul de Gheață în mână, Inelul Eternității se poate purifica
+            var q10 = gp.questManager.getQuestById(10, true);
+            if (q10 != null && !q10.isCompleted && (gp.story.has("feldgug") || "Feldgug".equals(inamicNume)) && (gp.story.has("glaciara") || "Glaciara".equals(inamicNume))) {
+                gp.questManager.updateQuestProgress(10, true, 1);
+                gp.ui.message = "Misiune completată: Inelul Blestemului";
+                gp.ui.messageOn = true;
+            }
             if (areaBoss && ZoneInfo.exitOf(gp.tileM.currentZone) != null) gp.pendingExitZone = gp.tileM.currentZone;
             if (artifact != null) {
                 gp.ui.message = "Obiect cheie: " + artifact.name + "!";

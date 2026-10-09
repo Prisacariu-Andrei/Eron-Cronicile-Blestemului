@@ -150,6 +150,7 @@ public class EventHandler {
         gp.player.worldY = gp.tileSize * nextRow - 2;
 
         eventCooldown = 60;
+        if ("Castelul".equals(zoneFolder)) gp.questManager.updateQuestProgress(13, true, 1);   // "Salvează tărâmul": ai ajuns la Castel
         gp.camera.snap();
         System.out.println("DEBUG: Schimbare mapă finalizată cu succes!");
     }
