@@ -25,7 +25,7 @@ public class BattleState implements GameState {
         gp.player.retarget();
         if (gp.player.currentEnemy != null && gp.player.livingEnemies().isEmpty()) {
             gp.player.winBattle();
-            gp.changeState(new RewardState(gp));
+            if (gp.getCurrentState() == this) gp.changeState(new RewardState(gp));   // finalul jocului trece direct la epilog
         }
     }
 

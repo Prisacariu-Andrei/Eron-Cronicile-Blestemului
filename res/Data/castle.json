@@ -1,0 +1,24 @@
+{
+  "_help": "Finalul jocului, în Castelul de Obsidian. gate = Poarta de Obsidian din coridorul castelului (col,row,lățime în dale): Paloșul Legendar (flag 'jean') o dărâmă. pretorians = cele trei lupte, în ordine; fiecare apare doar după ce a căzut cea dinainte (la = unde stă, col,row; enemy + with = echipa din enemies.json; title/subtitle = bannerul de la începutul luptei). malakor = cele trei faze: faza 1 (Egida): scut persistent care absoarbe damage-ul, regenerat cu shieldRegen pe tură, lovește și aplică Slăbiciune; faza 2 (Furia): Fragilitate (damage primit +fragilityPercent%); faza 3 (Eclipsa): atacul crește cu scalePerTurn în fiecare tură. at = unde stă Malakor.",
+
+  "gate": { "col": 26, "row": 24, "widthTiles": 2 },
+
+  "pretorians": [
+    { "id": "pretor1", "at": [27, 19], "enemy": "Soldat de Obsidian", "with": ["Soldat de Obsidian"],
+      "title": "PRETORIANUL I: GARDA DE OBSIDIAN", "subtitle": "Doi soldați corupți de puterea lui Malakor" },
+    { "id": "pretor2", "at": [27, 17], "enemy": "Fenris de Obsidian", "with": ["Feldgug de Obsidian", "Glaciara de Obsidian"],
+      "title": "PRETORIANUL II: GENERALII DE OBSIDIAN", "subtitle": "Fenris, Feldgug și Glaciara, recreați din piatră neagră" },
+    { "id": "pretor3", "at": [27, 15], "enemy": "Bătrânul Cronicar", "with": [],
+      "title": "PRETORIANUL III: BĂTRÂNUL CRONICAR", "subtitle": "Scurs de puteri, a cedat Blestemului" }
+  ],
+
+  "malakor": {
+    "at": [27, 12],
+    "phase1": { "life": 300, "shield": 180, "shieldRegen": 8, "attack": 14, "weakTurns": 2,
+                "title": "FAZA I: EGIDA MONARHULUI", "subtitle": "Pecetea de Obsidian absoarbe orice lovitură. Macină-i scutul." },
+    "phase2": { "life": 300, "attack": 20, "fragilityTurns": 2, "fragilityPercent": 100,
+                "title": "FAZA II: FURIA UMBREI FRÂNTE", "subtitle": "Scutul a crăpat. Malakor lovește fără milă: primești daune duble." },
+    "phase3": { "life": 220, "attack": 12, "scalePerTurn": 5,
+                "title": "FAZA III: ECLIPSA FINALĂ", "subtitle": "Își varsă tot blestemul. Cu fiecare tură lovește mai tare: încheie lupta repede!" }
+  }
+}

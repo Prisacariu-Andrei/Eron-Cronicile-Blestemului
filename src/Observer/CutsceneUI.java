@@ -25,7 +25,35 @@ public class CutsceneUI {
     private record Shot(String title, String text, double fromX, double fromY, double toX, double toY,
                         float zoomFrom, float zoomTo, int moveTicks) {}
 
-    private static final Shot[] SHOTS = {
+    /** Ce scenă se joacă: prologul (la începutul jocului) sau epilogul (după Malakor). */
+    public enum Script { PROLOGUE, EPILOGUE }
+
+    private Script script = Script.PROLOGUE;
+    private Shot[] shots = PROLOGUE_SHOTS;
+
+    public void load(Script s) {
+        script = s;
+        shots = s == Script.EPILOGUE ? EPILOGUE_SHOTS : PROLOGUE_SHOTS;
+    }
+
+    public int shotIndex() { return shotIndex; }
+
+    private static final Shot[] EPILOGUE_SHOTS = {
+            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
+                    "Odată cu căderea tiranului, moartea se topește ca zăpada sub soarele de primăvară. Inelul Eternității, purificat de Diamantul Nopții și de Inelul de Gheață, se frânge într-o lumină care nu mai arde.",
+                    47.0, 22.0, 41.0, 14.0, 1.00f, 1.10f, 560),
+            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
+                    "Te întorci în Eldoria sub un cer care, pentru prima dată după eoni, se pregătește să lase locul nopții naturale. Ceața s-a risipit de pe acoperișuri, iar satul respiră.",
+                    34.0, 37.0, 22.0, 28.0, 1.10f, 1.18f, 620),
+            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
+                    "Lumea a primit înapoi darul nemuririi și al odihnei. Blestemul se frânge pe veci, iar timpul începe, în sfârșit, să curgă din nou peste lume.",
+                    20.0, 13.0, 15.5, 10.5, 1.20f, 1.12f, 560),
+            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
+                    "Legenda lui Eron rămâne scrisă în cronicile tărâmului, ca fiind cel care a redat vieții din veșnicia de mult pierdută.",
+                    14.4, 11.4, 13.8, 11.0, 1.30f, 1.24f, 520),
+    };
+
+    private static final Shot[] PROLOGUE_SHOTS = {
             new Shot("PROLOGUL",
                     "Nemurirea s-a scurs... Lumea s-a schimbat; o simți în adierea rece a magiei ce nu mai aduce viață, " +
                     "ci înlănțuie sufletele într-o nemurire fără tihnă.",
@@ -89,17 +117,17 @@ public class CutsceneUI {
     }
 
     public boolean isWriting() {
-        return charIndex < SHOTS[shotIndex].text().length();
+        return charIndex < shots[shotIndex].text().length();
     }
 
     public void skipTypewriter() {
-        charIndex = SHOTS[shotIndex].text().length();
+        charIndex = shots[shotIndex].text().length();
     }
 
     /** ENTER după ce textul e afișat: trece la cadrul următor sau încheie prologul. */
     public void next() {
         if (mode != Mode.SHOT) return;
-        if (shotIndex >= SHOTS.length - 1) {
+        if (shotIndex >= shots.length - 1) {
             beginOutro();
         } else {
             mode = Mode.CUT_OUT;
@@ -127,7 +155,7 @@ public class CutsceneUI {
         if (mode == Mode.DONE) return;
         totalTicks++;
         modeTicks++;
-        Shot shot = SHOTS[shotIndex];
+        Shot shot = shots[shotIndex];
 
         // --- schimbări de mod ---
         switch (mode) {
@@ -135,7 +163,7 @@ public class CutsceneUI {
             case CUT_OUT -> {
                 if (modeTicks >= CUT_OUT_TICKS) {
                     shotIndex++;
-                    shot = SHOTS[shotIndex];
+                    shot = shots[shotIndex];
                     resetShot();
                     mode = Mode.CUT_IN;
                     modeTicks = 0;
@@ -159,7 +187,7 @@ public class CutsceneUI {
 
         // --- personajele: Eron respiră (din Player.draw) și își întoarce capul din când în când ---
         gp.player.moveVelocity = 0f;
-        if (shotIndex == SHOTS.length - 1) {
+        if (shotIndex == shots.length - 1 && script == Script.PROLOGUE) {
             String[] looks = {"down", "down", "right", "down", "left", "down"};
             gp.player.direction = looks[(totalTicks / 130) % looks.length];
         } else {
@@ -231,7 +259,7 @@ public class CutsceneUI {
 
     /** În ultimul cadru Cronicarul "vorbește": trei puncte sar deasupra lui cât timp se scrie textul. */
     private void drawTalkBubble(Graphics2D g2) {
-        if (shotIndex != SHOTS.length - 1 || gp.npc[0] == null || !isWriting()) return;
+        if (script != Script.PROLOGUE || shotIndex != shots.length - 1 || gp.npc[0] == null || !isWriting()) return;
         int cx = gp.camera.screenX(gp.npc[0].worldX) + gp.tileSize / 2;
         int top = gp.camera.screenY(gp.npc[0].worldY) - 12;
         g2.setColor(new Color(255, 255, 255, 230));
@@ -268,7 +296,7 @@ public class CutsceneUI {
 
     private void drawSubtitle(Graphics2D g2, int bar) {
         if (bar < 20) return;
-        Shot shot = SHOTS[shotIndex];
+        Shot shot = shots[shotIndex];
         int W = gp.screenWidth, H = gp.screenHeight;
         int bottom = H - bar - 36;
 
@@ -311,8 +339,8 @@ public class CutsceneUI {
 
         // în banda de sus: cum se sare peste prolog și la ce pagină ești
         g2.setColor(new Color(150, 150, 150));
-        g2.drawString("ESC - sari peste prolog      SPACE (ține apăsat) - mai repede", 40, bar / 2 + 5);
-        String page = (shotIndex + 1) + " / " + SHOTS.length;
+        g2.drawString(script == Script.EPILOGUE ? "ESC - sari peste epilog      SPACE (ține apăsat) - mai repede" : "ESC - sari peste prolog      SPACE (ține apăsat) - mai repede", 40, bar / 2 + 5);
+        String page = (shotIndex + 1) + " / " + shots.length;
         g2.drawString(page, W - 40 - g2.getFontMetrics().stringWidth(page), bar / 2 + 5);
 
         // în banda de jos: indicația de continuare pulsează când tot textul e afișat
@@ -320,7 +348,7 @@ public class CutsceneUI {
             float pulse = 0.5f + 0.5f * (float) Math.sin(totalTicks * 0.14);
             g2.setColor(new Color(230, 230, 230, 120 + Math.round(110 * pulse)));
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 18F));
-            String hint = shotIndex >= SHOTS.length - 1 ? "ENTER - începe aventura  ▸" : "ENTER - continuă  ▸";
+            String hint = shotIndex >= shots.length - 1 ? (script == Script.EPILOGUE ? "ENTER - sfârșit  ▸" : "ENTER - începe aventura  ▸") : "ENTER - continuă  ▸";
             g2.drawString(hint, W - 60 - g2.getFontMetrics().stringWidth(hint), H - bar / 2 + 6);
         }
     }

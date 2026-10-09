@@ -21,8 +21,9 @@ public class BattleUI {
 
     public boolean isTransitioning = false;
     public int transitionTimer = 0;
-    private String transitionPhaseName = "";
+    private String transitionPhaseName = "", transitionSubtitle = "";
     private Color transitionColor;
+    private int transitionLength = 40;
 
     // --- Animații (se actualizează în update(), în ticks fixe, nu în draw()) ---
     private static final int HIT_ANIM_TICKS = 14;
@@ -37,7 +38,18 @@ public class BattleUI {
         this.gp = gp;
     }
 
+    /** Banner mare (titlu + rând de explicație) la începutul unei lupte speciale sau la schimbarea fazei unui boss. */
+    public void announcePhase(String title, String subtitle, Color color) {
+        transitionPhaseName = title == null ? "" : title;
+        transitionSubtitle = subtitle == null ? "" : subtitle;
+        transitionColor = color == null ? Color.WHITE : color;
+        transitionLength = 130;
+        transitionTimer = 0;
+        isTransitioning = true;
+    }
+
     public void announceTurn(String text) {
+
         this.turnMessage = text;
         this.turnMessageTimer = TURN_MESSAGE_TICKS;
     }
@@ -122,7 +134,7 @@ public class BattleUI {
     public void update() {
         if (isTransitioning) {
             transitionTimer++;
-            if (transitionTimer > 40) { isTransitioning = false; transitionTimer = 0; }
+            if (transitionTimer > transitionLength) { isTransitioning = false; transitionTimer = 0; transitionLength = 40; transitionSubtitle = ""; }
         } else if (turnMessageTimer > 0) {
             turnMessageTimer--;
         }
@@ -638,7 +650,7 @@ public class BattleUI {
         if (isTransitioning) {
             // Întunericul vine lin și pleacă lin; textul apare cu un "pop"
             float in = Easing.outCubic(transitionTimer / 18f);
-            float out = Easing.clamp01((40 - transitionTimer) / 10f);
+            float out = Easing.clamp01((transitionLength - transitionTimer) / 10f);
             g2.setColor(new Color(0, 0, 0, Math.round(200 * in * out)));
             g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
             float pop = Easing.outBack(transitionTimer / 16f);
@@ -649,6 +661,11 @@ public class BattleUI {
             Composite old = g2.getComposite();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, in * out)));
             g2.drawString(text, x, gp.screenHeight/2);
+            if (!transitionSubtitle.isEmpty()) {
+                g2.setFont(g2.getFont().deriveFont(Font.PLAIN, gp.screenWidth / 70f));
+                g2.setColor(new Color(225, 225, 240));
+                g2.drawString(transitionSubtitle, gp.screenWidth/2 - g2.getFontMetrics().stringWidth(transitionSubtitle)/2, gp.screenHeight/2 + gp.screenHeight / 14);
+            }
             g2.setComposite(old);
         } else if (turnMessageTimer > 0) {
             float progress = 1f - (float) turnMessageTimer / TURN_MESSAGE_TICKS;   // 0 -> 1

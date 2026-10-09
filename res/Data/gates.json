@@ -10,7 +10,13 @@
     "Jean": "jean",
     "Glaciara": "glaciara",
     "Valerius": "valerius",
-    "Charon": "charon"
+    "Charon": "charon",
+    "Soldat de Obsidian": "pretor1",
+    "Fenris de Obsidian": "pretor2",
+    "Feldgug de Obsidian": "pretor2",
+    "Glaciara de Obsidian": "pretor2",
+    "Bătrânul Cronicar": "pretor3",
+    "Malakor": "malakor"
   },
 
   "beast": { "enemy": "Lup Slăbit", "zone": "Eldoria", "flag": "fiara" },
@@ -47,6 +53,13 @@
       "blocked": "Drumul spre Citadelă este periculos și ascuns acum.",
       "closedText": "Drumul spre Citadela Haiducilor e blocat. Mai întâi trebuie să-l învingi pe Feldgug, tiranul din Abis.\nÎntoarce-te când ai Diamantul Nopții.",
       "openText": "Diamantul Nopții strălucește la tine! Feldgug a căzut.\nDrumul spre Citadela Haiducilor e liber. Ai grijă la haiducii beți."
+    },
+    {
+      "id": "podul", "zone": "Eldoria", "tile": 46, "requires": "glaciara",
+      "guard": [62, 14], "aside": [61, 13],
+      "blocked": "Calea către Castelul de Obsidian este interzisă muritorilor.",
+      "closedText": "Podul Umbrelor duce spre Castelul de Obsidian. Nu pot lăsa un om care nu l-a învins pe Glaciara să treacă.\nÎntoarce-te cu Inelul de Gheață.",
+      "openText": "Inelul de Gheață la tine... Glaciara a căzut. Fie ca Eternitatea să te ierte, Eron.\nPodul e al tău. Dincolo te așteaptă Castelul de Obsidian și Regele Vrăjitor."
     },
     {
       "id": "tundra", "zone": "Eldoria", "tile": 45, "requires": "jean", "quest": 11,

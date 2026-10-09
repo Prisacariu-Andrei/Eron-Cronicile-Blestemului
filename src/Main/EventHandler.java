@@ -73,6 +73,7 @@ public class EventHandler {
                             case 43 -> changeMap("/Maps/Abisul", "Abisul", 13, 18);
                             case 44 -> changeMap("/Maps/Citadela", "Citadela", 66, 43);
                             case 45 -> changeMap("/Maps/Tundra", "Tundra", 87, 60);
+                            case 46 -> changeMap("/Maps/Podul", "Podul", 5, 24);
                             default -> { }
                         }
                     } else {
@@ -82,17 +83,6 @@ public class EventHandler {
                     }
                 }
 
-                // TELEPORTARE POD / CASTEL (ID 46) - Quest 12: Învinge-l pe Charon
-                if (tileNum == 46) {
-                    var q12 = gp.questManager.getQuestById(12, true);
-                    if (q12 != null || (q12.isReceived || q12.isCompleted)) {
-                        changeMap("/Maps/Podul", "Podul", 5, 24); // Sau direct spre "Castelul" depinzând de mapa ta
-                    } else {
-                        gp.ui.message = "Calea către Castelul de Obsidian este interzisă muritorilor.";
-                        gp.ui.messageOn = true;
-                        eventCooldown = 30;
-                    }
-                }
             }
 
             case "Barlogul" -> {
@@ -117,7 +107,7 @@ public class EventHandler {
             }
             case "Podul" ->{
                 if (tileNum == 21){
-                    changeMap("/Maps/Eldoria", "Eldoria", 12, 39);
+                    changeMap("/Maps/Eldoria", "Eldoria", 62, 14);   // în fața pasajului spre Pod
                 }
                 else if(tileNum == 22){
                     changeMap("/Maps/Castelul", "Castelul", 6, 35);

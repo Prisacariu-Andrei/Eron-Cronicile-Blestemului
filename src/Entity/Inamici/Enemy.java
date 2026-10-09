@@ -24,6 +24,8 @@ public abstract class Enemy extends Entity {
     public EnemyAction nextAction;
     public int intentValue;
     public int attackDamage;
+    public boolean persistentShield = false;   // scutul nu dispare la sfârșitul turei (Valerius, Malakor)
+    public String introTitle, introSubtitle;    // bannerul de la începutul luptei (Pretorienii, fazele lui Malakor)
 
     // Grup de luptă (enemies.json): membrii suplimentari care luptă alături de acesta când te atingi de el
     public java.util.List<String> packExtras = new java.util.ArrayList<>();
@@ -193,7 +195,8 @@ public abstract class Enemy extends Entity {
         else gp.fx.enemyHurt(dealt);
     }
 
-    public void takeDamage(Player player, int amount) {
+    /** Damage-ul care ajunge de fapt la inamic: Colțul, Vulnerabilitatea lui și Slăbiciunea lui Eron (-25%). */
+    protected int incomingDamage(Player player, int amount) {
         int finalDamage = amount;
 
         if(player.areDinteChilimbar){
@@ -220,6 +223,12 @@ public abstract class Enemy extends Entity {
                 break;
             }
         }
+
+        return player.weakened(finalDamage);
+    }
+
+    public void takeDamage(Player player, int amount) {
+        int finalDamage = incomingDamage(player, amount);
 
         if (this.shield < finalDamage) {
             int remaining = finalDamage - shield;

@@ -1,21 +1,33 @@
 package GameState;
 
 import Main.GamePanel;
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 /** Prologul: vezi CutsceneUI. Se termină singur în PlayState, la Eldoria. */
 public class CutsceneState implements GameState {
     private final GamePanel gp;
 
+    private final Observer.CutsceneUI.Script script;
+
     public CutsceneState(GamePanel gp) {
+        this(gp, Observer.CutsceneUI.Script.PROLOGUE);
+    }
+
+    public CutsceneState(GamePanel gp, Observer.CutsceneUI.Script script) {
         this.gp = gp;
+        this.script = script;
     }
 
     @Override
     public void enter() {
         // ENTER-ul din InputNameState e încă apăsat; îl consumăm ca să nu sară prima pagină
         gp.keyH.enterPressed = false;
+        if (script == Observer.CutsceneUI.Script.EPILOGUE) {   // epilogul se joacă peste Eldoria, cu Eron în sat
+            gp.eHandler.applyMap("/Maps/Eldoria", "Eldoria", 15, 12);
+        }
         gp.camera.beginCinematic();
+        gp.cutsceneUI.load(script);
         gp.cutsceneUI.reset();
     }
 
@@ -34,7 +46,12 @@ public class CutsceneState implements GameState {
         }
 
         if (gp.cutsceneUI.isFinished()) {
-            gp.changeState(new PlayState(gp));
+            if (script == Observer.CutsceneUI.Script.EPILOGUE) {   // după epilog: genericul
+                gp.creditsUI.resetPosition();
+                gp.changeState(new CreditsState(gp));
+            } else {
+                gp.changeState(new PlayState(gp));
+            }
         }
     }
 
@@ -46,6 +63,11 @@ public class CutsceneState implements GameState {
     @Override
     public void draw(Graphics2D g2) {
         gp.cutsceneUI.draw(g2);
+        if (script == Observer.CutsceneUI.Script.EPILOGUE) {   // lumina răsăritului crește de la un cadru la altul
+            int a = Math.min(70, 18 + gp.cutsceneUI.shotIndex() * 16);
+            g2.setColor(new Color(255, 196, 120, a));
+            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        }
     }
 
     @Override

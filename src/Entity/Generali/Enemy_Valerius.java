@@ -24,6 +24,7 @@ public class Enemy_Valerius extends Enemy {
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
         this.isStatic = true;
+        this.persistentShield = true;
 
         getImage();
         setNextIntent();

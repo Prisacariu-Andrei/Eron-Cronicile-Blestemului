@@ -61,7 +61,8 @@ public class AssetSetter {
             if (id >= 0 && id < tm.tile.length && tm.tile[id] != null && !tm.tile[id].collision) freq.merge(id, 1, Integer::sum);
         }
         java.util.Set<Integer> floor = new java.util.HashSet<>();
-        freq.entrySet().stream().sorted((a, b) -> b.getValue() - a.getValue()).limit(3).forEach(e -> floor.add(e.getKey()));
+        int walkable = freq.values().stream().mapToInt(Integer::intValue).sum();
+        freq.entrySet().stream().filter(e -> e.getValue() * 20 >= walkable).sorted((a, b) -> b.getValue() - a.getValue()).limit(3).forEach(e -> floor.add(e.getKey()));
 
         java.util.List<int[]> candidates = new java.util.ArrayList<>();
         for (int c = 2; c < cols - 2; c++) for (int r = 2; r < rows - 2; r++) {
@@ -178,7 +179,39 @@ public class AssetSetter {
     }
 
     private void spawnCastelul() {
-        gp.enemy[7] = EnemyFactory.createEnemy("Malakor, Monarhul Amurgului", gp, gp.tileSize * 27, gp.tileSize * 13);
+        spawnCastleStory();
+    }
+
+    /**
+     * Finalul din Castelul de Obsidian (res/Data/castle.json): cei trei Pretorieni apar pe rând (fiecare după ce a căzut cel dinainte),
+     * apoi Malakor. Se apelează la încărcarea zonei și după fiecare luptă câștigată în castel.
+     */
+    public void spawnCastleStory() {
+        for (int i = 0; i < gp.enemy.length; i++) {      // scoatem lupta de poveste veche (se recreează mai jos)
+            if (gp.enemy[i] != null && gp.enemy[i].introTitle != null) gp.enemy[i] = null;
+        }
+        var cfg = Json.map(Json.parseResource("/Data/castle.json"));
+        Enemy next = null;
+        for (Object o : Json.list(cfg.get("pretorians"))) {
+            var d = Json.map(o);
+            if (gp.story.has(Json.str(d.get("id"), ""))) continue;
+            var at = Json.list(d.get("at"));
+            next = EnemyFactory.createEnemy(Json.str(d.get("enemy"), ""), gp,
+                    gp.tileSize * Json.integer(at.get(0), 27), gp.tileSize * Json.integer(at.get(1), 18));
+            if (next == null) return;
+            for (Object w : Json.list(d.get("with"))) next.packExtras.add(Json.str(w, ""));
+            next.isStatic = true;
+            next.introTitle = Json.str(d.get("title"), "");
+            next.introSubtitle = Json.str(d.get("subtitle"), "");
+            break;
+        }
+        if (next == null && !gp.story.has("malakor")) {
+            var at = Json.list(Json.map(cfg.get("malakor")).get("at"));
+            next = EnemyFactory.createEnemy("Malakor, Monarhul Amurgului", gp,
+                    gp.tileSize * Json.integer(at.get(0), 27), gp.tileSize * Json.integer(at.get(1), 12));
+        }
+        int slot = freeEnemySlot();
+        if (next != null && slot >= 0) gp.enemy[slot] = next;
     }
 
     public void setNPC(String currentZone) {
@@ -195,7 +228,13 @@ public class AssetSetter {
             }
         }
 
+        if (currentZone.equals("Castelul")) {   // Poarta de Obsidian din coridorul castelului (castle.json)
+            var gate = Json.map(Json.map(Json.parseResource("/Data/castle.json")).get("gate"));
+            gp.npc[0] = new Entity.NPC.NPC_Poarta(gp, Json.integer(gate.get("col"), 26), Json.integer(gate.get("row"), 24), Json.integer(gate.get("widthTiles"), 2));
+        }
+
         // NPC-urile din res/Data/npcs.json se plasează în locurile rămase libere
+
         try {
             Entity.NPC.DataNPC.spawnForZone(gp, currentZone, 1);
         } catch (Exception e) {

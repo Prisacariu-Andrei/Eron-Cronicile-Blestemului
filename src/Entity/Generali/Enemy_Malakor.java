@@ -2,250 +2,175 @@ package Entity.Generali;
 
 import Entity.Inamici.Enemy;
 import Entity.Player.Player;
+import Entity.StatusEffect;
 import Main.GamePanel;
+import Main.Json;
 import Observer.DamagePopUp;
 
 import java.awt.*;
+import java.util.Map;
 
+/**
+ * Malakor, Monarhul Amurgului: bătălia finală în trei faze (cifrele sunt în res/Data/castle.json, secțiunea "malakor").
+ *  Faza I   - Egida Monarhului: Pecetea de Obsidian (un scut persistent care absoarbe daunele și se reface puțin); loviturile lui te Slăbesc.
+ *  Faza II  - Furia Umbrei Frânte: scutul a crăpat; loviturile lui te fac Fragil (primești daune mult mai mari).
+ *  Faza III - Eclipsa Finală: aproape învins, își varsă blestemul: atacul crește cu fiecare tură.
+ * Fiecare schimbare de fază are banner cu text, scuturat, flash și o nouă imagine.
+ */
 public class Enemy_Malakor extends Enemy {
 
-    public int currentPhase = 1; // 1 = Regele Vrăjitor, 2 = Cavalerul Morții, 3 = Amurgul Absolut
+    public int currentPhase = 1; // 1 = Egida Monarhului, 2 = Furia Umbrei Frânte, 3 = Eclipsa Finală
 
-    // Contor de ture pentru Faza 3 (Judecata Finală)
-    private int phase3TurnsLeft = 10;
+    private final Map<String, Object> cfg;
+    private int phase3Turns = 0;
 
     public Enemy_Malakor(GamePanel gp, int x, int y) {
         super(gp, x, y);
+        this.cfg = Json.map(Json.map(Json.parseResource("/Data/castle.json")).get("malakor"));
         this.name = "Malakor, Monarhul Amurgului";
-        this.maxLife = 250; // Viață faza 1
+        Map<String, Object> p1 = phase(1);
+        this.maxLife = Json.integer(p1.get("life"), 300);
         this.life = maxLife;
-        this.attackDamage = 20;
+        this.shield = Json.integer(p1.get("shield"), 180);   // Pecetea de Obsidian
+        this.persistentShield = true;
+        this.attackDamage = Json.integer(p1.get("attack"), 14);
         this.mapSize = 1.4;
+        this.introTitle = Json.str(p1.get("title"), "FAZA I");
+        this.introSubtitle = Json.str(p1.get("subtitle"), "");
 
-        hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
+        hitBox = new Rectangle(0, 0, (int) (gp.tileSize * mapSize), (int) (gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
         this.isStatic = true;
+        this.battleMusicKey = "InamiciCastelull";
 
         getImage();
         setNextIntent();
     }
 
+    private Map<String, Object> phase(int n) { return Json.map(cfg.get("phase" + n)); }
+
     @Override
     public void getImage() {
-        // Asigură-te că imaginea există la calea respectivă
-        up1 = setup("/Enemy/MalakorPhaseOne");
-        up2 = setup("/Enemy/MalakorPhaseOne");
-        down1 = setup("/Enemy/MalakorPhaseOne");
-        down2 = setup("/Enemy/MalakorPhaseOne");
-        left1 = setup("/Enemy/MalakorPhaseOne");
-        left2 = setup("/Enemy/MalakorPhaseOne");
-        right1 = setup("/Enemy/MalakorPhaseOne");
-        right2 = setup("/Enemy/MalakorPhaseOne");
+        up1 = up2 = down1 = down2 = left1 = left2 = right1 = right2 = setup("/Enemy/MalakorPhaseOne");
         battleBackground = setup("/Backgrounds/Malakor_bg");
-        if(currentPhase==1) {
-            fightStand = setup("/Enemy/MalakorPhaseOne");
-        }
-        if(currentPhase==2) {
-            fightStand = setup("/Enemy/MalakorPhaseTwo");
-        }
-        if(currentPhase==3) {
-            fightStand = setup("/Enemy/MalakorPhaseThree");
-        }
+        fightStand = switch (currentPhase) {
+            case 2 -> setup("/Enemy/MalakorPhaseTwo");
+            case 3 -> setup("/Enemy/MalakorPhaseThree");
+            default -> setup("/Enemy/MalakorPhaseOne");
+        };
     }
 
     @Override
     public void setNextIntent() {
-        switch (currentPhase) {
-            case 1 -> {
-                // Faza 1: Vrăji și sabotaj (Mana Burn)
-                nextAction = EnemyAction.SPECIAL;
-                intentValue = 15; // Damage magic
-            }
-            case 2 -> {
-                // Faza 2: Atac fizic brutal și Lifesteal
-                nextAction = EnemyAction.ATTACK;
-                intentValue = 35; // Atac greu
-            }
-            case 3 -> {
-                // Faza 3: Presiune (Judecata Finală)
-                nextAction = EnemyAction.ATTACK;
-                intentValue = 30;
-            }
-        }
+        nextAction = EnemyAction.ATTACK;
+        intentValue = switch (currentPhase) {
+            case 2 -> Json.integer(phase(2).get("attack"), 20);
+            case 3 -> Json.integer(phase(3).get("attack"), 12) + phase3Turns * Json.integer(phase(3).get("scalePerTurn"), 5);
+            default -> Json.integer(phase(1).get("attack"), 14);
+        };
     }
 
     @Override
     public void executeIntent(Player player) {
-        if (stunTurns == 0) {
-
-            // --- Verificare tranziție între faze ---
-            if (this.life <= 0) {
-                switch (currentPhase) {
-                    case 1 -> transitionToPhase2();
-                    case 2 -> transitionToPhase3();
-                    case 3 -> {
-                        // Malakor a fost învins de tot
-                        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "MALAKOR A FOST ÎNVINS!", Color.GREEN));
-                        //alive = false;
-                        return; // Oprește lupta
-                    }
+        if (stunTurns != 0) return;
+        switch (currentPhase) {
+            case 1 -> {   // lovitură precisă de energie întunecată: Slăbiciune
+                player.damagePlayer(intentValue);
+                player.applyStatus(StatusEffect.Type.WEAK, Json.integer(phase(1).get("weakTurns"), 2), 25);
+                int regen = Json.integer(phase(1).get("shieldRegen"), 0);
+                if (regen > 0 && shield > 0) {
+                    shield += regen;
+                    gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "Pecetea se refac +" + regen, new Color(170, 120, 255)));
                 }
             }
-
-            switch (currentPhase) {
-                case 1 -> {
-                    // Faza 1: Sabotaj
-                    player.damagePlayer(intentValue);
-                    if (player.currentMana > 0) {
-                        player.currentMana -= 1;
-                        player.notifyObservers();
-                        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "Mana furată!", Color.BLUE));
-                    }
-                }
-                case 2 -> {
-                    // Faza 2: Cavalerul Morții
-                    player.damagePlayer(intentValue);
-                    // Lifesteal (recuperează 20% din damage-ul dat)
-                    this.life = Math.min(maxLife, this.life + intentValue/2);
-                    gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 4, "+"+intentValue/2+" HP (Lifesteal)", Color.RED));
-                }
-                case 3 -> {
-                    // Faza 3: Judecata Finală (Scădem numărătoarea inversă)
-                    player.damagePlayer(intentValue);
-                    phase3TurnsLeft--;
-
-                    if (phase3TurnsLeft <= 0) {
-                        // Atac absolut la tura 10, ucide jucătorul instant
-                        player.life = 0;
-                        player.notifyObservers();
-                        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "JUDECATA FINALĂ", Color.BLACK));
-                    } else {
-                        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "Ture rămase: " + phase3TurnsLeft, Color.ORANGE));
-                    }
-                }
+            case 2 -> {   // Fragilitate: daune mult mai mari asupra lui Eron
+                player.damagePlayer(intentValue);
+                player.applyStatus(StatusEffect.Type.VULNERABLE, Json.integer(phase(2).get("fragilityTurns"), 2), Json.integer(phase(2).get("fragilityPercent"), 100));
             }
-
-            setNextIntent();
+            case 3 -> {   // Scalare: mai tare în fiecare tură
+                player.damagePlayer(intentValue);
+                phase3Turns++;
+                gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "Atacul crește!", new Color(255, 120, 60)));
+            }
+            default -> { }
         }
+        setNextIntent();
     }
 
-    private void transitionToPhase2() {
-        currentPhase = 2;
-        name = "Malakor, Cavalerul Morții (Faza 2)";
-        maxLife = 300;
-        life = maxLife;
-        this.mapSize=1.5;
-        getImage();
-
-        // Tranziție vizuală
-        if (gp.battleUI != null) {
-            gp.battleUI.isTransitioning = true;
-            gp.battleUI.transitionTimer = 0;
-            try {
-                java.lang.reflect.Field nameField = gp.battleUI.getClass().getDeclaredField("transitionPhaseName");
-                nameField.setAccessible(true);
-                nameField.set(gp.battleUI, "FAZA 2: CAVALERUL MORȚII");
-
-                java.lang.reflect.Field colorField = gp.battleUI.getClass().getDeclaredField("transitionColor");
-                colorField.setAccessible(true);
-                colorField.set(gp.battleUI, Color.ORANGE);
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void changePhase(int next) {
+        currentPhase = next;
+        Map<String, Object> ph = phase(next);
+        switch (next) {
+            case 2 -> {
+                name = "Malakor, Furia Umbrei Frânte";
+                maxLife = Json.integer(ph.get("life"), 300);
+                life = maxLife;
+                shield = 0;
+                mapSize = 1.5;
             }
-        }
-        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "SCHIMBARE FAZĂ: CAVALERUL MORȚII", Color.ORANGE));
-        gp.fx.phaseChange();
-    }
-
-    private void transitionToPhase3() {
-        currentPhase = 3;
-        name = "Malakor, Amurgul Absolut";
-        maxLife = 400;
-        life = maxLife;
-        phase3TurnsLeft = 10;
-        this.mapSize = 2;
-        getImage();
-
-        // Tranziție vizuală
-        if (gp.battleUI != null) {
-            gp.battleUI.isTransitioning = true;
-            gp.battleUI.transitionTimer = 0;
-            try {
-                java.lang.reflect.Field nameField = gp.battleUI.getClass().getDeclaredField("transitionPhaseName");
-                nameField.setAccessible(true);
-                nameField.set(gp.battleUI, "FAZA 3: AMURGUL ABSOLUT");
-
-                java.lang.reflect.Field colorField = gp.battleUI.getClass().getDeclaredField("transitionColor");
-                colorField.setAccessible(true);
-                colorField.set(gp.battleUI, Color.BLACK);
-            } catch (Exception e) {
-                e.printStackTrace();
+            case 3 -> {
+                name = "Malakor, Eclipsa Finală";
+                maxLife = Json.integer(ph.get("life"), 220);
+                life = maxLife;
+                shield = 0;
+                phase3Turns = 0;
+                mapSize = 2;
             }
+            default -> { }
         }
-        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "SCHIMBARE FAZĂ: AMURGUL ABSOLUT", Color.BLACK));
+        stunTurns = 0;
+        getImage();
+        setNextIntent();
+        gp.battleUI.announcePhase(Json.str(ph.get("title"), "FAZĂ NOUĂ"), Json.str(ph.get("subtitle"), ""), next == 2 ? Color.ORANGE : new Color(255, 80, 80));
+        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, Json.str(ph.get("title"), ""), next == 2 ? Color.ORANGE : Color.RED));
         gp.fx.phaseChange();
+        endTurnSafely();   // Eron primește o mână nouă, fără ca inamicul să joace în faza nouă
     }
 
     @Override
-    public void takeDamage(Player player,int amount) {
-        if(player.areDinteChilimbar){
-            amount+=3;
-        }
-        if (this.shield < amount) {
-            int remaining = amount - shield;
-            shield = 0;
-            life -= remaining;
-            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + remaining, Color.RED));
-            hitFeedback(remaining, false);
-        } else {
-            shield -= amount;
-            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
+    public void takeDamage(Player player, int amount) {
+        int dmg = incomingDamage(player, amount);
+
+        if (shield > 0) {   // Pecetea de Obsidian (faza I) absoarbe lovitura
+            int absorbed = Math.min(shield, dmg);
+            shield -= absorbed;
+            dmg -= absorbed;
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "-" + absorbed + " PECETE", new Color(170, 140, 255)));
             hitFeedback(0, true);
+            if (currentPhase == 1 && shield <= 0) {   // scutul crapă: începe faza II
+                changePhase(2);
+                return;
+            }
+            if (dmg <= 0) return;
         }
 
-        // Când viața scade la 0, schimbăm faza instantaneu
+        life -= dmg;
+        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "-" + dmg, Color.RED));
+        hitFeedback(dmg, false);
+
         if (life <= 0) {
-            if (currentPhase == 1) {
-                transitionToPhase2();
-                setNextIntent();
-                endTurnSafely(); // <-- Sincronizăm tranziția turelor
-            }
-            else if (currentPhase == 2) {
-                transitionToPhase3();
-                setNextIntent();
-                endTurnSafely(); // <-- Sincronizăm tranziția turelor
-            }
-            else {
-                // De abia în Faza 3 moare de tot
-                this.name = "Malakor";
+            if (currentPhase == 1) {          // (fără scut, dar cu viața la zero: tot faza II)
+                changePhase(2);
+            } else if (currentPhase == 2) {
+                changePhase(3);
+            } else {                          // doar în faza III moare de tot
+                name = "Malakor";
                 life = 0;
                 alive = false;
             }
         }
     }
 
-    // Metodă auxiliară pentru a curăța mâna și a pregăti faza nouă fără a rula tura inamicului
+    /** Curăță mâna și începe tura lui Eron din nou, pe noua fază (fără tura inamicului între ele). */
     private void endTurnSafely() {
-        if (gp.player != null) {
-            gp.player.isPlayerTurn = false;
-
-            // Golim mâna, dar nu începem tura inamicului
-            while (!gp.player.inventory.hand.isEmpty()) {
-                gp.player.inventory.discard(gp.player.inventory.hand.removeFirst());
-            }
-
-            // Setăm o stare stabilă
-            gp.player.shield = 0;
-            gp.player.currentMana = gp.player.maxMana;
-
-            // Redăm controlul jucătorului direct pe noua fază
-            gp.player.isPlayerTurn = true;
-            for(int i = 0; i < 5; i++) {
-                gp.player.inventory.drawCard();
-            }
-            gp.battleUI.commandNum = 0;
-            gp.battleUI.announceTurn("FAZA NOUĂ - TURNUL TĂU");
-        }
+        if (gp.player == null) return;
+        gp.player.isPlayerTurn = false;
+        while (!gp.player.inventory.hand.isEmpty()) gp.player.inventory.discard(gp.player.inventory.hand.removeFirst());
+        gp.player.shield = 0;
+        gp.player.currentMana = gp.player.maxMana;
+        gp.player.isPlayerTurn = true;
+        for (int i = 0; i < 5; i++) gp.player.inventory.drawCard();
+        gp.battleUI.commandNum = 0;
     }
 }

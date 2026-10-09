@@ -17,6 +17,7 @@ import Main.SoundManager;
 import Main.ZoneInfo;
 import Main.Exception.GameExceptionHandler;
 import Observer.Observer;
+import Observer.CutsceneUI;
 import Observer.DamagePopUp;
 import GameState.*;
 
@@ -170,7 +171,14 @@ public class Player extends Entity {
         if (hs != 1.0) for (Enemy e : team) { e.maxLife = (int) Math.round(e.maxLife * hs); e.life = e.maxLife; }
     }
 
+    /** Damage-ul dat de Eron cât timp e Slăbit (Slăbiciune: -25%). */
+    public int weakened(int dmg) {
+        for (StatusEffect s : activeStatuses) if (s.type == StatusEffect.Type.WEAK) return Math.max(1, (int) Math.round(dmg * 0.75));
+        return dmg;
+    }
+
     public List<Enemy> livingEnemies() {
+
         List<Enemy> out = new ArrayList<>();
         for (Enemy e : team) if (e.alive) out.add(e);
         if (team.isEmpty() && currentEnemy != null && currentEnemy.alive) out.add(currentEnemy);
@@ -510,7 +518,7 @@ public class Player extends Entity {
         List<Enemy> foes = new ArrayList<>(team);
         if (foes.isEmpty() && currentEnemy != null) foes.add(currentEnemy);
         for (Enemy f : foes) {
-            if (!"Valerius, Cavalerul Neinvins".equals(f.name)) f.shield = 0;
+            if (!f.persistentShield && !"Valerius, Cavalerul Neinvins".equals(f.name)) f.shield = 0;
         }
 
         while(!inventory.hand.isEmpty()) {
@@ -718,6 +726,7 @@ public class Player extends Entity {
         this.inventory.prepareForBattle();
         ensureTeam();
         for (Enemy f : team) f.setNextIntent();
+        if (currentEnemy != null && currentEnemy.introTitle != null) gp.battleUI.announcePhase(currentEnemy.introTitle, currentEnemy.introSubtitle, new java.awt.Color(200, 160, 255));
         if (team.isEmpty() && currentEnemy != null) currentEnemy.setNextIntent();
     }
 
@@ -897,14 +906,14 @@ public class Player extends Entity {
                     // Quest 14: Învinge-l pe Malakor
                     gp.questManager.updateQuestProgress(14, true, 1);
 
-                    // Executăm direct logica ta de final de joc
+                    // Finalul jocului: scorul intră în clasament, apoi epilogul și genericul
                     currentEnemy.alive = false;
                     currentEnemy = null;
                     this.inventory.resetDeckAfterBattle();
+                    activeStatuses.clear();
                     long finalTime = gp.ui.getPlayTime();
                     gp.leaderboardUI.checkAndSaveNewScore(finalTime, this.name);
-                    gp.creditsUI.resetPosition();
-                    gp.changeState(new CreditsState(gp));
+                    gp.changeState(new CutsceneState(gp, CutsceneUI.Script.EPILOGUE));
                     return false;
             }
 

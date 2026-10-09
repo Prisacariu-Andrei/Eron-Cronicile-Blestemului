@@ -109,6 +109,15 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
 
 **Inamic nou:** adaugă un obiect în `types` din `enemies.json` și, dacă vrei să apară pe hartă, în `spawns`.
 
+## Finalul: Castelul de Obsidian
+
+- **`res/Data/castle.json`** — poarta (`gate`), cei trei Pretorieni în ordine (`pretorians`: unde stau, echipa, bannerul) și cele trei faze ale lui Malakor (`malakor`).
+- Drumul: Garda de la pasul spre Pod te lasă după Glaciara → Podul → Castelul. **Poarta de Obsidian** din coridor se dărâmă doar cu **Paloșul Legendar** (E în fața ei).
+- Pretorienii apar pe rând, fiecare după ce a căzut cel dinainte: **I** Garda de Obsidian (doi soldați), **II** Generalii de Obsidian (Fenris, Feldgug, Glaciara, recreați din piatră), **III** Bătrânul Cronicar.
+- **Malakor**: *Faza I, Egida* — un scut (Pecetea de Obsidian) care absoarbe daunele și se reface puțin; loviturile lui te Slăbesc (−25% damage). *Faza II, Furia* — scutul a crăpat; Fragilitate: primești daune duble.
+  *Faza III, Eclipsa* — atacul lui crește cu fiecare tură. Fiecare fază are banner cu text, flash și scuturat.
+- După victorie: **epilogul** (cutscene peste Eldoria, același sistem ca prologul; `CutsceneUI.Script.EPILOGUE`), apoi genericul. Dalele lipsă ale Castelului au o variantă provizorie până apar desenele reale.
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

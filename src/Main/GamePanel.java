@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
     // ENTITĂȚI
     public Player player = new Player(this, keyH);
     public Enemy[] enemy = new Enemy[40];
-    public NPC[] npc = new NPC[14];
+    public NPC[] npc = new NPC[20];
 
     // UI & OBSERVERS
     public UI ui = new UI(this);
@@ -137,6 +137,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void finishPostBattle() {
         String zone = pendingExitZone;
         pendingExitZone = null;
+        if ("Castelul".equals(tileM.currentZone)) aSetter.spawnCastleStory();   // următorul Pretorian (sau Malakor)
         var exit = zone == null ? null : ZoneInfo.exitOf(zone);
         if (exit != null) {
             changeState(new PlayState(this));   // starea de joc curentă, apoi tranziția peste ea
