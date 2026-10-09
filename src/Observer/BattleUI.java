@@ -2,6 +2,8 @@ package Observer;
 
 import Entity.Inamici.Enemy;
 import Entity.Items.Card;
+import Entity.Cards.CardCatalog;
+import Entity.Cards.Combos;
 import Entity.StatusEffect;
 import Main.Easing;
 import Main.GameFeel;
@@ -132,6 +134,7 @@ public class BattleUI {
      * mesajele rămâneau mai mult pe ecran. Acum durează la fel indiferent de FPS.
      */
     public void update() {
+        gp.player.combo.tick();
         if (isTransitioning) {
             transitionTimer++;
             if (transitionTimer > transitionLength) { isTransitioning = false; transitionTimer = 0; transitionLength = 40; transitionSubtitle = ""; }
@@ -203,6 +206,7 @@ public class BattleUI {
         drawCardHand(g2);
         drawManaPool(g2,groundY);
         drawAbilities(g2);
+        drawComboCounter(g2);
         drawEnemyIntent(g2);
         drawControlsAndPopups(g2);
 
@@ -427,7 +431,43 @@ public class BattleUI {
         g2.drawString(intentString, x, y);
     }
 
+    private static java.util.List<String> wrapText(Graphics2D g2, String text, int width) {
+        java.util.List<String> lines = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        for (String w : text.split(" ")) {
+            if (cur.length() > 0 && g2.getFontMetrics().stringWidth(cur + " " + w) > width) { lines.add(cur.toString()); cur.setLength(0); }
+            if (cur.length() > 0) cur.append(' ');
+            cur.append(w);
+        }
+        if (cur.length() > 0) lines.add(cur.toString());
+        return lines;
+    }
+
+    /** "COMBO FOC x2" cât ține tura, și numele ultimei reacții. */
+    private void drawComboCounter(Graphics2D g2) {
+        var st = gp.player.combo;
+        if (st.bestCount >= 2 && st.bestTag != null) {
+            String text = "COMBO " + CardCatalog.tagLabel(st.bestTag).toUpperCase() + " x" + st.bestCount;
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 48f));
+            int x = gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(text) / 2, y = (int) (gp.screenHeight * 0.20);
+            g2.setColor(new Color(0, 0, 0, 160));
+            g2.drawString(text, x + 2, y + 2);
+            g2.setColor(CardCatalog.tagColor(st.bestTag));
+            g2.drawString(text, x, y);
+        }
+        if (st.bannerTicks > 0 && !st.banner.isEmpty()) {
+            float a = Easing.clamp01(st.bannerTicks / 20f);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 38f));
+            Composite old = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, a)));
+            g2.setColor(new Color(255, 232, 160));
+            g2.drawString(st.banner, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(st.banner) / 2, (int) (gp.screenHeight * 0.26));
+            g2.setComposite(old);
+        }
+    }
+
     private void drawCardHand(Graphics2D g2) {
+
         ArrayList<Card> currentHand = gp.player.inventory.hand;
         if (currentHand.isEmpty()) return;
 
@@ -490,6 +530,14 @@ public class BattleUI {
                 g2.setStroke(new BasicStroke(1.5f));
             }
             g2.drawRoundRect(x, y, cardWidth, cardHeight, 18, 18);
+            int comboReady = Combos.ready(gp.player, card, gp.player.currentEnemy);   // 2 = combo/reacție gata, 1 = continuă un lanț
+            if (comboReady > 0 && gp.player.isPlayerTurn) {
+                float pulse = 0.5f + 0.5f * (float) Math.sin(gp.fx.ticks * 0.16 + i);
+                Color glow = comboReady == 2 ? new Color(255, 190, 60, 120 + Math.round(120 * pulse)) : new Color(110, 220, 255, 90 + Math.round(70 * pulse));
+                g2.setColor(glow);
+                g2.setStroke(new BasicStroke(comboReady == 2 ? 5f : 3f));
+                g2.drawRoundRect(x - 3, y - 3, cardWidth + 6, cardHeight + 6, 22, 22);
+            }
             g2.setStroke(originalStroke); // Resetare stroke
 
             // --- 3. DYNAMIC CONTENT RENDERING ---
@@ -500,20 +548,38 @@ public class BattleUI {
             g2.setColor(Color.WHITE);
             g2.drawString(card.name, x + (int)(cardWidth * 0.12), y + (int)(cardHeight * 0.18));
 
-            // B. Description
+            // B. Elemente (etichetele cărții, colorate) și descriere
             float descFontSize = cardWidth * 0.075f; // Text puțin mai mic pentru a nu ieși din carte
+            int textX = x + (int)(cardWidth * 0.12);
+            int lineH = (int)(descFontSize * 1.35);
+            if (!card.tags.isEmpty()) {
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, descFontSize));
+                int tx = textX;
+                for (String tag : card.tags) {
+                    g2.setColor(CardCatalog.tagColor(tag));
+                    g2.drawString(CardCatalog.tagLabel(tag), tx, y + (int)(cardHeight * 0.285));
+                    tx += g2.getFontMetrics().stringWidth(CardCatalog.tagLabel(tag)) + (int)(cardWidth * 0.06);
+                }
+            }
             g2.setFont(g2.getFont().deriveFont(Font.PLAIN, descFontSize));
             g2.setColor(new Color(210, 210, 215));
 
+            int lineY = y + (int)(cardHeight * 0.38);
             String dynamicDesc = card.getDynamicDescription(gp.player);
             if (dynamicDesc != null) {
-                String[] lines = dynamicDesc.split("\n");
-                for (int lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-                    int lineY = y + (int)(cardHeight * 0.40) + (lineIdx * (int)(descFontSize * 1.35));
-                    // Ne asigurăm că textul nu depășește marginea de jos a cărții
-                    if (lineY < y + cardHeight - 10) {
-                        g2.drawString(lines[lineIdx], x + (int)(cardWidth * 0.12), lineY);
-                    }
+                for (String line : dynamicDesc.split("\n")) {
+                    if (lineY < y + cardHeight - 10) g2.drawString(line, textX, lineY);
+                    lineY += lineH;
+                }
+            }
+            // condiția de combo / reacțiile cărții (aurii când sunt îndeplinite acum)
+            boolean hot = comboReady == 2;
+            g2.setColor(hot ? new Color(255, 205, 90) : new Color(150, 170, 200));
+            for (String hint : new String[]{card.comboHint(), Combos.reactionHint(card)}) {
+                if (hint == null) continue;
+                for (String line : wrapText(g2, hint, (int)(cardWidth * 0.78))) {
+                    if (lineY < y + cardHeight - 6) g2.drawString(line, textX, lineY);
+                    lineY += lineH;
                 }
             }
 
@@ -547,19 +613,25 @@ public class BattleUI {
         return spacing;
     }
 
+    /** Statusurile ca "chip-uri" colorate: nume + ture rămase (Ars 3, Ud 2, Înghețat 3, Încărcat 2...). */
     private void drawEntityStatuses(Graphics2D g2, Entity entity, int x, int y) {
         if (entity.activeStatuses.isEmpty()) return;
-        int currentX = x;
-        int iconSize = (int)(gp.screenWidth / 100f);
+        float fs = Math.max(11f, gp.screenWidth / 120f);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, fs));
+        int cx = x, cy = y, pad = (int) (fs * 0.45), h = (int) (fs * 1.45), maxX = x + (int) (gp.screenWidth * 0.17);
         for (StatusEffect s : entity.activeStatuses) {
-            String icon = switch (s.type) {
-                case BURN -> "🔥"; case POISON -> "🧪";
-                case WEAK -> "💢"; case SHIELD -> "🛡";
-                case VULNERABLE -> "💔"; default -> "?";
-            };
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, (float)iconSize));
-            g2.drawString(icon + s.duration, currentX, y);
-            currentX += (int)(gp.screenWidth * 0.025);
+            String label = CardCatalog.statusLabel(s.type) + " " + s.duration;
+            int w = g2.getFontMetrics().stringWidth(label) + pad * 2;
+            if (cx + w > maxX && cx > x) { cx = x; cy += h + 3; }
+            Color c = CardCatalog.statusColor(s.type);
+            g2.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 70));
+            g2.fillRoundRect(cx, cy - h + 4, w, h, 10, 10);
+            g2.setColor(c);
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.drawRoundRect(cx, cy - h + 4, w, h, 10, 10);
+            g2.setColor(Color.WHITE);
+            g2.drawString(label, cx + pad, cy);
+            cx += w + 4;
         }
     }
 

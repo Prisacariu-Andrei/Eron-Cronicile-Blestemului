@@ -7,6 +7,7 @@ import Main.Exception.GameExceptionHandler;
 public class CardFactory {
 
     /** Cheile stabile ale tuturor cărților (se salvează în baza de date, nu numele afișate). */
+    /** Cărțile scrise în cod. Cele din res/Data/cards.json se adaugă în allIds(). */
     public static final String[] ALL_IDS = {
             "CadereaStelelor", "DeslusireaRunelor", "FluxulStrabun", "FulgerDeSange", "ParjolulSferic", "PavazaAmurgului",
             "PavazaGlaciara", "UraganDeAzur", "GeamatulEcoului", "ManiorulIernii", "PovaraAnilor", "SuflulVietii", "Dezolare"
@@ -14,16 +15,23 @@ public class CardFactory {
 
     private static java.util.Map<String, String> idByDisplayName;
 
+    /** Toate cheile: cărțile din cod + cele din cards.json. */
+    public static java.util.List<String> allIds() {
+        java.util.List<String> out = new java.util.ArrayList<>(java.util.Arrays.asList(ALL_IDS));
+        out.addAll(CardCatalog.dataIds());
+        return out;
+    }
+
     /**
      * Cheia unei cărți dintr-o salvare: acceptă cheia nouă ("ParjolulSferic") sau numele afișat din salvările vechi
      * ("Pârjolul Sferic"). Null dacă nu o recunoaște.
      */
     public static synchronized String resolveId(String saved, Player player) {
         if (saved == null) return null;
-        for (String id : ALL_IDS) if (id.equals(saved)) return id;
+        for (String id : allIds()) if (id.equals(saved)) return id;
         if (idByDisplayName == null) {
             idByDisplayName = new java.util.HashMap<>();
-            for (String id : ALL_IDS) idByDisplayName.put(build(id, player).name, id);
+            for (String id : allIds()) idByDisplayName.put(build(id, player).name, id);
         }
         return idByDisplayName.get(saved);
     }
@@ -31,12 +39,12 @@ public class CardFactory {
     public static Card createCard(String cardName, Player player) {
         Card c = build(cardName, player);
         c.id = isKnown(cardName) ? cardName : "Dezolare";
+        CardCatalog.decorate(c, c.id);   // elemente, statusuri aplicate, raritate (cards.json)
         return c;
     }
 
     private static boolean isKnown(String id) {
-        for (String k : ALL_IDS) if (k.equals(id)) return true;
-        return false;
+        return id != null && allIds().contains(id);
     }
 
     private static Card build(String cardName, Player player) {
@@ -64,6 +72,8 @@ public class CardFactory {
                 case "Dezolare" -> new Dezolare();
 
                 default -> {
+                    var data = CardCatalog.def(cardName);   // carte nouă, definită doar în cards.json
+                    if (data != null) yield new Card_Data(data, player);
                     // Semnalăm problema în consolă/fișier log fără să oprim jocul
                     GameExceptionHandler.getInstance().handleWarning(
                             "Cartea '" + cardName + "' nu este înregistrată în CardFactory. A fost returnat un fallback (Dezolare).",

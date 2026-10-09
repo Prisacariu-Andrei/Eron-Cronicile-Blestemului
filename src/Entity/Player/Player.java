@@ -6,6 +6,7 @@ import Entity.Inamici.Enemy;
 import Entity.Inamici.EnemyFactory;
 import Entity.Inamici.Groups;
 import Entity.Items.Card;
+import Entity.Cards.Combos;
 import Entity.Items.Rune;
 import Entity.Runes.RuneFactory;
 import Entity.Cards.GeamatulEcoului;
@@ -141,6 +142,8 @@ public class Player extends Entity {
     public boolean isPlayerTurn = true;
     public Enemy currentEnemy;                              // ținta curentă (cea lovită de cărți)
     public final List<Enemy> team = new ArrayList<>();      // toți inamicii din luptă (inclusiv ținta)
+    public final Combos.State combo = new Combos.State();   // elementele jucate în tura asta
+    public final java.util.Set<String> lastDefeated = new java.util.LinkedHashSet<>(); // numele inamicilor învinși la ultima luptă (recompense de carte)
     public double enemyDmgScale = 1.0;                      // cu cât mai mulți inamici, cu atât lovesc mai slab (enemies.json)
 
     /** Începe lupta cu inamicul de pe hartă și grupul lui (enemies.json -> packExtras). */
@@ -427,7 +430,7 @@ public class Player extends Entity {
                 if (currentMana >= card.manaCost) {
                     currentMana -= card.manaCost;
 
-                    card.play(this, currentEnemy);
+                    Combos.play(this, card, currentEnemy);   // efectele cărții + reacții + lanț (cards.json)
 
                     if (!(card instanceof GeamatulEcoului)) {
                         lastCardPlayed = card;
@@ -578,6 +581,7 @@ public class Player extends Entity {
         }
 
         gp.battleUI.commandNum = 0;
+        combo.reset();   // tura nouă: lanțul de elemente o ia de la capăt
 
         this.updateStatuses();
 
@@ -724,6 +728,7 @@ public class Player extends Entity {
         activeStatuses.clear();
         gp.party.startBattle();
         this.inventory.prepareForBattle();
+        combo.reset();
         ensureTeam();
         for (Enemy f : team) f.setNextIntent();
         if (currentEnemy != null && currentEnemy.introTitle != null) gp.battleUI.announcePhase(currentEnemy.introTitle, currentEnemy.introSubtitle, new java.awt.Color(200, 160, 255));
@@ -742,6 +747,7 @@ public class Player extends Entity {
         lastCoinReward = 0;
         lastRuneDrop = null;
         lastKeyItem = null;
+        lastDefeated.clear();
         for (Enemy en : defeated) {
             en.alive = false;
             currentEnemy = en;
@@ -757,6 +763,7 @@ public class Player extends Entity {
             // Folosim doar partea dinaintea virgulei: "Feldgug, Regele Trol" -> "Feldgug",
             // "Glaciara, Stăpânul Inelului de Gheață" -> "Glaciara" etc., ca să se potrivească cu case-urile de mai jos
             String inamicNume = currentEnemy.name.split(",")[0].trim();
+            lastDefeated.add(inamicNume);
 
             // XP (progression.json -> enemyXp) și progresul misiunilor de tip "învinge"
             int xpGain = gp.progression.enemyXp(inamicNume);

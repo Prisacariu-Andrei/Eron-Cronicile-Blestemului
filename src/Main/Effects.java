@@ -110,7 +110,18 @@ public class Effects {
         sound("hit");
     }
 
+    /** O reacție sau un combo de cărți: scuturat scurt, explozie de particule în culoarea elementului, un clinchet. */
+    public void reaction(int rgb, int x, int y, boolean main) {
+        if (main) {
+            shake(GameFeel.SHAKE_REACTION, GameFeel.SHAKE_REACTION_TICKS);
+            sound("ability");
+        }
+        burst(ParticleSystem.FRONT, x, y, GameFeel.REACTION_PARTICLES, rgb, 7f, 40, 6f, -0.02f);
+        sparks(ParticleSystem.FRONT, x, y, 8, 0xFFFFFF, 6f);
+    }
+
     /** Inamicul a oprit lovitura cu scutul. */
+
     public void enemyBlocked() {
         shake(1.8f, 7);
         sparks(ParticleSystem.FRONT, gp.battleUI.enemyCenterX() - 30, gp.battleUI.enemyCenterY(), 7, 0x9FD4FF, 5f);

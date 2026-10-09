@@ -16,12 +16,31 @@ public abstract class Card {
     public enum CardType { ELECTRIC, FOC, UMBRA, NEUTRU, INGHET }
     public CardType type;
 
+    // Sinergii (res/Data/cards.json): elementele cărții, dacă lovește (poate declanșa reacții), ce statusuri pune după ce se joacă
+    public final java.util.Set<String> tags = new java.util.LinkedHashSet<>();
+    public String rarity = "Comună";
+    public boolean offensive = false;
+    public final java.util.List<java.util.Map<String, Object>> applies = new java.util.ArrayList<>();
+
     public Card(String name, int cost, CardType type, String desc) {
         this.name = name;
         this.manaCost = cost;
         this.type = type;
         this.description = desc;
+        switch (type) {   // elementul implicit după tipul cărții; "overrides" din cards.json îl poate schimba
+            case FOC -> tags.add("FOC");
+            case INGHET -> tags.add("GHEATA");
+            case ELECTRIC -> tags.add("FULGER");
+            case UMBRA -> tags.add("UMBRA");
+            default -> { }
+        }
     }
+
+    /** Un rând cu condiția de combo a cărții (de ex. "După o carte Umbră: +22 paguba"), sau null. Cărțile din date îl suprascriu. */
+    public String comboHint() { return null; }
+
+    /** Combo-ul propriu al cărții e îndeplinit acum? (pentru evidențierea din mână). Cărțile din date îl suprascriu. */
+    public boolean comboMet(Player player, Enemy target) { return false; }
 
     // Metoda pe care o apelează Player.java
     public abstract void play(Player player, Enemy enemy);

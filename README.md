@@ -124,6 +124,17 @@ Pornește jocul cu opțiunea JVM `-Deron.debug=true` (IntelliJ: Run → Edit Con
 Apoi, în joc, **F9** deschide „Sari la zonă”: alegi Eldoria, Munți, Abis, Citadela, Tundra, Pod sau Castel (tastele **1–7** sau **W/S + ENTER**) și primești progresul
 necesar (boss-ii dinainte, artefactele, Jean, nivelul) și ești teleportat. Doar adaugă progres, nu scoate nimic. Fără opțiune, F9 nu face nimic.
 
+## Sinergii între cărți (combo-uri)
+
+- **`res/Data/cards.json`** — elementele (`tags`: Foc, Gheață, Fulger, Umbră), numele statusurilor, `reactions`, bonusul de lanț (`chain`), etichetele cărților din cod (`overrides`)
+  și **14 cărți noi** scrise doar în date (`cards`: efecte, `combo.when`, `shop`, `drop`). Prețurile sunt în `economy.json`.
+- **Reacții** (element + status pe țintă, consumă statusul): Foc pe **Înghețat** = *Topire*; Fulger pe **Ud/Înghețat** = *Șoc în Lanț* (lovește tot grupul); Gheață pe **Ars** = *Șoc Termic*;
+  Umbră pe **Încărcat** = *Eclipsă Încărcată* (+ Slăbit). **Lanț:** a 2-a, a 3-a... carte cu același element în tură = *Combo x2, x3* (+damage, sau +armură la cărțile defensive).
+  **Pregătire/răsplată** (ex. Execuție Umbrită după o carte Umbră) și **sincron cu aliații** (Jean acționează din nou, bonus de paguba) vin din `combo.when`.
+- Pe cărți se văd elementele și condiția de combo (aurie când e îndeplinită acum, cu contur auriu în mână); inamicii au chip-uri de status cu turele rămase; la combo apare numele + scuturat + particule.
+
+**Reacție nouă:** un obiect în `reactions` (element, statusuri cerute, damage, aoeDamage, apply). **Carte nouă:** un obiect în `cards` (apare automat în salvări, recompense și, dacă are `shop`, o treci în `npcs.json` și îi pui prețul în `economy.json`).
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

@@ -1,0 +1,113 @@
+{
+  "_help": "Sinergii între cărți. tags = elementele (FOC, GHEATA, FULGER, UMBRA); fiecare are label + color. statuses = numele afișat al statusurilor. reactions = când o carte ofensivă cu elementul 'element' lovește o țintă care are unul din statusurile 'requires' (cum era ÎNAINTE de carte), se declanșează: statusul se consumă, ținta primește 'damage', ceilalți inamici 'aoeDamage', iar 'apply' pune un status în plus. chain = a doua carte cu același element în aceeași tură dă +perLevel damage (sau +shieldPerLevel armură la cărțile defensive) pentru fiecare treaptă (x2, x3...), până la maxLevel. overrides = etichete pentru cărțile din cod: tags, offensive (poate declanșa reacții), applies (statusuri puse după carte). cards = cărți noi, scrise doar aici: id, name, cost, rarity (Comună/Rară/Epică), tags, offensive, effects, combo {when, text, effects}, shop (true = în magazin; prețul în economy.json), drop {zones, bosses}. Efecte: damage, damageAll, status (all:true = toți inamicii), shield, heal, shieldAllies, allyAction (aliații acționează din nou), damagePerTag (base + value pentru fiecare element diferit jucat în tură). Condiții when: playedTag (un element jucat mai devreme în tură), targetStatus, ally (id aliat în echipă), minTags (câte elemente diferite jucate).",
+
+  "tags": {
+    "FOC":    { "label": "Foc",    "color": "#FF7A3C" },
+    "GHEATA": { "label": "Gheață", "color": "#7FD8FF" },
+    "FULGER": { "label": "Fulger", "color": "#FFE36B" },
+    "UMBRA":  { "label": "Umbră",  "color": "#B58CFF" }
+  },
+
+  "statuses": {
+    "BURN":       { "label": "Ars",       "color": "#FF7A3C" },
+    "WET":        { "label": "Ud",        "color": "#4DA6FF" },
+    "FROZEN":     { "label": "Înghețat",  "color": "#9FE8FF" },
+    "CHARGED":    { "label": "Încărcat",  "color": "#FFE36B" },
+    "WEAK":       { "label": "Slăbit",    "color": "#B0B0B8" },
+    "VULNERABLE": { "label": "Fragil",    "color": "#FF6FB5" },
+    "POISON":     { "label": "Otravă",    "color": "#6FD66F" },
+    "STUN":       { "label": "Amețit",    "color": "#FFB84D" },
+    "SHIELD":     { "label": "Scut",      "color": "#7FA8FF" }
+  },
+
+  "reactions": [
+    { "id": "topire", "name": "Topire", "element": "FOC", "requires": ["FROZEN"], "damage": 22, "color": "#FF9A4D" },
+    { "id": "soc_lant", "name": "Șoc în Lanț", "element": "FULGER", "requires": ["WET", "FROZEN"], "damage": 8, "aoeDamage": 12, "color": "#FFE36B" },
+    { "id": "soc_termic", "name": "Șoc Termic", "element": "GHEATA", "requires": ["BURN"], "damage": 16, "color": "#8FE0FF" },
+    { "id": "eclipsa", "name": "Eclipsă Încărcată", "element": "UMBRA", "requires": ["CHARGED"], "damage": 14,
+      "apply": { "status": "WEAK", "turns": 2, "value": 25 }, "color": "#C79CFF" }
+  ],
+
+  "chain": { "perLevel": 5, "shieldPerLevel": 3, "maxLevel": 4 },
+
+  "rarityWeights": { "Comună": 10, "Rară": 5, "Epică": 2 },
+  "baseCardWeight": 10,
+
+  "overrides": {
+    "ParjolulSferic":  { "tags": ["FOC"], "offensive": true },
+    "CadereaStelelor": { "tags": ["FOC"], "offensive": true, "rarity": "Rară" },
+    "FulgerDeSange":   { "tags": ["FULGER"], "offensive": true, "applies": [ { "status": "CHARGED", "turns": 3, "value": 0 } ] },
+    "UraganDeAzur":    { "tags": ["FULGER"], "offensive": true, "rarity": "Rară", "applies": [ { "status": "CHARGED", "turns": 3, "value": 0 } ] },
+    "ManiorulIernii":  { "tags": ["GHEATA"], "offensive": true, "applies": [ { "status": "FROZEN", "turns": 3, "value": 0 } ] },
+    "PavazaGlaciara":  { "tags": ["GHEATA"] },
+    "PavazaAmurgului": { "tags": ["UMBRA"] },
+    "Dezolare":        { "tags": ["UMBRA"], "offensive": true },
+    "PovaraAnilor":    { "tags": ["UMBRA"], "offensive": true }
+  },
+
+  "cards": [
+    { "id": "RafalaDeBruma", "name": "Rafală de Brumă", "cost": 1, "rarity": "Comună", "tags": ["GHEATA"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 6 }, { "type": "status", "status": "FROZEN", "turns": 3 } ],
+      "shop": true, "drop": { "zones": ["Barlogul", "Tundra"] } },
+
+    { "id": "PloaieRece", "name": "Ploaie Rece", "cost": 1, "rarity": "Comună", "tags": ["GHEATA"], "offensive": true,
+      "effects": [ { "type": "damageAll", "value": 3 }, { "type": "status", "status": "WET", "turns": 3, "all": true } ],
+      "shop": true, "drop": { "zones": ["Abisul", "Tundra"] } },
+
+    { "id": "ScanteiaStrabuna", "name": "Scânteie Străbună", "cost": 1, "rarity": "Comună", "tags": ["FULGER"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 7 }, { "type": "status", "status": "CHARGED", "turns": 3 } ],
+      "shop": true, "drop": { "zones": ["Eldoria", "Barlogul"] } },
+
+    { "id": "SuflulPirjolit", "name": "Suflu Pârjolit", "cost": 1, "rarity": "Comună", "tags": ["FOC"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 8 }, { "type": "status", "status": "BURN", "turns": 3, "value": 4 } ],
+      "drop": { "zones": ["Eldoria", "Barlogul", "Abisul"] } },
+
+    { "id": "ScanteiaDeJar", "name": "Scânteie de Jar", "cost": 0, "rarity": "Comună", "tags": ["FOC"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 3 } ],
+      "shop": true, "drop": { "zones": ["Eldoria"] } },
+
+    { "id": "MantiaNoptii", "name": "Mantia Nopții", "cost": 0, "rarity": "Comună", "tags": ["UMBRA"],
+      "effects": [ { "type": "shield", "value": 4 } ],
+      "drop": { "zones": ["Abisul", "Podul", "Castelul"] } },
+
+    { "id": "LanceDeFoc", "name": "Lance de Foc", "cost": 2, "rarity": "Rară", "tags": ["FOC"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 14 } ],
+      "shop": true, "drop": { "zones": ["Citadela"] } },
+
+    { "id": "FulgerInLant", "name": "Fulger în Lanț", "cost": 2, "rarity": "Rară", "tags": ["FULGER"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 12 } ],
+      "drop": { "zones": ["Abisul", "Citadela", "Tundra"] } },
+
+    { "id": "SocTermic", "name": "Șoc Termic", "cost": 2, "rarity": "Rară", "tags": ["GHEATA"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 10 } ],
+      "shop": true, "drop": { "zones": ["Tundra"] } },
+
+    { "id": "ExecutieUmbrita", "name": "Execuție Umbrită", "cost": 2, "rarity": "Rară", "tags": ["UMBRA"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 8 } ],
+      "combo": { "when": { "playedTag": "UMBRA" }, "text": "După o carte Umbră: +28 paguba",
+                 "effects": [ { "type": "damage", "value": 28 } ] },
+      "drop": { "zones": ["Podul", "Castelul"], "bosses": ["Charon"] } },
+
+    { "id": "ArmoniaElementelor", "name": "Armonia Elementelor", "cost": 1, "rarity": "Rară", "tags": [], "offensive": true,
+      "effects": [ { "type": "damagePerTag", "base": 4, "value": 6 } ],
+      "drop": { "zones": ["Citadela", "Tundra"] } },
+
+    { "id": "ChemareaHaiducilor", "name": "Chemarea Haiducilor", "cost": 1, "rarity": "Rară", "tags": [],
+      "effects": [ { "type": "shield", "value": 5 } ],
+      "combo": { "when": { "ally": "jean" }, "text": "Cu Jean în echipă: Jean acționează din nou + armură aliaților",
+                 "effects": [ { "type": "allyAction" }, { "type": "shieldAllies", "value": 6 } ] },
+      "drop": { "bosses": ["Jean Plesa"] } },
+
+    { "id": "SabieSiVraja", "name": "Sabie și Vrajă", "cost": 2, "rarity": "Rară", "tags": ["FOC"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 12 } ],
+      "combo": { "when": { "ally": "jean" }, "text": "Cu Jean în echipă: +12 paguba și ținta devine Fragilă",
+                 "effects": [ { "type": "damage", "value": 12 }, { "type": "status", "status": "VULNERABLE", "turns": 2, "value": 50 } ] },
+      "drop": { "zones": ["Citadela", "Tundra", "Podul"] } },
+
+    { "id": "FurtunaHaiducilor", "name": "Furtuna Haiducilor", "cost": 3, "rarity": "Epică", "tags": ["FULGER"], "offensive": true,
+      "effects": [ { "type": "damageAll", "value": 16 } ],
+      "combo": { "when": { "ally": "jean" }, "text": "Cu Jean în echipă: Jean acționează din nou + 6 paguba tuturor",
+                 "effects": [ { "type": "allyAction" }, { "type": "damageAll", "value": 6 } ] },
+      "drop": { "bosses": ["Glaciara", "Charon"], "zones": ["Castelul"] } }
+  ]
+}

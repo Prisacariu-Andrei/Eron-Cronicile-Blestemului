@@ -38,6 +38,9 @@ public final class GameFeel {
     public static final float SHAKE_MAX = 14f;                 // plafon, ca să nu se dezmembreze ecranul
     public static final int SHAKE_HIT_TICKS = 16;
     public static final float SHAKE_ENEMY_HIT_BASE = 2f;       // la lovitura dată de Eron
+    public static final float SHAKE_REACTION = 4.5f;           // reacție între elemente / combo
+    public static final int SHAKE_REACTION_TICKS = 12;
+    public static final int REACTION_PARTICLES = 26;
     public static final float SHAKE_PHASE_CHANGE = 14f;        // schimbare de fază Malakor
     public static final int SHAKE_PHASE_TICKS = 40;
     public static final float SHAKE_BATTLE_START = 6f;         // intrarea în luptă

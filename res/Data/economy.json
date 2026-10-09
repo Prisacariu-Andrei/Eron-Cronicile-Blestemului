@@ -19,7 +19,21 @@
     "FluxulStrabun": 90,
     "PovaraAnilor": 98,
     "UraganDeAzur": 105,
-    "CadereaStelelor": 120
+    "CadereaStelelor": 120,
+    "RafalaDeBruma": 50,
+    "PloaieRece": 55,
+    "ScanteiaStrabuna": 50,
+    "SuflulPirjolit": 55,
+    "ScanteiaDeJar": 35,
+    "MantiaNoptii": 40,
+    "LanceDeFoc": 100,
+    "FulgerInLant": 105,
+    "SocTermic": 95,
+    "ExecutieUmbrita": 110,
+    "ArmoniaElementelor": 90,
+    "ChemareaHaiducilor": 95,
+    "SabieSiVraja": 110,
+    "FurtunaHaiducilor": 160
   },
 
   "_comment_drops": "[min, max] monede la invingerea unui inamic (numele dinaintea virgulei).",
