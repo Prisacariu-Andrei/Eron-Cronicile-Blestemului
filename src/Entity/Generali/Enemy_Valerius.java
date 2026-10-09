@@ -15,7 +15,7 @@ public class Enemy_Valerius extends Enemy {
     public Enemy_Valerius(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Valerius, Cavalerul Neinvins";
-        this.maxLife = 5000;
+        this.maxLife = 450;
         this.life = maxLife;
         this.attackDamage = 18;
         this.mapSize = 1.8;

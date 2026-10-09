@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
     public SaveLoadManager saveLoadManager = new SaveLoadManager();
     // ENTITĂȚI
     public Player player = new Player(this, keyH);
-    public Enemy[] enemy = new Enemy[15];
+    public Enemy[] enemy = new Enemy[40];
     public NPC[] npc = new NPC[14];
 
     // UI & OBSERVERS
@@ -127,7 +127,23 @@ public class GamePanel extends JPanel implements Runnable {
         String id = party.pendingRecruit;
         party.pendingRecruit = null;
         if (id != null) changeState(new AllySceneState(this, id));
-        else changeState(new PlayState(this));
+        else finishPostBattle();
+    }
+
+    /** Zona al cărei boss tocmai a căzut: după recompensă (și scena de recrutare) Eron iese din ea (item: boss învins = zonă "curățată"). */
+    public String pendingExitZone = null;
+
+    /** Ultimul pas după o luptă câștigată: ieșirea din zona boss-ului (cu ecran de tranziție) sau înapoi pe hartă. */
+    public void finishPostBattle() {
+        String zone = pendingExitZone;
+        pendingExitZone = null;
+        var exit = zone == null ? null : ZoneInfo.exitOf(zone);
+        if (exit != null) {
+            changeState(new PlayState(this));   // starea de joc curentă, apoi tranziția peste ea
+            eHandler.changeMap(exit.map(), exit.zone(), exit.col(), exit.row());
+        } else {
+            changeState(new PlayState(this));
+        }
     }
 
     public void changeState(GameState newState) {

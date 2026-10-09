@@ -175,13 +175,21 @@ public class TileManager {
                 is = getClass().getResourceAsStream("/Tiles/Common/" + imageName.substring(imageName.lastIndexOf("/") + 1) + ".png");
             }
 
+            if (is == null) { // unele dale ale Castelului se împart cu Podul
+                is = getClass().getResourceAsStream("/Tiles/Podul/" + imageName.substring(imageName.lastIndexOf("/") + 1) + ".png");
+            }
+
             if (is != null) {
                 tile[index] = new Tile();
                 tile[index].image = scaleToTile(ImageIO.read(is));
                 tile[index].collision = collision;
             } else {
-                // Dacă resursa este complet absentă, trimitem un Warning controlat
-                GameExceptionHandler.getInstance().handleWarning("Elementul grafic (Tile) din resurse lipsește complet: " + imageName, null);
+                // Dacă resursa este complet absentă, trimitem un Warning controlat și desenăm o dală de umplutură,
+                // ca zona să fie jucabilă (și vizibilă) până apare desenul real
+                GameExceptionHandler.getInstance().handleWarning("Elementul grafic (Tile) din resurse lipsește complet: " + imageName + " (dală provizorie)", null);
+                tile[index] = new Tile();
+                tile[index].image = placeholder(imageName, collision);
+                tile[index].collision = collision;
             }
 
         } catch (Exception e) {
@@ -189,8 +197,36 @@ public class TileManager {
         }
     }
 
+    /** Dală provizorie, în stil obsidian: piatră cu rosturi pentru dalele cu coliziune, lespezi pentru podea. Culoarea variază după nume. */
+    private BufferedImage placeholder(String imageName, boolean collision) {
+        int ts = gp.tileSize;
+        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        int h = Math.abs(imageName.hashCode());
+        int shade = (h % 5) * 5;
+        Color base = collision ? new Color(46 + shade, 40 + shade, 66 + shade) : new Color(88 + shade, 84 + shade, 100 + shade);
+        g.setColor(base);
+        g.fillRect(0, 0, ts, ts);
+        g.setColor(base.darker());
+        if (collision) {   // cărămizi
+            for (int row = 0; row < 4; row++) {
+                int y = row * ts / 4;
+                g.drawLine(0, y, ts, y);
+                int off = (row % 2) * ts / 4;
+                for (int x = off; x < ts; x += ts / 2) g.drawLine(x, y, x, y + ts / 4);
+            }
+        } else {           // lespezi
+            g.drawRect(0, 0, ts - 1, ts - 1);
+            g.drawLine(ts / 2, 0, ts / 2, ts);
+            g.drawLine(0, ts / 2, ts, ts / 2);
+        }
+        g.dispose();
+        return img;
+    }
+
     /**
-     * Mărește imaginea la dimensiunea unui tile o singură dată, la încărcare (cu aceeași interpolare "nearest"
+     * Mărește imaginea la dimensiunea unui tile o singură dată
+, la încărcare (cu aceeași interpolare "nearest"
      * pe care o folosea desenarea), ca să nu fie scalată din nou la fiecare cadru pentru fiecare tile.
      */
     private BufferedImage scaleToTile(BufferedImage src) {

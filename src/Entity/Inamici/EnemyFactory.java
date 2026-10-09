@@ -46,6 +46,8 @@ public class EnemyFactory {
 
 
             default -> {
+                var def = Groups.type(enemyName); // inamici din res/Data/enemies.json
+                if (def != null) yield new Enemy_Data(gp, x, y, def);
                 System.out.println("Eroare: Inamicul '" + enemyName + "' nu există în Factory!");
                 yield null;
             }

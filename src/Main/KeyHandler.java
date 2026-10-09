@@ -137,6 +137,9 @@ public class KeyHandler implements KeyListener {
 
         // 2. GESTIUNE BATTLE
         if (state instanceof BattleState) {
+            // Mai mulți inamici: W/S, săgeți sau TAB aleg ținta
+            if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) gp.player.cycleTarget(-1);
+            if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN || code == KeyEvent.VK_TAB) gp.player.cycleTarget(1);
             if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
                 if (gp.battleUI.commandNum > 0) { gp.battleUI.commandNum--; SoundManager.getInstance().playSE("click"); }
             }

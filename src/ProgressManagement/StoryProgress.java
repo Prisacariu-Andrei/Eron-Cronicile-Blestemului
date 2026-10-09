@@ -82,6 +82,10 @@ public class StoryProgress {
         return null;
     }
 
+    public boolean isBoss(String enemyName) { return bosses.containsKey(enemyName); }
+
+    public String flagOf(String enemyName) { return bosses.getOrDefault(enemyName, ""); }
+
     public boolean isOpen(Gate g) { return g.requires.isEmpty() || has(g.requires); }
 
     /** Artefactele pe care Eron le are acum (în ordinea din gates.json). */

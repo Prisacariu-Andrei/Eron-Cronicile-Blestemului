@@ -61,7 +61,7 @@ public class AllySceneState implements GameState {
             gp.ui.messageOn = true;
             gp.fx.questSound(true);
         }
-        gp.changeState(new PlayState(gp));
+        gp.finishPostBattle();
     }
 
     @Override

@@ -96,7 +96,9 @@ public class Enemy_LupBoss extends Enemy {
         life -= amount;
         hitFeedback(amount, false);
         // Verificăm dacă viața a ajuns la 0 și inamicul a murit
-        if (life <= 0 && !alive) {
+        if (life <= 0) {
+            life = 0;
+            alive = false;   // fără asta lupta nu se încheia decât prin arsură
             var quest3 = gp.questManager.getQuestById(3, true);
 
             if (quest3 != null && quest3.isReceived && !quest3.isCompleted) {

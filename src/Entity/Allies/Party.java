@@ -108,6 +108,7 @@ public class Party {
             case "selfLifeBelow" -> a.life < a.maxLife * v;
             case "playerLifeBelow" -> p.life < p.maxLife * v;
             case "playerShieldBelow" -> p.shield < v;
+            case "teamLifeBelow" -> weakestFraction(p) < v;   // Eron sau oricare aliat sub procentul dat
             default -> false;
         };
     }
@@ -134,7 +135,28 @@ public class Party {
                 p.notifyObservers();
                 gp.popups.add(new DamagePopUp(gp.tileSize * 3, gp.tileSize * 2, "+" + ab.value + " HP", Color.GREEN));
             }
+            case "shieldLowest" -> {   // protejează pe cel mai slab din echipă (Eron sau un aliat, poate chiar pe sine)
+                Ally w = weakestAlly();
+                if (w != null && (double) w.life / w.maxLife < (double) p.life / p.maxLife) {
+                    w.shield += ab.value;
+                    gp.popups.add(new DamagePopUp(allyX(w), allyGroundY() - gp.screenHeight / 5, "+" + ab.value + " BLOCK", Color.CYAN));
+                } else {
+                    p.addShield(ab.value);
+                }
+            }
+            case "healLowest" -> {     // vindecă pe cel mai slab din echipă
+                Ally w = weakestAlly();
+                if (w != null && (double) w.life / w.maxLife < (double) p.life / p.maxLife) {
+                    w.life = Math.min(w.maxLife, w.life + ab.value);
+                    gp.popups.add(new DamagePopUp(allyX(w), allyGroundY() - gp.screenHeight / 5, "+" + ab.value + " HP", Color.GREEN));
+                } else {
+                    p.life = Math.min(p.maxLife, p.life + ab.value);
+                    p.notifyObservers();
+                    gp.popups.add(new DamagePopUp(gp.tileSize * 3, gp.tileSize * 2, "+" + ab.value + " HP", Color.GREEN));
+                }
+            }
             case "healSelf" -> {
+
                 a.life = Math.min(a.maxLife, a.life + ab.value);
                 gp.popups.add(new DamagePopUp(ax, ay, "+" + ab.value + " HP", Color.GREEN));
             }
@@ -145,7 +167,21 @@ public class Party {
         gp.fx.allyCast(a.color, ax, ay, hitsEnemy);
     }
 
-    /** x-ul aliatului pe ecran (în dreapta lui Eron). */
+    /** Aliatul în viață cu cea mai mică viață (în procente), sau null dacă nu e niciunul. */
+    private Ally weakestAlly() {
+        Ally best = null;
+        for (Ally a : members) if (a.alive() && (best == null || (double) a.life / a.maxLife < (double) best.life / best.maxLife)) best = a;
+        return best;
+    }
+
+    private double weakestFraction(Player p) {
+        double min = (double) p.life / p.maxLife;
+        for (Ally a : members) if (a.alive()) min = Math.min(min, (double) a.life / a.maxLife);
+        return min;
+    }
+
+    /** x-ul aliatului pe ecran
+ (în dreapta lui Eron). */
     public int allyX(Ally a) {
         int idx = Math.max(0, members.indexOf(a));
         return (int) (gp.screenWidth * (0.30 + 0.13 * idx));

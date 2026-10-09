@@ -10,6 +10,12 @@ import java.util.Random;
 
 public class Enemy_Glaciara extends Enemy {
 
+    // Mecanica ei: la a 5-a lovitură primită e amețită; runda următoare invocă un Minion de Zăpadă. Amețită 2 ture
+    // (cea inițială și cea a invocării). Restul bossilor luptă singuri.
+    private int hitsTaken = 0;
+    private boolean summonPending = false;
+    private Enemy minion;
+
     public Enemy_Glaciara(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Glaciara, Stăpânul Inelului de Gheață";
@@ -71,6 +77,12 @@ public class Enemy_Glaciara extends Enemy {
 
     @Override
     public void executeIntent(Player player) {
+        // Runda de după amețeala inițială: invocă minionul (rămâne amețită încă o tură)
+        if (summonPending && stunTurns <= 1) {
+            summonPending = false;
+            summonMinion();
+        }
+
         if (stunTurns == 0) {
 
             // 1. Suflu Înghețat (aplică Stun și damage)
@@ -94,5 +106,27 @@ public class Enemy_Glaciara extends Enemy {
 
             setNextIntent();
         }
+    }
+
+    @Override
+    public void takeDamage(Player player, int amount) {
+        super.takeDamage(player, amount);
+        if (!alive) { if (minion != null) minion.alive = false; return; } // cade ea, se risipește și minionul
+        if (summonPending || (minion != null && minion.alive)) return;
+        if (++hitsTaken >= 5) {
+            hitsTaken = 0;
+            stunTurns = 2;
+            summonPending = true;
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "AMEȚITĂ!", Color.CYAN));
+        }
+    }
+
+    private void summonMinion() {
+        minion = Entity.Inamici.EnemyFactory.createEnemy("Minion de Zăpadă", gp, 0, 0);
+        if (minion == null) return;
+        minion.battleBackground = battleBackground;
+        gp.player.team.add(minion);
+        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "INVOCĂ UN MINION!", new Color(160, 230, 255)));
+        gp.fx.questSound(false);
     }
 }

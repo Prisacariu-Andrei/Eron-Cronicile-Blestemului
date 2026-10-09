@@ -93,6 +93,33 @@
           "text": "Nu mai am de lucru pentru tine acum, {name}. Dar drumurile nu stau liniștite mult timp."
         }
       }
+    },
+    {
+      "id": "valerius", "name": "Valerius, Cavalerul Neinvins", "type": "dialogue", "zone": "Eldoria", "col": 39, "row": 5,
+      "sprite": "/Enemy/Valerius.png",
+      "start": "greet", "afterFlag": "valerius", "afterStart": "defeated",
+      "nodes": {
+        "greet": {
+          "text": "Stai, străine. Sunt Valerius, cavalerul pe care nu l-a înfrânt nimeni. Nu sunt un monstru al Regelui: sunt un om care și-a păstrat mintea. Dar un cavaler își măsoară sabia doar cu cei pe măsura lui.",
+          "choices": [
+            { "text": "Vreau să mă lupt cu tine, Valerius.", "action": "fight:Valerius", "minLevel": 7, "tooWeak": "weak" },
+            { "text": "Spune-mi mai multe despre tine.", "next": "story" },
+            { "text": "Altă dată.", "next": null }
+          ]
+        },
+        "story": {
+          "text": "Am apărat Eldoria când blestemul era încă un zvon. Cine mă doboară primește Platoșa Amintirii: o rună care îți ridică un scut la fiecare tură. Vino când ai nivelul 7 și te voi aștepta aici.",
+          "next": "greet"
+        },
+        "weak": {
+          "text": "Nu ești încă pregătit, {name}. Revino la nivelul 7 și atunci ne încercăm sabia și vraja.",
+          "next": "greet"
+        },
+        "defeated": {
+          "text": "M-ai învins cu cinste, {name}. Platoșa Amintirii e a ta: poartă-o bine. Eldoria are încă un apărător."
+        }
+      }
     }
   ]
 }
+

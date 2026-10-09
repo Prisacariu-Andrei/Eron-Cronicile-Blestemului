@@ -1,5 +1,5 @@
 {
-  "_help": "Toate runele jocului. slots = câte rune poate purta Eron odată; bagSize = câte rune poate avea în total. story: true = obiect de poveste (nu se echipează, nu ocupă slot), grantsAbilities: true = cine o are poate folosi abilitățile (progression.json). start: true = o primești de la începutul jocului, bound: true = nu se poate vinde. Fiecare rună: id (unic), name, description, glyph (flame|shield|heart|drop|fang), color (#RRGGBB), rarity (Comună|Rară|Epică), price (cumpărare; vânzarea = price * sellRatio din economy.json), buffs {damage, maxLife, turnShield, battleHeal}, drops {numeInamic: șansă 0..1} (numele dinaintea virgulei, ca în economy.json). Magazin: adaugă \"rune:<id>\" în shop.stock al unui negustor din npcs.json.",
+  "_help": "Toate runele jocului. slots = câte rune poate purta Eron odată; bagSize = câte rune poate avea în total. story: true = obiect de poveste (nu se echipează, nu ocupă slot), grantsAbilities: true = cine o are poate folosi abilitățile (progression.json). start: true = o primești de la începutul jocului, bound: true = nu se poate vinde (runele de boss sunt legate). Fiecare rună: id (unic), name, description, glyph (flame|shield|heart|drop|fang), color (#RRGGBB), rarity (Comună|Rară|Epică), price (cumpărare; vânzarea = price * sellRatio din economy.json), buffs {damage, maxLife, turnShield, battleHeal}, drops {numeInamic: șansă 0..1} (numele dinaintea virgulei, ca în economy.json). Magazin: adaugă \"rune:<id>\" în shop.stock al unui negustor din npcs.json.",
 
   "slots": 3,
   "bagSize": 12,
@@ -13,10 +13,17 @@
       "drops": {}
     },
     {
-      "id": "strajer", "name": "Runa Străjerului", "glyph": "shield", "color": "#5FB4FF", "rarity": "Rară", "price": 120,
+      "id": "platosa", "name": "Platoșa Amintirii", "glyph": "shield", "color": "#D8BE6A", "rarity": "Epică", "price": 0, "bound": true,
+      "description": "Platoșa lui Valerius, cavalerul neînvins. La începutul fiecărei ture îți ridică un scut. O rună de boss: nu se poate vinde.",
+      "buffs": { "turnShield": 3 },
+      "drops": { "Valerius": 1.0 }
+    },
+    {
+      "id": "strajer"
+, "name": "Runa Străjerului", "glyph": "shield", "color": "#5FB4FF", "rarity": "Rară", "price": 120,
       "description": "Gărzile de Fier o poartă pe scuturi. La începutul fiecărei ture primești armură.",
       "buffs": { "turnShield": 3 },
-      "drops": { "Trol de Elită": 0.30, "Valerius": 1.0 }
+      "drops": { "Trol de Elită": 0.30 }
     },
     {
       "id": "viata", "name": "Runa Vieții", "glyph": "heart", "color": "#E8506A", "rarity": "Comună", "price": 80,
@@ -31,7 +38,7 @@
       "drops": { "Cioara": 0.08, "Lup de Elită": 0.15 }
     },
     {
-      "id": "fenris", "name": "Runa lui Fenris", "glyph": "fang", "color": "#DDE8F5", "rarity": "Epică", "price": 200,
+      "id": "fenris", "name": "Runa lui Fenris", "glyph": "fang", "color": "#DDE8F5", "rarity": "Epică", "price": 200, "bound": true,
       "description": "Colțul lupului cel alb. Atacurile tale mușcă mai adânc, iar pielea ți se întărește.",
       "buffs": { "damage": 3, "maxLife": 5 },
       "drops": { "Fenris cel Alb": 1.0 }

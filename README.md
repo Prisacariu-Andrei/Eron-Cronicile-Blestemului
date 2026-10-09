@@ -96,6 +96,19 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
 
 **Aliat nou:** adaugă un obiect în `allies` din `allies.json` (inamicul din `recruitFrom` trebuie să existe în `EnemyFactory`).
 
+## Inamici în grup, tranziții între zone
+
+- **`res/Data/enemies.json`** — `groups` (cu cât sunt mai mulți inamici în luptă, cu atât lovesc mai slab: 1 → 100%, 2 → 80%, 3 → 70%, 4 → 60% din damage;
+  la 4 au și mai puțină viață), `types` (inamici noi: rol `brute` / `healer` / `mage` / `guard`, sprite + culoare, viață, damage), `spawns` (câte grupuri apar în
+  fiecare zonă, pe dale libere, la fel la fiecare încărcare) și `safe` (zone fără inamici, în jurul intrărilor). Grupul se alege din `pack` ([min,max] în total) și `with` (membri în plus, ex. un șaman).
+- În luptă: **W/S, săgeți sau TAB** schimbă ținta. Inamicii de sprijin vindecă sau protejează aliații; aliații lui Eron pot proteja/vindeca pe cel mai slab din echipă.
+  Bossii luptă singuri; **Glaciara** e amețită după 5 lovituri primite și invocă a doua rundă un Minion de Zăpadă (60 viață, 15 damage).
+- **Valerius** nu mai atacă: vorbește cu el (E), iar dacă ai nivelul 7 poți alege duelul. Runele boss-ilor (Platoșa Amintirii, Runa lui Fenris) nu se pot vinde.
+- **`res/Data/zones.json`** — titlul și subtitlul din ecranul de tranziție (imagine din hartă + bară de încărcare, `loadingTicks`) și locul unde apare Eron în Eldoria
+  după ce a învins boss-ul unei zone. Boss-ii înfrânți nu mai reapar, iar zona rămâne accesibilă.
+
+**Inamic nou:** adaugă un obiect în `types` din `enemies.json` și, dacă vrei să apară pe hartă, în `spawns`.
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

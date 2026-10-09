@@ -1,0 +1,17 @@
+{
+  "_help": "Ecranul de tranziție dintre zone (titlu + subtitlu + imagine din hartă + bară de încărcare) și ieșirea din zona unui boss. loadingTicks = cât stă ecranul (60 = o secundă). exit = unde apare Eron în Eldoria când iese din zonă după ce a învins boss-ul ei (în fața pasajului): map, zone, col, row.",
+  "loadingTicks": 80,
+  "zones": {
+    "Eldoria":  { "title": "Eldoria",               "subtitle": "Ecoul Speranței" },
+    "Barlogul": { "title": "Bârlogul Lupului cel Bătrân", "subtitle": "Munții de Miazăzi",
+                  "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 34, "row": 39 } },
+    "Abisul":   { "title": "Abisul de Piatră",      "subtitle": "Bezne și Furtuni",
+                  "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 65, "row": 34 } },
+    "Citadela": { "title": "Citadela Haiducilor",   "subtitle": "Veselie Disperată",
+                  "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 11, "row": 12 } },
+    "Tundra":   { "title": "Tundra Tăcerii",        "subtitle": "Labirintul de Gheață",
+                  "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 12, "row": 39 } },
+    "Podul":    { "title": "Podul Umbrelor",        "subtitle": "Drumul spre Castel" },
+    "Castelul": { "title": "Castelul de Obsidian",  "subtitle": "Apogeul Blestemului" }
+  }
+}

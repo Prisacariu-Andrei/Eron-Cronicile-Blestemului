@@ -8,10 +8,12 @@
     "Jean Plesa": "jean",
     "Jean Pleșa": "jean",
     "Jean": "jean",
-    "Glaciara": "glaciara"
+    "Glaciara": "glaciara",
+    "Valerius": "valerius",
+    "Charon": "charon"
   },
 
-  "beast": { "enemy": "Lup", "zone": "Eldoria", "flag": "fiara" },
+  "beast": { "enemy": "Lup Slăbit", "zone": "Eldoria", "flag": "fiara" },
 
   "artifacts": [
     { "id": "colt", "name": "Colțul de Chihlimbar", "flag": "fenris", "color": "#F2A33A",

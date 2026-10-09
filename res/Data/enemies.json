@@ -1,0 +1,67 @@
+{
+  "_help": "Inamici din date și grupurile din luptă. groups.damage / groups.hp: înmulțitori după câți inamici sunt în luptă (index 0 = singur, 1 = doi, 2 = trei, 3+ = patru): cu cât sunt mai mulți, cu atât lovesc mai slab. types: inamici noi (id = numele), role = brute (atacă, uneori se apără) | healer (vindecă/protejează aliații, lovește slab) | mage (atac magic, vindecă un aliat rănit) | guard (protejează aliații). map/fight = sprite-urile (fără .png), tint = culoare peste sprite, hp/dmg = viața și lovitura de bază, passive = stă pe loc și luptă doar dacă te atingi tu de el. spawns: inamici adăugați în fiecare zonă: enemy = numele (din types sau din EnemyFactory), count = câte grupuri, pack = [min,max] inamici în grup (primul e cel de pe hartă), with = membri suplimentari (ex. un șaman). safe = [col,row,rază]: zone în care nu apar inamici (intrări). Pozițiile se aleg o singură dată, pe dale libere, la fel la fiecare încărcare.",
+
+  "groups": {
+    "damage": [1.0, 0.8, 0.7, 0.6],
+    "hp":     [1.0, 1.0, 1.0, 0.83],
+    "maxSize": 4
+  },
+
+  "types": [
+    { "id": "Lup Flămând", "map": "/Enemy/Wolf", "fight": "/Enemy/WolfFight", "tint": "#C9A66B", "hp": 60, "dmg": 10, "role": "brute", "music": "InamiciEldoria" },
+    { "id": "Corb de Ceață", "map": "/Enemy/Crow", "fight": "/Enemy/CrowFight", "tint": "#9FB4D8", "hp": 35, "dmg": 8, "role": "brute", "music": "InamiciEldoria" },
+    { "id": "Șamanul Haitei", "map": "/Enemy/LupElite", "fight": "/Enemy/LupEliteFight", "tint": "#B08CFF", "hp": 45, "dmg": 6, "role": "healer", "heal": 12, "shield": 9, "music": "InamiciBarlog" },
+    { "id": "Trol Cioplitor", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#9AA0A8", "hp": 75, "dmg": 13, "role": "brute", "mapSize": 1.6, "music": "InamiciAbisul" },
+    { "id": "Șaman de Piatră", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#6FBF73", "hp": 55, "dmg": 8, "role": "healer", "heal": 14, "shield": 10, "mapSize": 1.5, "music": "InamiciAbisul" },
+    { "id": "Haiduc Beat", "map": "/Enemy/JeanPlesa", "fight": "/Enemy/JeanPlesa", "tint": "#B5655A", "hp": 65, "dmg": 12, "role": "brute", "passive": true, "mapSize": 1.2, "music": "InamiciCitadela" },
+    { "id": "Haiduc cu Arcul", "map": "/Enemy/JeanPlesa", "fight": "/Enemy/JeanPlesa", "tint": "#5A8FB5", "hp": 50, "dmg": 14, "role": "mage", "heal": 10, "passive": true, "mapSize": 1.2, "music": "InamiciCitadela" },
+    { "id": "Lup de Gheață", "map": "/Enemy/Wolf", "fight": "/Enemy/WolfFight", "tint": "#A8D8FF", "hp": 65, "dmg": 11, "role": "brute", "music": "InamiciTundra" },
+    { "id": "Vrăjitor de Brumă", "map": "/Enemy/Crow", "fight": "/Enemy/CrowFight", "tint": "#7FE3FF", "hp": 50, "dmg": 13, "role": "mage", "heal": 12, "music": "InamiciTundra" },
+    { "id": "Umbră Rătăcitoare", "map": "/Enemy/Crow", "fight": "/Enemy/CrowFight", "tint": "#6A5A8A", "hp": 55, "dmg": 13, "role": "brute", "music": "InamiciPodul" },
+    { "id": "Cavaler Blestemat", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#7A3030", "hp": 85, "dmg": 16, "role": "brute", "mapSize": 1.6, "music": "InamiciCastelull" },
+    { "id": "Străjer de Obsidian", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#403A55", "hp": 70, "dmg": 10, "role": "guard", "shield": 14, "mapSize": 1.6, "music": "InamiciCastelull" },
+    { "id": "Minion de Zăpadă", "map": "/Enemy/GlaciaraPhaseOne", "fight": "/Enemy/GlaciaraPhaseOne", "tint": "#BFEFFF", "hp": 60, "dmg": 15, "role": "mage", "heal": 15, "battleSize": 0.7, "music": "InamiciTundra" }
+  ],
+
+  "spawns": {
+    "Eldoria": [
+      { "enemy": "Lup Flămând", "count": 3, "pack": [1, 3] },
+      { "enemy": "Corb de Ceață", "count": 2, "pack": [2, 3] }
+    ],
+    "Barlogul": [
+      { "enemy": "Lup", "count": 2, "pack": [2, 3] },
+      { "enemy": "Lup de Elită", "count": 1, "pack": [2, 2], "with": ["Șamanul Haitei"] },
+      { "enemy": "Cioara", "count": 1, "pack": [3, 4] }
+    ],
+    "Abisul": [
+      { "enemy": "Trol Cioplitor", "count": 2, "pack": [2, 3] },
+      { "enemy": "Trol Cioplitor", "count": 1, "pack": [1, 1], "with": ["Șaman de Piatră"] }
+    ],
+    "Citadela": [
+      { "enemy": "Haiduc Beat", "count": 3, "pack": [1, 2] },
+      { "enemy": "Haiduc cu Arcul", "count": 2, "pack": [1, 1], "with": ["Haiduc Beat"] }
+    ],
+    "Tundra": [
+      { "enemy": "Lup de Gheață", "count": 3, "pack": [2, 3] },
+      { "enemy": "Vrăjitor de Brumă", "count": 2, "pack": [1, 1], "with": ["Lup de Gheață", "Lup de Gheață"] }
+    ],
+    "Podul": [
+      { "enemy": "Umbră Rătăcitoare", "count": 3, "pack": [2, 3] },
+      { "enemy": "Cavaler Blestemat", "count": 2, "pack": [1, 2] }
+    ],
+    "Castelul": [
+      { "enemy": "Cavaler Blestemat", "count": 3, "pack": [2, 3] },
+      { "enemy": "Cavaler Blestemat", "count": 2, "pack": [1, 1], "with": ["Străjer de Obsidian"] }
+    ]
+  },
+
+  "safe": {
+    "Eldoria": [[12, 12, 10], [34, 39, 6], [65, 34, 6], [11, 12, 6], [12, 39, 6], [39, 5, 6], [15, 10, 5]],
+    "Barlogul": [[47, 14, 10]],
+    "Abisul": [[13, 18, 10]],
+    "Citadela": [[66, 43, 10]],
+    "Tundra": [[87, 60, 10]],
+    "Podul": [[5, 24, 10]],
+    "Castelul": [[6, 35, 12]]
+  }
+}

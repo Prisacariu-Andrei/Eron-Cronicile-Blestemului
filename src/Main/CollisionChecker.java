@@ -125,9 +125,7 @@ public class CollisionChecker {
         // --- LOGICĂ DECLANȘARE LUPTĂ (Modificată pentru State Pattern) ---
         if (distance <= activationRange && entity instanceof Enemy e) {
             if (e.alive && !(gp.getCurrentState() instanceof BattleState)) {
-                gp.player.currentEnemy = e;
-                gp.changeState(new BattleState(gp)); // Schimbare directă de stare prin interfață
-                gp.player.startBattle();
+                gp.player.beginBattle(e); // lupta cu inamicul și grupul lui
             }
         }
 

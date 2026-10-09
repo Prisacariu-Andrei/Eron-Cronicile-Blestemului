@@ -3,6 +3,8 @@ package Entity.Player;
 import Entity.Entity;
 import Entity.StatusEffect;
 import Entity.Inamici.Enemy;
+import Entity.Inamici.EnemyFactory;
+import Entity.Inamici.Groups;
 import Entity.Items.Card;
 import Entity.Items.Rune;
 import Entity.Runes.RuneFactory;
@@ -12,6 +14,7 @@ import Main.GameFeel;
 import Main.GamePanel;
 import Main.KeyHandler;
 import Main.SoundManager;
+import Main.ZoneInfo;
 import Main.Exception.GameExceptionHandler;
 import Observer.Observer;
 import Observer.DamagePopUp;
@@ -135,7 +138,68 @@ public class Player extends Entity {
     public int maxMana = 3;
     public int currentMana;
     public boolean isPlayerTurn = true;
-    public Enemy currentEnemy;
+    public Enemy currentEnemy;                              // ținta curentă (cea lovită de cărți)
+    public final List<Enemy> team = new ArrayList<>();      // toți inamicii din luptă (inclusiv ținta)
+    public double enemyDmgScale = 1.0;                      // cu cât mai mulți inamici, cu atât lovesc mai slab (enemies.json)
+
+    /** Începe lupta cu inamicul de pe hartă și grupul lui (enemies.json -> packExtras). */
+    public void beginBattle(Enemy first) {
+        team.clear();
+        currentEnemy = first;
+        gp.changeState(new BattleState(gp));
+        startBattle();
+    }
+
+    /** Adună grupul dacă lupta a început fără beginBattle (doar ținta e în echipă). */
+    private void ensureTeam() {
+        if (currentEnemy == null) { team.clear(); enemyDmgScale = 1.0; return; }
+        if (team.contains(currentEnemy)) return;
+        team.clear();
+        team.add(currentEnemy);
+        int cap = Groups.maxSize();
+        for (String id : currentEnemy.packExtras) {
+            if (team.size() >= cap) break;
+            Enemy e = EnemyFactory.createEnemy(id, gp, 0, 0);
+            if (e == null) continue;
+            if (e.battleBackground == null) e.battleBackground = currentEnemy.battleBackground;
+            team.add(e);
+        }
+        int n = team.size();
+        enemyDmgScale = Groups.damageScale(n);
+        double hs = Groups.hpScale(n);
+        if (hs != 1.0) for (Enemy e : team) { e.maxLife = (int) Math.round(e.maxLife * hs); e.life = e.maxLife; }
+    }
+
+    public List<Enemy> livingEnemies() {
+        List<Enemy> out = new ArrayList<>();
+        for (Enemy e : team) if (e.alive) out.add(e);
+        if (team.isEmpty() && currentEnemy != null && currentEnemy.alive) out.add(currentEnemy);
+        return out;
+    }
+
+    /** Dacă ținta a căzut dar mai sunt alții în viață, trecem pe următorul. */
+    public void retarget() {
+        if (currentEnemy != null && currentEnemy.alive) return;
+        for (Enemy e : team) if (e.alive) { currentEnemy = e; return; }
+    }
+
+    /** W/S, săgeți sau Tab: schimbă ținta între inamicii în viață. */
+    public void cycleTarget(int dir) {
+        List<Enemy> alive = livingEnemies();
+        if (alive.size() < 2) return;
+        int i = alive.indexOf(currentEnemy);
+        currentEnemy = alive.get(Math.floorMod(i + dir, alive.size()));
+        SoundManager.getInstance().playSE("click");
+    }
+
+    /** Fals cât timp mai e un inamic în viață; altfel câștigă lupta. */
+    public boolean checkVictory() {
+        if (currentEnemy == null) return false;
+        retarget();
+        if (!livingEnemies().isEmpty()) return false;
+        winBattle();
+        return true;
+    }
 
     public Card lastCardPlayed = null;
     public int voltCount = 0;
@@ -363,9 +427,7 @@ public class Player extends Entity {
 
                     inventory.discard(inventory.hand.remove(index));
 
-                    if (currentEnemy != null && currentEnemy.life <= 0 && !currentEnemy.alive) {
-                        winBattle();
-                    }
+                    checkVictory();
 
                     if (gp.battleUI.commandNum >= inventory.hand.size() && gp.battleUI.commandNum > 0) {
                         gp.battleUI.commandNum = inventory.hand.size() - 1;
@@ -438,18 +500,17 @@ public class Player extends Entity {
         gp.fx.abilityCast(ability.color.getRGB() & 0xFFFFFF, hitsEnemy);
         notifyObservers();
 
-        if (currentEnemy != null && currentEnemy.life <= 0 && !currentEnemy.alive) winBattle();
+        checkVictory();
     }
 
     public void endTurn() {
         isPlayerTurn = false;
         isInvulnerable = false;
 
-        if (currentEnemy != null) {
-            String enemyName = currentEnemy.name;
-            if (!"Valerius, Cavalerul Neinvins".equals(enemyName)) {
-                currentEnemy.shield = 0;
-            }
+        List<Enemy> foes = new ArrayList<>(team);
+        if (foes.isEmpty() && currentEnemy != null) foes.add(currentEnemy);
+        for (Enemy f : foes) {
+            if (!"Valerius, Cavalerul Neinvins".equals(f.name)) f.shield = 0;
         }
 
         while(!inventory.hand.isEmpty()) {
@@ -458,37 +519,49 @@ public class Player extends Entity {
         gp.battleUI.commandNum = 0;
 
         if (currentEnemy != null) {
+            for (Enemy f : foes) f.updateStatuses();   // arsuri, otravă
+            if (victoryAfter(800)) return;
 
-            currentEnemy.updateStatuses();
-
-            if (currentEnemy.life <= 0 && !currentEnemy.alive) {
-                Timer deathTimer = new Timer(800, e -> { winBattle(); ((Timer)e.getSource()).stop(); });
-                deathTimer.setRepeats(false); deathTimer.start();
-                return;
-            }
-
-            // Tura aliaților (allies.json): acționează după Eron, înainte de inamic
+            // Tura aliaților (allies.json): acționează după Eron, înainte de inamici
+            retarget();
             gp.party.actAll(this, currentEnemy);
-            if (currentEnemy.life <= 0 && !currentEnemy.alive) {
-                Timer deathTimer = new Timer(900, e -> { winBattle(); ((Timer)e.getSource()).stop(); });
-                deathTimer.setRepeats(false); deathTimer.start();
-                return;
-            }
+            if (victoryAfter(900)) return;
         }
 
         gp.battleUI.announceTurn("TURNUL INAMICULUI");
 
         Timer enemyTurnTimer = new Timer(1500, e -> {
-            if (currentEnemy != null && currentEnemy.alive) {
-                currentEnemy.executeIntent(this);
-                finishEnemyTurn();
-            }
+            enemyActs(foes, 0);
             ((Timer)e.getSource()).stop();
         });
         enemyTurnTimer.setRepeats(false);
         enemyTurnTimer.start();
 
         this.currentMana = this.maxMana;
+    }
+
+    /** Dacă toți inamicii au căzut, câștigă lupta după o scurtă pauză. */
+    private boolean victoryAfter(int delayMs) {
+        if (currentEnemy == null) return false;
+        retarget();
+        if (!livingEnemies().isEmpty()) return false;
+        Timer deathTimer = new Timer(delayMs, ev -> { winBattle(); ((Timer)ev.getSource()).stop(); });
+        deathTimer.setRepeats(false);
+        deathTimer.start();
+        return true;
+    }
+
+    /** Fiecare inamic în viață își joacă intenția, pe rând (cu o mică pauză între ei). */
+    private void enemyActs(List<Enemy> order, int i) {
+        if (life <= 0 || currentEnemy == null && team.isEmpty()) return;
+        if (i >= order.size()) { finishEnemyTurn(); return; }
+        Enemy e = order.get(i);
+        boolean acted = e.alive;
+        if (acted) e.executeIntent(this);
+        if (life <= 0) return;                       // Eron a căzut: damagePlayer a trecut deja pe ecranul de moarte
+        Timer next = new Timer(acted ? 650 : 1, ev -> { enemyActs(order, i + 1); ((Timer)ev.getSource()).stop(); });
+        next.setRepeats(false);
+        next.start();
     }
 
     private void finishEnemyTurn() {
@@ -524,9 +597,9 @@ public class Player extends Entity {
         });
         t2.start();
 
-        if (currentEnemy != null && currentEnemy.stunTurns > 0) {
-            currentEnemy.stunTurns -= 1;
-        }
+        for (Enemy f : team) if (f.stunTurns > 0) f.stunTurns -= 1;
+        if (team.isEmpty() && currentEnemy != null && currentEnemy.stunTurns > 0) currentEnemy.stunTurns -= 1;
+        retarget();
     }
 
     public void damagePlayer(int amount) {
@@ -536,6 +609,9 @@ public class Player extends Entity {
         }
 
         boolean inBattle = gp.getCurrentState() instanceof BattleState;
+
+        // Cu cât sunt mai mulți inamici în luptă, cu atât lovesc mai slab (enemies.json -> groups)
+        if (inBattle && amount > 0 && enemyDmgScale != 1.0) amount = Math.max(1, (int) Math.round(amount * enemyDmgScale));
 
         // Cu un aliat în viață, o parte din lovituri ajung la el (allies.json -> party.targetChance)
         if (inBattle && gp.party.redirectHit(amount)) return;
@@ -569,6 +645,7 @@ public class Player extends Entity {
             if (currentEnemy != null) {
                 currentEnemy = null;
             }
+            team.clear();
 
             gp.changeState(new DeathState(gp));
         }
@@ -598,9 +675,7 @@ public class Player extends Entity {
                         gp.enemy[i].worldY + gp.enemy[i].hitBox.y,
                         gp.enemy[i].hitBox.width, gp.enemy[i].hitBox.height);
                 if (pRect.intersects(eRect)) {
-                    this.currentEnemy = gp.enemy[i];
-                    gp.changeState(new BattleState(gp));
-                    startBattle();
+                    beginBattle(gp.enemy[i]);
                     break;
                 }
             }
@@ -641,34 +716,55 @@ public class Player extends Entity {
         activeStatuses.clear();
         gp.party.startBattle();
         this.inventory.prepareForBattle();
-        if (currentEnemy != null) currentEnemy.setNextIntent();
+        ensureTeam();
+        for (Enemy f : team) f.setNextIntent();
+        if (team.isEmpty() && currentEnemy != null) currentEnemy.setNextIntent();
     }
 
     public void winBattle() {
         this.life = Math.min(this.life + 5 + runeSum("battleHeal"), maxLife);
         notifyObservers();
 
-        if (currentEnemy != null) {
+        List<Enemy> defeated = new ArrayList<>(team);
+        if (defeated.isEmpty() && currentEnemy != null) defeated.add(currentEnemy);
+        team.clear();
+        enemyDmgScale = 1.0;
+        lastXpReward = 0;
+        lastCoinReward = 0;
+        lastRuneDrop = null;
+        lastKeyItem = null;
+        for (Enemy en : defeated) {
+            en.alive = false;
+            currentEnemy = en;
+            if (!rewardFor()) return;     // finalul jocului (Malakor) a preluat ecranul
+        }
+        currentEnemy = null;
+        finishWin();
+    }
+
+    /** Recompensele pentru inamicul currentEnemy: XP, monede, rune, progresul poveștii și al misiunilor. */
+    private boolean rewardFor() {
+        {
             // Folosim doar partea dinaintea virgulei: "Feldgug, Regele Trol" -> "Feldgug",
             // "Glaciara, Stăpânul Inelului de Gheață" -> "Glaciara" etc., ca să se potrivească cu case-urile de mai jos
             String inamicNume = currentEnemy.name.split(",")[0].trim();
 
             // XP (progression.json -> enemyXp) și progresul misiunilor de tip "învinge"
-            lastXpReward = gp.progression.enemyXp(inamicNume);
+            int xpGain = gp.progression.enemyXp(inamicNume);
+            lastXpReward += xpGain;
             gp.questLog.onKill(inamicNume);
-            gp.progression.addXp(lastXpReward);
+            gp.progression.addXp(xpGain);
 
             // Monede pentru inamicul învins (cât se primește: economy.json -> enemyDrops)
-            lastCoinReward = Main.Economy.get().enemyDrop(inamicNume);
-            if (lastCoinReward > 0) {
-                addCoins(lastCoinReward);
-                gp.ui.message = "+" + lastCoinReward + " monede";
+            int coinDrop = Main.Economy.get().enemyDrop(inamicNume);
+            lastCoinReward += coinDrop;
+            if (coinDrop > 0) {
+                addCoins(coinDrop);
+                gp.ui.message = "+" + coinDrop + " monede";
                 gp.ui.messageOn = true;
             }
 
             // Rune căzute de la inamic (runes.json -> drops)
-            lastRuneDrop = null;
-            lastKeyItem = null;
             String dropId = RuneFactory.rollDrop(inamicNume, inventory::ownsRune);
             if (dropId != null && giveRune(RuneFactory.createRune(dropId))) {
                 lastRuneDrop = inventory.runes.get(inventory.runes.size() - 1);
@@ -680,7 +776,9 @@ public class Player extends Entity {
             gp.party.onEnemyDefeated(inamicNume); // boss-ii care recrutează un aliat (scena se joacă după recompensă)
 
             // Progresul poveștii: boss-ul învins deschide pasajul spre zona următoare și dă artefactul
+            boolean areaBoss = gp.story.isBoss(inamicNume) && !gp.story.has(gp.story.flagOf(inamicNume)); // primul triumf asupra lui
             var artifact = gp.story.onEnemyDefeated(inamicNume);
+            if (areaBoss && ZoneInfo.exitOf(gp.tileM.currentZone) != null) gp.pendingExitZone = gp.tileM.currentZone;
             if (artifact != null) {
                 gp.ui.message = "Obiect cheie: " + artifact.name + "!";
                 gp.ui.messageOn = true;
@@ -807,7 +905,7 @@ public class Player extends Entity {
                     gp.leaderboardUI.checkAndSaveNewScore(finalTime, this.name);
                     gp.creditsUI.resetPosition();
                     gp.changeState(new CreditsState(gp));
-                    return;
+                    return false;
             }
 
             // Decomentează și folosește dacă vrei ca Valerius să completeze un Side Quest la moarte
@@ -818,6 +916,10 @@ public class Player extends Entity {
             currentEnemy.alive = false;
             currentEnemy = null;
         }
+        return true;
+    }
+
+    private void finishWin() {
         activeStatuses.clear();      // nicio vulnerabilitate rămasă din luptă
         gp.party.afterBattle();      // aliații se refac parțial (allies.json)
         this.inventory.resetDeckAfterBattle();

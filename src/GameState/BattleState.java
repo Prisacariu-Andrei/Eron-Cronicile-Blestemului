@@ -22,7 +22,8 @@ public class BattleState implements GameState {
 
         // Popup-urile se actualizează acum în GamePanel.update(), pentru toate stările
 
-        if (gp.player.currentEnemy != null && !gp.player.currentEnemy.alive) {
+        gp.player.retarget();
+        if (gp.player.currentEnemy != null && gp.player.livingEnemies().isEmpty()) {
             gp.player.winBattle();
             gp.changeState(new RewardState(gp));
         }

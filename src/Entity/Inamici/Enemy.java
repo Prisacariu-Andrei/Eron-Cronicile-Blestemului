@@ -25,6 +25,20 @@ public abstract class Enemy extends Entity {
     public int intentValue;
     public int attackDamage;
 
+    // Grup de luptă (enemies.json): membrii suplimentari care luptă alături de acesta când te atingi de el
+    public java.util.List<String> packExtras = new java.util.ArrayList<>();
+    public int battleCenterX = -1; // pus de BattleUI la desenare, ca să apară popup-urile deasupra inamicului potrivit
+
+    protected int popX() { return battleCenterX > 0 ? battleCenterX : gp.screenWidth - gp.tileSize * 6; }
+
+    /** Inamicii în viață din aceeași luptă (el însuși inclus). */
+    public java.util.List<Enemy> teamMates() {
+        java.util.List<Enemy> out = new java.util.ArrayList<>();
+        for (Enemy e : gp.player.team) if (e.alive) out.add(e);
+        if (!out.contains(this) && alive) out.add(this);
+        return out;
+    }
+
     // Logică de Mișcare & AI
     protected int startWorldX, startWorldY;
     protected int actionLockCounter = 0;
@@ -211,11 +225,11 @@ public abstract class Enemy extends Entity {
             int remaining = finalDamage - shield;
             shield = 0;
             life -= remaining;
-            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + remaining, Color.RED));
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "-" + remaining, Color.RED));
             hitFeedback(remaining, false);
         } else {
             shield -= finalDamage;
-            gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "-" + finalDamage + " BLOCK", Color.GRAY));
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "-" + finalDamage + " BLOCK", Color.GRAY));
             hitFeedback(0, true);
         }
 
@@ -228,12 +242,12 @@ public abstract class Enemy extends Entity {
 
     public void heal(int amount) {
         life = Math.min(life + amount, maxLife);
-        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "+" + amount, Color.GREEN));
+        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "+" + amount, Color.GREEN));
     }
 
     public void defend(int amount) {
         shield += amount;
-        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "+" + amount, Color.CYAN));
+        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "+" + amount, Color.CYAN));
     }
 
     public void executeIntent(Player player) {

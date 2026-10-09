@@ -2,6 +2,7 @@ package Entity.NPC;
 
 import GameState.PlayState;
 import GameState.ShopState;
+import Entity.Inamici.EnemyFactory;
 import Main.GamePanel;
 import Main.Json;
 import Main.Exception.GameExceptionHandler;
@@ -25,7 +26,7 @@ import java.util.Random;
  * de predat sau în desfășurare, aceasta are prioritate față de dialogul lui obișnuit.
  */
 public class DataNPC extends NPC {
-    private record Choice(String text, String next, String action) {}
+    private record Choice(String text, String next, String action, int minLevel, String tooWeak) {}
     private record Node(String text, List<Choice> choices, String next, String action) {}
 
     private static final Random RNG = new Random();
@@ -43,7 +44,7 @@ public class DataNPC extends NPC {
 
     // dialogue / merchant / quest
     private final Map<String, Node> nodes = new LinkedHashMap<>();
-    private final String startNode;
+    private final String startNode, afterFlag, afterStart;
     private String currentNode;
 
     // merchant
@@ -69,11 +70,14 @@ public class DataNPC extends NPC {
             List<Choice> choices = new ArrayList<>();
             for (Object c : Json.list(n.get("choices"))) {
                 Map<String, Object> cm = Json.map(c);
-                choices.add(new Choice(Json.str(cm.get("text"), "..."), Json.str(cm.get("next"), null), Json.str(cm.get("action"), null)));
+                choices.add(new Choice(Json.str(cm.get("text"), "..."), Json.str(cm.get("next"), null), Json.str(cm.get("action"), null),
+                        Json.integer(cm.get("minLevel"), 0), Json.str(cm.get("tooWeak"), null)));
             }
             nodes.put(e.getKey(), new Node(Json.str(n.get("text"), "..."), choices, Json.str(n.get("next"), null), Json.str(n.get("action"), null)));
         }
         this.startNode = Json.str(def.get("start"), null);
+        this.afterFlag = Json.str(def.get("afterFlag"), null);   // după ce boss-ul cu acest flag e învins, conversația începe în afterStart
+        this.afterStart = Json.str(def.get("afterStart"), null);
 
         for (Object o : Json.list(Json.map(def.get("shop")).get("stock"))) stock.add(String.valueOf(o));
 
@@ -164,10 +168,9 @@ public class DataNPC extends NPC {
             // dialogul obișnuit
             if ("simple".equals(type)) {
                 showText(nextLine(), null);
-            } else if (startNode == null || !nodes.containsKey(startNode)) {
-                end();
             } else {
-                goTo(startNode);
+                String start = afterFlag != null && afterStart != null && gp.story.has(afterFlag) ? afterStart : startNode;
+                if (start == null || !nodes.containsKey(start)) end(); else goTo(start);
             }
             return;
         }
@@ -204,6 +207,17 @@ public class DataNPC extends NPC {
         if (n == null || index < 0 || index >= n.choices().size()) return;
         Choice c = n.choices().get(index);
         boolean opensShop = "shop".equals(c.action());
+        if (c.action() != null && c.action().startsWith("fight:")) { // luptă cu un inamic anume, dacă ai nivelul cerut
+            if (gp.progression.level < c.minLevel()) {
+                if (c.tooWeak() != null && nodes.containsKey(c.tooWeak())) goTo(c.tooWeak()); else end();
+                return;
+            }
+            String enemyId = c.action().substring(6);
+            end();
+            var foe = EnemyFactory.createEnemy(enemyId, gp, worldX, worldY);
+            if (foe != null) gp.player.beginBattle(foe);
+            return;
+        }
         if (c.action() != null && !opensShop) runAction(c.action());
         if (opensShop) { end(); openShop(); return; }
         if (c.next() != null && nodes.containsKey(c.next())) goTo(c.next());

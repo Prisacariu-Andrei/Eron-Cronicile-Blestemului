@@ -60,10 +60,59 @@ public class BattleUI {
     public int groundY() { return (int)(gp.screenHeight * 0.87); }
     public int playerCenterX() { return (int)(gp.screenWidth * 0.08) + (int)(gp.screenWidth * 0.10) / 2; }
     public int playerCenterY() { return groundY() - (int)(gp.screenWidth * 0.10); }
-    private int enemySize() {
-        return gp.player.currentEnemy == null ? 0 : (int)(gp.screenWidth * 0.20 * gp.player.currentEnemy.battleSize);
+    /** Un inamic așezat pe ecran: x (stânga), dimensiunea sprite-ului. */
+    private static final class Slot {
+        Enemy e; int x, size;
+        int cx() { return x + size / 2; }
     }
-    public int enemyCenterX() { return (int)(gp.screenWidth * 0.9) - enemySize() / 2; }
+
+    /** Așezarea inamicilor în luptă: unul singur ca înainte, mai mulți se micșorează și se înșiră de la dreapta spre stânga. */
+    private java.util.List<Slot> slots() {
+        java.util.List<Slot> out = new ArrayList<>();
+        var p = gp.player;
+        java.util.List<Enemy> alive = new ArrayList<>();
+        for (Enemy e : p.team) if (e.alive) alive.add(e);
+        if (p.team.isEmpty() && p.currentEnemy != null) alive.add(p.currentEnemy);
+        int n = alive.size();
+        if (n == 0) return out;
+
+        double k = n == 1 ? 1.0 : n == 2 ? 0.85 : n == 3 ? 0.7 : 0.58;
+        int gap = (int) (gp.screenWidth * 0.01);
+        int[] sizes = new int[n];
+        int total = gap * (n - 1);
+        for (int i = 0; i < n; i++) { sizes[i] = (int) (gp.screenWidth * 0.20 * alive.get(i).battleSize * k); total += sizes[i]; }
+        int avail = (int) (gp.screenWidth * 0.55);
+        if (n > 1 && total > avail) {
+            double shrink = (double) (avail - gap * (n - 1)) / (total - gap * (n - 1));
+            total = gap * (n - 1);
+            for (int i = 0; i < n; i++) { sizes[i] = (int) (sizes[i] * shrink); total += sizes[i]; }
+        }
+        int right = (int) (gp.screenWidth * (n == 1 ? 0.9 : 0.95));
+        for (int i = 0; i < n; i++) {
+            Slot s = new Slot();
+            s.e = alive.get(i);
+            s.size = sizes[i];
+            s.x = right - s.size;
+            right = s.x - gap;
+            s.e.battleCenterX = s.cx();
+            out.add(s);
+        }
+        return out;
+    }
+
+    private Slot slotOf(Enemy e) {
+        for (Slot s : slots()) if (s.e == e) return s;
+        return null;
+    }
+
+    private int enemySize() {
+        Slot s = slotOf(gp.player.currentEnemy);
+        return s == null ? 0 : s.size;
+    }
+    public int enemyCenterX() {
+        Slot s = slotOf(gp.player.currentEnemy);
+        return s == null ? (int) (gp.screenWidth * 0.8) : s.cx();
+    }
     public int enemyCenterY() { return groundY() - enemySize() / 2; }
 
     /**
@@ -126,22 +175,19 @@ public class BattleUI {
             drawFighter(g2, gp.player.fightStand, playerX, groundY, eronWidth, eronHeight, playerHitTimer, 0f);
         }
 
-        // 3. DESENARE INAMIC
-        if (gp.player.currentEnemy != null) {
-            Enemy enemy = gp.player.currentEnemy;
-            int enemySize = (int)(gp.screenWidth * 0.20 * enemy.battleSize);
-
-            if (enemy.fightStand != null) {
-                // Anchored to the right (80%)
-                int enemyX = (int)(gp.screenWidth * 0.9) - enemySize;
-                drawFighter(g2, enemy.fightStand, enemyX, groundY, enemySize, enemySize, enemyHitTimer, 40f);
-            }
+        // 3. DESENARE INAMICI (unul sau o echipă)
+        java.util.List<Slot> slots = slots();
+        for (int i = 0; i < slots.size(); i++) {
+            Slot s = slots.get(i);
+            if (s.e.fightStand == null) continue;
+            boolean target = s.e == gp.player.currentEnemy;
+            drawFighter(g2, s.e.fightStand, s.x, groundY, s.size, s.size, target ? enemyHitTimer : 0, 40f + i * 17f);
         }
 
-        drawAllies(g2, groundY);
         // 4. INTERFAȚĂ (Static methods converted to dynamic)
         drawPlayerStats(g2, groundY);
         drawEnemyStats(g2, groundY);
+        drawTargetHint(g2);
         drawCardHand(g2);
         drawManaPool(g2,groundY);
         drawAbilities(g2);
@@ -253,70 +299,80 @@ public class BattleUI {
     }
 
     private void drawEnemyStats(Graphics2D g2, int groundY) {
-        if (gp.player.currentEnemy == null) return;
-        Enemy enemy = gp.player.currentEnemy;
+        java.util.List<Slot> slots = slots();
+        boolean many = slots.size() > 1;
+        for (Slot s : slots) {
+            Enemy enemy = s.e;
+            int barWidth = many ? Math.max((int) (gp.screenWidth * 0.07), Math.min((int) (gp.screenWidth * 0.10), s.size)) : (int) (gp.screenWidth * 0.10);
+            int barHeight = (int) (gp.screenHeight * (many ? 0.013 : 0.015));
+            int x = s.cx() - barWidth / 2;
+            int y = groundY + (int) (gp.screenHeight * 0.02);
 
-        int enemySize = (int)(gp.screenWidth * 0.1 * enemy.battleSize);
-        int enemyX = (int)(gp.screenWidth * 0.85) - enemySize;
+            g2.setColor(new Color(30, 30, 30, 200));
+            g2.fillRoundRect(x, y, barWidth, barHeight, 8, 8);
 
-        int barWidth = (int)(gp.screenWidth * 0.10);
-        int barHeight = (int)(gp.screenHeight * 0.015);
-        int x = enemyX + (enemySize / 2) - (barWidth / 2);
-        int y = groundY + (int)(gp.screenHeight * 0.02);
+            double hpPercent = (double) enemy.life / enemy.maxLife;
+            int hpWidth = (int) (barWidth * Math.max(0, Math.min(1, hpPercent)));
+            g2.setColor(new Color(231, 76, 60));
+            g2.fillRoundRect(x, y, hpWidth, barHeight, 8, 8);
 
-        // Fundalul barei
-        g2.setColor(new Color(30, 30, 30, 200));
-        g2.fillRoundRect(x, y, barWidth, barHeight, 8, 8);
+            if (enemy.shield > 0) {
+                double shieldPercent = (double) enemy.shield / enemy.maxLife;
+                int shieldWidth = (int) (barWidth * Math.max(0, Math.min(1, shieldPercent)));
+                g2.setColor(new Color(41, 128, 185, 210));
+                g2.fillRoundRect(x, y, Math.min(barWidth, shieldWidth), barHeight, 8, 8);
+            }
 
-        // HP Bar (Roșu)
-        double hpPercent = (double) enemy.life / enemy.maxLife;
-        int hpWidth = (int) (barWidth * Math.max(0, Math.min(1, hpPercent)));
-        g2.setColor(new Color(231, 76, 60));
-        g2.fillRoundRect(x, y, hpWidth, barHeight, 8, 8);
+            boolean target = enemy == gp.player.currentEnemy;
+            g2.setColor(target && many ? new Color(255, 215, 0) : Color.WHITE);
+            g2.setStroke(new BasicStroke(target && many ? 3f : 2f));
+            g2.drawRoundRect(x, y, barWidth, barHeight, 8, 8);
 
-        // ★ MODIFICARE: Randare SCUT pe bara inamicului
-        if (enemy.shield > 0) {
-            double shieldPercent = (double) enemy.shield / enemy.maxLife;
-            int shieldWidth = (int) (barWidth * Math.max(0, Math.min(1, shieldPercent)));
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / (many ? 135f : 115f)));
+            g2.setColor(target && many ? new Color(255, 230, 120) : Color.WHITE);
+            String nm = enemy.name.toUpperCase();
+            if (many) nm = nm.split(",")[0];
+            g2.drawString(nm, x, y - (int) (gp.screenHeight * 0.015));
 
-            g2.setColor(new Color(41, 128, 185, 210)); // Albastru scut corporatist
-            g2.fillRoundRect(x, y, Math.min(barWidth, shieldWidth), barHeight, 8, 8);
+            String hpText = enemy.life + " / " + enemy.maxLife;
+            if (enemy.shield > 0) hpText += " (+" + enemy.shield + ")";
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 130f));
+            g2.setColor(Color.WHITE);
+            g2.drawString(hpText, x + (barWidth / 2) - (g2.getFontMetrics().stringWidth(hpText) / 2), y + barHeight + (int) (gp.screenHeight * 0.02));
+
+            drawEntityStatuses(g2, enemy, x, y + barHeight + (int) (gp.screenHeight * 0.04));
         }
+    }
 
-        g2.setColor(Color.WHITE);
-        g2.setStroke(new BasicStroke(2f));
-        g2.drawRoundRect(x, y, barWidth, barHeight, 8, 8);
-
-        // Numele inamicului
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 115f));
-        g2.drawString(enemy.name.toUpperCase(), x, y - (int)(gp.screenHeight * 0.015));
-
-        // HP + Shield Text sub bară
-        String hpText = enemy.life + " / " + enemy.maxLife;
-        if (enemy.shield > 0) hpText += " (+🛡️ " + enemy.shield + ")";
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 130f));
-        g2.drawString(hpText, x + (barWidth / 2) - (g2.getFontMetrics().stringWidth(hpText) / 2), y + barHeight + (int)(gp.screenHeight * 0.02));
-
-        drawEntityStatuses(g2, enemy, x, y + barHeight + (int)(gp.screenHeight * 0.04));
+    /** Săgeata de deasupra țintei și indicația de tastă, doar când sunt mai mulți inamici. */
+    private void drawTargetHint(Graphics2D g2) {
+        java.util.List<Slot> slots = slots();
+        if (slots.size() < 2) return;
+        int groundY = groundY();
+        for (Slot s : slots) {
+            if (s.e != gp.player.currentEnemy) continue;
+            int ay = groundY - s.size - (int) (gp.screenHeight * 0.075) + Math.round((float) Math.sin(gp.fx.ticks * 0.18) * 4f);
+            int cx = s.cx(), w = (int) (gp.screenWidth * 0.012);
+            g2.setColor(new Color(255, 215, 0));
+            g2.fillPolygon(new int[]{cx - w, cx + w, cx}, new int[]{ay - w, ay - w, ay + w}, 3);
+        }
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, gp.screenWidth / 120f));
+        g2.setColor(new Color(220, 220, 235));
+        String hint = "[W/S] sau [TAB] alege ținta";
+        g2.drawString(hint, (int) (gp.screenWidth * 0.95) - g2.getFontMetrics().stringWidth(hint), (int) (gp.screenHeight * 0.09));
     }
 
     private void drawEnemyIntent(Graphics2D g2) {
-        if (gp.player.currentEnemy == null) return;
-        Enemy e = gp.player.currentEnemy;
+        for (Slot s : slots()) drawIntentFor(g2, s);
+    }
 
-        // --- CALCUL POZIȚIE DINAMICĂ DUPĂ ÎNĂLȚIMEA ȘI LOCAȚIA INAMICULUI ---
-        int groundY = (int)(gp.screenHeight * 0.87); // Aceeași linie de sol folosită la desenare
-        int enemySize = (int)(gp.screenWidth * 0.20 * e.battleSize); // Dimensiunea exactă a sprite-ului de bătălie
-
-        // Centrul inamicului pe axa X (calculat identic ca în secțiunea 3 din draw())
-        int enemyX = (int)(gp.screenWidth * 0.9) - enemySize;
-        int centerX = enemyX + (enemySize / 2);
-
-        // Poziția Y: Solul - Înălțimea inamicului - 30 pixeli spațiu liber
-        int y = groundY - enemySize - 30;
-
+    private void drawIntentFor(Graphics2D g2, Slot slot) {
+        Enemy e = slot.e;
+        int groundY = (int)(gp.screenHeight * 0.87);
+        int centerX = slot.cx();
+        int y = groundY - slot.size - 30;
         // Setăm fontul dorit înainte de a calcula dimensiunea textului
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 50f));
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / (slot.size < gp.screenWidth * 0.17 ? 62f : 50f)));
 
         Color intentColor = Color.WHITE;
         String intentString = "❓";
@@ -325,7 +381,7 @@ public class BattleUI {
             switch (e.nextAction) {
                 case ATTACK -> {
                     intentColor = new Color(255, 50, 50);   // ROȘU
-                    intentString = "⚔ " + e.intentValue;
+                    intentString = "⚔ " + Math.max(0, (int) Math.round(e.intentValue * gp.player.enemyDmgScale));
                 }
                 case DEFEND -> {
                     intentColor = new Color(52, 152, 219);  // ALBASTRU

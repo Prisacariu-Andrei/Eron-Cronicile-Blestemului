@@ -132,8 +132,16 @@ public class EventHandler {
         }
     }
 
+    /** Trecerea în altă zonă, cu ecranul de tranziție (imagine + nume + încărcare). Harta se încarcă în ZoneTransitionState. */
     public void changeMap(String mapPath, String zoneFolder, int nextCol, int nextRow) {
+        if (gp.getCurrentState() instanceof GameState.ZoneTransitionState) return;
+        gp.changeState(new GameState.ZoneTransitionState(gp, mapPath, zoneFolder, nextCol, nextRow));
+    }
+
+    /** Încarcă harta, inamicii și NPC-urile zonei și mută jucătorul (fără ecran de tranziție). */
+    public void applyMap(String mapPath, String zoneFolder, int nextCol, int nextRow) {
         resetHealTiles();
+
         gp.tileM.currentZone = zoneFolder;
 
         System.out.println("DEBUG: Începe încărcarea texturilor pentru: " + zoneFolder);
@@ -152,7 +160,7 @@ public class EventHandler {
         gp.player.worldY = gp.tileSize * nextRow - 2;
 
         eventCooldown = 60;
-        gp.changeState(gp.getCurrentState());
+        gp.camera.snap();
         System.out.println("DEBUG: Schimbare mapă finalizată cu succes!");
     }
 
