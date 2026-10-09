@@ -61,6 +61,17 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
 **Abilitate nouă:** adaugă un obiect în `abilities` din `progression.json` (`unlockLevel`, `cost`, `effects`: `damage`, `shield`, `heal`,
 `mana`, `status`). Slotul (tasta) urmează ordinea nivelului de deblocare.
 
+## Rune (date, nu cod)
+
+- **`res/Data/runes.json`** — `slots` (câte rune porți odată, 3), `bagSize` (câte poți deține) și lista `runes`: `id`, `name`, `description`,
+  `glyph` (`flame`/`shield`/`heart`/`drop`/`fang`, desenat în cod), `color`, `rarity`, `price`, `buffs` și `drops` (șansa de a pica de la un inamic).
+  Efecte (`buffs`): `damage`, `maxLife`, `turnShield` (armură la începutul fiecărei ture), `battleHeal` (viață după fiecare luptă câștigată).
+- **Inventar (I):** A/D aleg o rună (tooltip cu efecte și descriere), ENTER o echipează sau o dezechipează. Runele echipate se salvează.
+- **Magazin:** adaugă `"rune:<id>"` în `shop.stock` al unui negustor; runele se pot și vinde (preț * `sellRatio`).
+
+**Rună nouă:** adaugă un obiect în `runes` din `runes.json` (id unic). Pentru drop: `"drops": { "Lup": 0.1 }`; pentru magazin: `"rune:<id>"` în `npcs.json`.
+**Efect nou:** adaugă cheia în `Rune.buffText()` și aplic-o într-un loc din luptă cu `player.runeSum("cheie")`.
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

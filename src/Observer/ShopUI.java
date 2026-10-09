@@ -2,6 +2,8 @@ package Observer;
 
 import Entity.Cards.CardFactory;
 import Entity.Items.Card;
+import Entity.Items.Rune;
+import Entity.Runes.RuneFactory;
 import Main.Easing;
 import Main.Economy;
 import Main.GameFeel;
@@ -25,6 +27,7 @@ public class ShopUI {
     private String merchant = "";
     private final List<String> stock = new ArrayList<>();       // cheile din CardFactory
     private final Map<String, Card> preview = new LinkedHashMap<>(); // cheie -> carte (pentru nume, cost, descriere)
+    private final Map<String, Rune> runePreview = new LinkedHashMap<>(); // "rune:id" -> rună (marfa de tip rună)
 
     private int tab = 0;                    // 0 = cumpără, 1 = vinde
     private final int[] selected = new int[2];
@@ -45,8 +48,14 @@ public class ShopUI {
         merchant = merchantName;
         stock.clear();
         preview.clear();
+        runePreview.clear();
         for (String key : stockKeys) {
             try {
+                if (key.startsWith("rune:")) {
+                    Rune r = RuneFactory.createRune(key.substring(5));
+                    if (r != null) { stock.add(key); runePreview.put(key, r); }
+                    continue;
+                }
                 Card c = CardFactory.createCard(key, gp.player);
                 if (c != null) { stock.add(key); preview.put(key, c); }
             } catch (Exception ignored) { /* cheie necunoscută: nu apare în magazin */ }
@@ -90,6 +99,7 @@ public class ShopUI {
     private void buy() {
         if (stock.isEmpty()) return;
         String key = stock.get(Math.min(selected[0], stock.size() - 1));
+        if (runePreview.containsKey(key)) { buyRune(key); return; }
         int price = Economy.get().buyPrice(key);
         if (gp.player.coins < price) {
             say("Nu ai destule monede! Îți mai trebuie " + (price - gp.player.coins) + ".", new Color(255, 90, 90));
@@ -106,6 +116,7 @@ public class ShopUI {
         List<String[]> entries = sellEntries();
         if (entries.isEmpty()) { say("Nu ai nicio carte de vândut.", new Color(255, 200, 90)); deny(); return; }
         String name = entries.get(Math.min(selected[1], entries.size() - 1))[0];
+        if (entries.get(Math.min(selected[1], entries.size() - 1))[2].equals("rune")) { sellRune(name); return; }
 
         int min = Economy.get().minDeckSize();
         if (gp.player.inventory.cards.size() <= min) {
@@ -120,6 +131,36 @@ public class ShopUI {
                 break;
             }
         }
+        gp.player.coins += price;
+        say("Ai vândut " + name + " (+" + price + " monede)", new Color(255, 215, 90));
+        coinSound();
+        int left = sellEntries().size();
+        if (selected[1] >= left) selected[1] = Math.max(0, left - 1);
+    }
+
+    private void buyRune(String key) {
+        Rune r = runePreview.get(key);
+        if (gp.player.inventory.ownsRune(r.id)) { say("Ai deja " + r.name + ".", new Color(255, 200, 90)); deny(); return; }
+        if (gp.player.inventory.runeBagFull()) { say("Rucsacul de rune este plin!", new Color(255, 90, 90)); deny(); return; }
+        if (gp.player.coins < r.price) {
+            say("Nu ai destule monede! Îți mai trebuie " + (r.price - gp.player.coins) + ".", new Color(255, 90, 90));
+            deny();
+            return;
+        }
+        gp.player.coins -= r.price;
+        Rune bought = RuneFactory.createRune(r.id);
+        gp.player.giveRune(bought); // se echipează singură dacă are loc
+        say("Ai cumpărat " + r.name + (bought.isEquipped ? " (echipată)" : "") + " (-" + r.price + " monede)", new Color(120, 230, 140));
+        coinSound();
+    }
+
+    private void sellRune(String name) {
+        Rune r = null;
+        for (Rune x : gp.player.inventory.runes) if (x.name.equals(name)) { r = x; break; }
+        if (r == null) return;
+        int price = Economy.get().sellPriceOf(r.price);
+        gp.player.inventory.runes.remove(r);
+        gp.player.refreshRunes(); // dacă era echipată, își pierde bonusul
         gp.player.coins += price;
         say("Ai vândut " + name + " (+" + price + " monede)", new Color(255, 215, 90));
         coinSound();
@@ -152,7 +193,8 @@ public class ShopUI {
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (Card c : gp.player.inventory.cards) counts.merge(c.name, 1, Integer::sum);
         List<String[]> out = new ArrayList<>();
-        for (Map.Entry<String, Integer> e : counts.entrySet()) out.add(new String[]{e.getKey(), String.valueOf(e.getValue())});
+        for (Map.Entry<String, Integer> e : counts.entrySet()) out.add(new String[]{e.getKey(), String.valueOf(e.getValue()), "card"});
+        for (Rune r : gp.player.inventory.runes) out.add(new String[]{r.name, "1", "rune"});
         return out;
     }
 
@@ -230,10 +272,17 @@ public class ShopUI {
         int first = scrollStart(selected[0], stock.size());
         for (int i = first; i < Math.min(stock.size(), first + VISIBLE_ROWS); i++) {
             String key = stock.get(i);
+            if (runePreview.containsKey(key)) {
+                Rune r = runePreview.get(key);
+                boolean owned = gp.player.inventory.ownsRune(r.id);
+                drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[0], r.name, -1, r.buffText() + " - " + firstLine(r.description),
+                        owned ? "Deținută" : "Cumpără  " + r.price, !owned && gp.player.coins >= r.price, r);
+                continue;
+            }
             Card c = preview.get(key);
             int price = Economy.get().buyPrice(key);
             drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[0], c.name, c.manaCost, firstLine(c.description),
-                    "Cumpără  " + price, gp.player.coins >= price);
+                    "Cumpără  " + price, gp.player.coins >= price, null);
         }
         drawScrollHint(g2, x + w + 10, y, first, stock.size());
     }
@@ -245,18 +294,25 @@ public class ShopUI {
         boolean canSell = gp.player.inventory.cards.size() > Economy.get().minDeckSize();
         for (int i = first; i < Math.min(entries.size(), first + VISIBLE_ROWS); i++) {
             String name = entries.get(i)[0];
+            if (entries.get(i)[2].equals("rune")) {
+                Rune r = null;
+                for (Rune q : gp.player.inventory.runes) if (q.name.equals(name)) { r = q; break; }
+                if (r != null) drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[1], name + (r.isEquipped ? "  (echipată)" : ""), -1,
+                        r.buffText() + " - " + firstLine(r.description), "Vinde  +" + Economy.get().sellPriceOf(r.price), true, r);
+                continue;
+            }
             int count = Integer.parseInt(entries.get(i)[1]);
             Card sample = null;
             for (Card c : gp.player.inventory.cards) if (c.name.equals(name)) { sample = c; break; }
             int price = Economy.get().sellPriceForCardName(name, gp.player);
             drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[1], count > 1 ? name + "  x" + count : name,
                     sample == null ? 0 : sample.manaCost, sample == null ? "" : firstLine(sample.description),
-                    "Vinde  +" + price, canSell);
+                    "Vinde  +" + price, canSell, null);
         }
         drawScrollHint(g2, x + w + 10, y, first, entries.size());
     }
 
-    private void drawRow(Graphics2D g2, int x, int y, int w, boolean sel, String name, int mana, String desc, String button, boolean enabled) {
+    private void drawRow(Graphics2D g2, int x, int y, int w, boolean sel, String name, int mana, String desc, String button, boolean enabled, Rune rune) {
         g2.setColor(sel ? new Color(60, 55, 90, 235) : new Color(36, 34, 52, 220));
         g2.fillRoundRect(x, y, w, ROW_H - 8, 16, 16);
         if (sel) {
@@ -266,12 +322,15 @@ public class ShopUI {
             g2.drawRoundRect(x, y, w, ROW_H - 8, 16, 16);
         }
         // cost în mană
-        g2.setColor(new Color(41, 128, 185));
-        g2.fillOval(x + 14, y + 12, 34, 34);
-        g2.setColor(Color.WHITE);
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-        String m = String.valueOf(mana);
-        g2.drawString(m, x + 31 - g2.getFontMetrics().stringWidth(m) / 2, y + 36);
+        if (rune != null) RuneIcon.draw(g2, rune, x + 10, y + 7, 44, sel);
+        else {
+            g2.setColor(new Color(41, 128, 185));
+            g2.fillOval(x + 14, y + 12, 34, 34);
+            g2.setColor(Color.WHITE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+            String m = String.valueOf(mana);
+            g2.drawString(m, x + 31 - g2.getFontMetrics().stringWidth(m) / 2, y + 36);
+        }
         // nume + descriere
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 23F));
         g2.setColor(Color.WHITE);

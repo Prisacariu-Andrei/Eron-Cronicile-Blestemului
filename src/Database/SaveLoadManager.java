@@ -106,6 +106,18 @@ public class SaveLoadManager {
             }
             pstmtInv.executeBatch();
         }
+
+        // Runele: item_name = id-ul din runes.json, quantity = 1 dacă e echipată, 0 în rucsac
+        try (PreparedStatement pr = conn.prepareStatement(insertInvQuery)) {
+            for (Entity.Items.Rune r : player.inventory.runes) {
+                pr.setInt(1, slot);
+                pr.setString(2, "Rune");
+                pr.setString(3, r.id);
+                pr.setInt(4, r.isEquipped ? 1 : 0);
+                pr.addBatch();
+            }
+            pr.executeBatch();
+        }
     }
 
     // ==========================================
@@ -123,6 +135,7 @@ public class SaveLoadManager {
 
             if (rs.next()) {
                 // 1. Restaurăm atributele de bază ale jucătorului
+                gp.player.clearRunes(); // scoate bonusurile runelor vechi înainte să punem valorile salvate
                 gp.player.name = rs.getString("player_name");
                 gp.player.worldX = rs.getInt("player_x");
                 gp.player.worldY = rs.getInt("player_y");
@@ -151,6 +164,7 @@ public class SaveLoadManager {
 
                 // 2. Încărcăm inventarul jucătorului
                 loadInventory(gp.player, slot, conn);
+                gp.player.restoreRunes(); // viața maximă salvată include deja bonusul runelor
 
                 // 3. RECONSTRUIM HARTA SALVATĂ
                 String savedZone = rs.getString("current_zone");
@@ -181,6 +195,7 @@ public class SaveLoadManager {
     private void loadInventory(Player player, int slot, Connection conn) throws SQLException {
         // Golim pachetul curent pentru a nu duplica cărțile
         player.inventory.cards.clear();
+        player.inventory.runes.clear();
 
         String loadInvQuery = "SELECT item_name, quantity FROM inventory WHERE slot = ? AND item_type = 'Card'";
         try (PreparedStatement pstmt = conn.prepareStatement(loadInvQuery)) {
@@ -196,6 +211,16 @@ public class SaveLoadManager {
                     // Aici folosești metoda ta existentă pentru a genera cartea după nume
                     player.inventory.addCardToDeck(cardName, player);
                 }
+            }
+        }
+
+        String loadRunes = "SELECT item_name, quantity FROM inventory WHERE slot = ? AND item_type = 'Rune'";
+        try (PreparedStatement pr = conn.prepareStatement(loadRunes)) {
+            pr.setInt(1, slot);
+            ResultSet rs = pr.executeQuery();
+            while (rs.next()) {
+                Entity.Items.Rune r = Entity.Runes.RuneFactory.createRune(rs.getString("item_name"));
+                if (r != null && player.inventory.addRune(r)) r.isEquipped = rs.getInt("quantity") == 1 && player.inventory.equippedCount() < player.inventory.runeSlots();
             }
         }
     }

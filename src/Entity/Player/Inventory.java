@@ -13,8 +13,23 @@ public class Inventory {
     public final ArrayList<Card> hand = new ArrayList<>();
     public final ArrayList<Card> discardPile = new ArrayList<>();
 
-    public final int MAX_RUNES = 5;
     public final int MAX_HAND_SIZE = 8;
+
+    /** Câte rune poate purta Eron odată (runes.json -> slots). */
+    public int runeSlots() { return Entity.Runes.RuneFactory.slots(); }
+
+    public int equippedCount() {
+        int n = 0;
+        for (Rune r : runes) if (r.isEquipped) n++;
+        return n;
+    }
+
+    public boolean ownsRune(String id) {
+        for (Rune r : runes) if (r.id.equals(id)) return true;
+        return false;
+    }
+
+    public boolean runeBagFull() { return runes.size() >= Entity.Runes.RuneFactory.bagSize(); }
 
     public void addItem(Card card) {
         if (card != null) {
@@ -24,18 +39,15 @@ public class Inventory {
         }
     }
 
-    public void addRune(Rune rune) {
+    /** Adaugă runa în rucsac (o singură rună de fiecare fel). Fals dacă e null, deja deținută sau rucsacul e plin. */
+    public boolean addRune(Rune rune) {
         if (rune == null) {
-            GameExceptionHandler.getInstance().handleWarning("S-a încercat echiparea unei rune de tip NULL.", null);
-            return;
+            GameExceptionHandler.getInstance().handleWarning("S-a încercat adăugarea unei rune de tip NULL.", null);
+            return false;
         }
-
-        if (runes.size() < MAX_RUNES) {
-            runes.add(rune);
-            rune.isEquipped = true;
-        } else {
-            System.out.println("Inventarul de rune este plin!");
-        }
+        if (ownsRune(rune.id) || runeBagFull()) return false;
+        runes.add(rune);
+        return true;
     }
 
     public void addCardToDeck(String cardName, Player player) {

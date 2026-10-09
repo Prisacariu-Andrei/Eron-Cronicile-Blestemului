@@ -192,6 +192,10 @@ public class KeyHandler implements KeyListener {
                     gp.inventoryUI.slotRow++;
                 }
             }
+            // Runele: A/D aleg, ENTER echipează sau dezechipează (detaliile se văd în tooltip)
+            if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT)  { gp.inventoryUI.moveRuneCursor(-1); return; }
+            if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) { gp.inventoryUI.moveRuneCursor(1); return; }
+            if (code == KeyEvent.VK_ENTER) { gp.inventoryUI.toggleSelectedRune(); return; }
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP || code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
                 return;
             }

@@ -48,6 +48,11 @@ public final class Economy {
         return Json.integer(table.get(String.valueOf(questId)), Json.integer(root.get("defaultQuestReward"), 0));
     }
 
+    /** Prețul de vânzare al unui obiect cu prețul de cumpărare dat (runele): price * sellRatio, minim 1. */
+    public int sellPriceOf(int buyPrice) {
+        return Math.max(1, (int) Math.round(buyPrice * Json.number(root.get("sellRatio"), 0.5)));
+    }
+
     public int buyPrice(String cardKey) {
         return Json.integer(Json.map(root.get("cardPrices")).get(cardKey), Json.integer(root.get("defaultCardPrice"), 40));
     }

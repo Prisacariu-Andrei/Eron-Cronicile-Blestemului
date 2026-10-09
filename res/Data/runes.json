@@ -1,0 +1,39 @@
+{
+  "_help": "Toate runele jocului. slots = câte rune poate purta Eron odată; bagSize = câte rune poate avea în total. Fiecare rună: id (unic), name, description, glyph (flame|shield|heart|drop|fang), color (#RRGGBB), rarity (Comună|Rară|Epică), price (cumpărare; vânzarea = price * sellRatio din economy.json), buffs {damage, maxLife, turnShield, battleHeal}, drops {numeInamic: șansă 0..1} (numele dinaintea virgulei, ca în economy.json). Magazin: adaugă \"rune:<id>\" în shop.stock al unui negustor din npcs.json.",
+
+  "slots": 3,
+  "bagSize": 12,
+
+  "runes": [
+    {
+      "id": "vapaie", "name": "Runa Văpăii", "glyph": "flame", "color": "#FF7A3C", "rarity": "Comună", "price": 90,
+      "description": "Flacăra veche a Manuscrisului arde în palmele tale. Toate loviturile dau mai mult.",
+      "buffs": { "damage": 2 },
+      "drops": { "Lup de Elită": 0.25, "Trol de Pestera": 0.15 }
+    },
+    {
+      "id": "strajer", "name": "Runa Străjerului", "glyph": "shield", "color": "#5FB4FF", "rarity": "Rară", "price": 120,
+      "description": "Gărzile de Fier o poartă pe scuturi. La începutul fiecărei ture primești armură.",
+      "buffs": { "turnShield": 3 },
+      "drops": { "Trol de Elită": 0.30, "Valerius": 1.0 }
+    },
+    {
+      "id": "viata", "name": "Runa Vieții", "glyph": "heart", "color": "#E8506A", "rarity": "Comună", "price": 80,
+      "description": "O rună caldă, ca ultima lumină dinaintea blestemului. Crește viața maximă.",
+      "buffs": { "maxLife": 15 },
+      "drops": { "Lup": 0.06, "Cioara": 0.10 }
+    },
+    {
+      "id": "izvor", "name": "Runa Izvorului", "glyph": "drop", "color": "#53E0C0", "rarity": "Rară", "price": 100,
+      "description": "Apă din izvoare neatinse de Rege. După fiecare luptă câștigată te vindeci.",
+      "buffs": { "battleHeal": 8 },
+      "drops": { "Cioara": 0.08, "Lup de Elită": 0.15 }
+    },
+    {
+      "id": "fenris", "name": "Runa lui Fenris", "glyph": "fang", "color": "#DDE8F5", "rarity": "Epică", "price": 200,
+      "description": "Colțul lupului cel alb. Atacurile tale mușcă mai adânc, iar pielea ți se întărește.",
+      "buffs": { "damage": 3, "maxLife": 5 },
+      "drops": { "Fenris cel Alb": 1.0 }
+    }
+  ]
+}

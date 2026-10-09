@@ -81,7 +81,7 @@
         }
       },
       "shop": {
-        "stock": ["ParjolulSferic", "FulgerDeSange", "PavazaGlaciara", "PavazaAmurgului", "Dezolare", "SuflulVietii", "GeamatulEcoului", "UraganDeAzur"]
+        "stock": ["ParjolulSferic", "FulgerDeSange", "PavazaGlaciara", "PavazaAmurgului", "Dezolare", "SuflulVietii", "GeamatulEcoului", "UraganDeAzur", "rune:vapaie", "rune:viata", "rune:izvor", "rune:strajer"]
       }
     },
     {

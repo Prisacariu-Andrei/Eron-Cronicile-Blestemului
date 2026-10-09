@@ -4,6 +4,8 @@ import Entity.Entity;
 import Entity.StatusEffect;
 import Entity.Inamici.Enemy;
 import Entity.Items.Card;
+import Entity.Items.Rune;
+import Entity.Runes.RuneFactory;
 import Entity.Cards.GeamatulEcoului;
 import Main.Easing;
 import Main.GameFeel;
@@ -39,6 +41,62 @@ public class Player extends Entity {
     public boolean arePalosLegendar = false;   // Jean
     public boolean areInelDeGheata = false;    // Glaciara
     public boolean arePlatosaValerius = false; // Valerius
+
+    // --- Rune (runes.json): bonusurile aplicate acum stării lui Eron, ca să putem scădea exact ce am adăugat ---
+    private int runeDamageApplied = 0, runeLifeApplied = 0;
+    public Rune lastRuneDrop = null; // runa primită la ultima luptă (ecranul de recompensă)
+
+    /** Suma unui efect peste toate runele echipate (ex. "turnShield"). */
+    public int runeSum(String stat) {
+        int sum = 0;
+        for (Rune r : inventory.runes) if (r.isEquipped) sum += r.buff(stat);
+        return sum;
+    }
+
+    /** Repune daune și viață maximă conform runelor echipate acum (apelat la echipare/dezechipare). */
+    public void refreshRunes() {
+        int dmg = runeSum("damage"), hp = runeSum("maxLife");
+        damage += dmg - runeDamageApplied;
+        maxLife += hp - runeLifeApplied;
+        if (hp > runeLifeApplied) life += hp - runeLifeApplied; // viața bonus vine "plină"
+        life = Math.min(life, maxLife);
+        runeDamageApplied = dmg;
+        runeLifeApplied = hp;
+        notifyObservers();
+    }
+
+    /** Scoate toate bonusurile de rune din stat-uri (înainte de încărcare sau joc nou). */
+    public void clearRunes() {
+        inventory.runes.clear();
+        refreshRunes();
+    }
+
+    /** După încărcarea unei salvări: viața maximă salvată include deja bonusul, daunele nu. */
+    public void restoreRunes() {
+        runeLifeApplied = runeSum("maxLife");
+        runeDamageApplied = 0;
+        refreshRunes();
+    }
+
+    /** Echipează/dezechipează runa. Returnează un mesaj pentru jucător. */
+    public String toggleRune(Rune r) {
+        if (r.isEquipped) {
+            r.isEquipped = false;
+            refreshRunes();
+            return r.name + " dezechipată";
+        }
+        if (inventory.equippedCount() >= inventory.runeSlots()) return "Toate sloturile sunt pline! Dezechipează o rună.";
+        r.isEquipped = true;
+        refreshRunes();
+        return r.name + " echipată";
+    }
+
+    /** Adaugă runa în rucsac și o echipează dacă mai e un slot liber. */
+    public boolean giveRune(Rune r) {
+        if (!inventory.addRune(r)) return false;
+        if (inventory.equippedCount() < inventory.runeSlots()) { r.isEquipped = true; refreshRunes(); }
+        return true;
+    }
 
     public final int NORMAL_SPEED = 4;
     public float exploreMana;
@@ -433,6 +491,7 @@ public class Player extends Entity {
         else{
             shield = 0;
         }
+        if (runeSum("turnShield") > 0) addShield(runeSum("turnShield")); // runele echipate
 
         Timer t2 = new Timer(1500, e -> {
             isPlayerTurn = true;
@@ -547,7 +606,7 @@ public class Player extends Entity {
     }
 
     public void winBattle() {
-        this.life = Math.min(this.life + 5, maxLife);
+        this.life = Math.min(this.life + 5 + runeSum("battleHeal"), maxLife);
         notifyObservers();
 
         if (currentEnemy != null) {
@@ -566,6 +625,16 @@ public class Player extends Entity {
                 addCoins(lastCoinReward);
                 gp.ui.message = "+" + lastCoinReward + " monede";
                 gp.ui.messageOn = true;
+            }
+
+            // Rune căzute de la inamic (runes.json -> drops)
+            lastRuneDrop = null;
+            String dropId = RuneFactory.rollDrop(inamicNume, inventory::ownsRune);
+            if (dropId != null && giveRune(RuneFactory.createRune(dropId))) {
+                lastRuneDrop = inventory.runes.get(inventory.runes.size() - 1);
+                gp.ui.message = "Rună nouă: " + lastRuneDrop.name;
+                gp.ui.messageOn = true;
+                gp.fx.questSound(false);
             }
 
             // --- 1. ATRIBUIRE RUNE DE LA GENERALI ---
@@ -704,6 +773,7 @@ public class Player extends Entity {
     }
 
     public void resetPlayer() {
+        clearRunes();           // fără rune și fără bonusurile lor
         setDefaultValues();
         gp.progression.reset(); // nivel 1, fără XP, esența de bază
         gp.questLog.reset();    // misiunile de la capăt

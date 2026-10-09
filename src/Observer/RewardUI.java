@@ -51,12 +51,26 @@ public class RewardUI {
             g2.setColor(new Color(200, 170, 255));
             g2.drawString(xpText, left + g2.getFontMetrics().stringWidth(coinText), 175);
         }
+        if (gp.player.lastRuneDrop != null) {
+            Entity.Items.Rune dr = gp.player.lastRuneDrop;
+            RuneIcon.draw(g2, dr, gp.screenWidth / 2 - 150, 218, 36, true);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
+            g2.setColor(RuneIcon.rarityColor(dr.rarity));
+            g2.drawString("Rună nouă: " + dr.name, gp.screenWidth / 2 - 106, 245);
+        }
+        if (gp.player.lastRuneDrop != null) {
+            Entity.Items.Rune dr = gp.player.lastRuneDrop;
+            RuneIcon.draw(g2, dr, gp.screenWidth / 2 - 150, 218, 36, true);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
+            g2.setColor(RuneIcon.rarityColor(dr.rarity));
+            g2.drawString("Rună nouă: " + dr.name, gp.screenWidth / 2 - 106, 245);
+        }
         if (gp.progression.leveledThisBattle) {
             float pulse = 0.5f + 0.5f * (float) Math.sin(gp.fx.ticks * 0.2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 34F));
             g2.setColor(new Color(255, 230, 110, 190 + Math.round(65 * pulse)));
             String up = "NIVEL " + gp.progression.level + "!";
-            g2.drawString(up, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(up) / 2, 215);
+            g2.drawString(up, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(up) / 2, 285);
         }
 
         // 3. Iterăm prin recompense

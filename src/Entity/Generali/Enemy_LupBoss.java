@@ -104,14 +104,10 @@ public class Enemy_LupBoss extends Enemy {
                 gp.questManager.updateQuestProgress(3, true, 1);
 
                 // Generăm runa
-                Entity.Items.Rune runaLupului = new Entity.Items.Rune(
-                        "Runa lui Fenris",
-                        "Crește puterea atacurilor.",
-                        5
-                );
+                Entity.Items.Rune runaLupului = Entity.Runes.RuneFactory.createRune("fenris");
 
                 // Adăugăm runa în inventar
-                gp.player.inventory.addRune(runaLupului);
+                gp.player.giveRune(runaLupului);
 
                 // Afișăm mesajul pe ecran
                 gp.ui.message = "Misiune completată: Lupul cel Bătrân";
