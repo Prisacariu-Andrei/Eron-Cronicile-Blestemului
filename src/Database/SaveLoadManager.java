@@ -94,7 +94,8 @@ public class SaveLoadManager {
         // Grupăm cărțile pentru a obține cantitatea (deoarece PK este slot, item_type, item_name)
         Map<String, Integer> cardCounts = new HashMap<>();
         for (Card card : player.inventory.cards) {
-            cardCounts.put(card.name, cardCounts.getOrDefault(card.name, 0) + 1);
+            String key = card.id != null ? card.id : card.name;   // cheia stabilă, nu numele afișat
+            cardCounts.put(key, cardCounts.getOrDefault(key, 0) + 1);
         }
 
         String insertInvQuery = "INSERT INTO inventory (slot, item_type, item_name, quantity) VALUES (?, ?, ?, ?)";
@@ -216,7 +217,12 @@ public class SaveLoadManager {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                String cardName = rs.getString("item_name");
+                String saved = rs.getString("item_name");
+                String cardName = Entity.Cards.CardFactory.resolveId(saved, player);   // salvările vechi aveau numele afișat
+                if (cardName == null) {
+                    GameExceptionHandler.getInstance().handleWarning("Carte necunoscută într-o salvare, a fost sărită: " + saved, null);
+                    continue;
+                }
                 int quantity = rs.getInt("quantity");
 
                 // Adăugăm cartea de 'quantity' ori în pachet

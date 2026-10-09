@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 
 public abstract class Card {
     public String name;
+    public String id;   // cheia stabilă din CardFactory (ex. "ParjolulSferic"); numele de mai sus se afișează și se poate schimba
     public int manaCost;
     public String description;
     public BufferedImage image;
