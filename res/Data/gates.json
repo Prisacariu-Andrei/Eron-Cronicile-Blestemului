@@ -1,0 +1,57 @@
+{
+  "_help": "Lanțul zonelor. bosses: numele inamicului (dinaintea virgulei) -> flag-ul de progres setat când e învins. artifacts: obiectele cheie primite de la boss (apar în inventar la 'Obiecte cheie'); flag = boss-ul care le dă. gates: o Gardă de Fier în fața fiecărui pasaj din Eldoria. tile = id-ul tile-ului de teleportare, requires = flag-ul necesar, guard = unde stă Garda cât timp pasajul e închis (col,row), aside = unde se retrage după ce s-a deschis. quest (opțional) = misiunea veche completată la trecere.",
+
+  "bosses": {
+    "Fenris cel Alb": "fenris",
+    "Fenris": "fenris",
+    "Feldgug": "feldgug",
+    "Jean Plesa": "jean",
+    "Jean Pleșa": "jean",
+    "Jean": "jean",
+    "Glaciara": "glaciara"
+  },
+
+  "beast": { "enemy": "Lup", "zone": "Eldoria", "flag": "fiara" },
+
+  "artifacts": [
+    { "id": "colt", "name": "Colțul de Chihlimbar", "flag": "fenris", "color": "#F2A33A",
+      "purpose": "Va purifica inima monștrilor, după dezlegarea blestemului." },
+    { "id": "diamant", "name": "Diamantul Nopții", "flag": "feldgug", "color": "#7C8CFF",
+      "purpose": "Împreună cu Inelul de Gheață, purifică Inelul Eternității." },
+    { "id": "palos", "name": "Paloșul Legendar", "flag": "jean", "color": "#E6E6F0",
+      "purpose": "Va dărâma porțile Castelului de Obsidian." },
+    { "id": "inel", "name": "Inelul de Gheață", "flag": "glaciara", "color": "#7FE3FF",
+      "purpose": "Împreună cu Diamantul Nopții, purifică Inelul Eternității." }
+  ],
+
+  "gates": [
+    {
+      "id": "barlog", "zone": "Eldoria", "tile": 42, "requires": "fiara",
+      "guard": [34, 38], "aside": [35, 37],
+      "blocked": "Bariera satului încă ține. Fiara Blestemului nu a fost înfrântă.",
+      "closedText": "STAI PE LOC! Poteca spre Munții de Miazăzi e pecetluită cât timp Fiara Blestemului rătăcește prin hotarele satului.\nÎnvinge-o, Eron, și bariera se va prăbuși.",
+      "openText": "Fiara a căzut și bariera s-a prăbușit! Garda de Fier îți dă trecere.\nUrcă spre Munții de Miazăzi, Eron. Lupii lui Fenris te așteaptă."
+    },
+    {
+      "id": "abis", "zone": "Eldoria", "tile": 43, "requires": "fenris", "quest": 4,
+      "guard": [65, 34], "aside": [64, 33],
+      "blocked": "Porțile Abisului sunt pecetluite de Santinele!",
+      "closedText": "STAI PE LOC! Porțile Abisului de Piatră rămân închise până când Fenris cel Alb nu e înfrânt.\nNu ai ce căuta aici, pleacă!",
+      "openText": "Ai înfrânt Fenris cel Alb! Garda de Fier vestește tuturor faptele tale.\nPoarta este deschisă. Coboară cu prudență în Abis!"
+    },
+    {
+      "id": "citadela", "zone": "Eldoria", "tile": 44, "requires": "feldgug", "quest": 8,
+      "guard": [11, 12], "aside": [12, 11],
+      "blocked": "Drumul spre Citadelă este periculos și ascuns acum.",
+      "closedText": "Drumul spre Citadela Haiducilor e blocat. Mai întâi trebuie să-l învingi pe Feldgug, tiranul din Abis.\nÎntoarce-te când ai Diamantul Nopții.",
+      "openText": "Diamantul Nopții strălucește la tine! Feldgug a căzut.\nDrumul spre Citadela Haiducilor e liber. Ai grijă la haiducii beți."
+    },
+    {
+      "id": "tundra", "zone": "Eldoria", "tile": 45, "requires": "jean", "quest": 11,
+      "guard": [12, 39], "aside": [13, 38],
+      "blocked": "Un viscol teribil blochează trecerea spre Nord!",
+      "closedText": "Viscolul din Nord aduce doar moarte. Nu pot lăsa un nepregătit să treacă.\nÎntoarce-te după ce ai dovedit că poți învinge un spadasin ca Jean Pleșa.",
+      "openText": "Paloșul Legendar la brâul tău... Jean Pleșa a căzut.\nTrecerea spre Tundra îți este permisă. Înarmează-te cu răbdare!"
+    }
+  ]
+}

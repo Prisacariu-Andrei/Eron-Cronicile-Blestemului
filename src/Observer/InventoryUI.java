@@ -77,6 +77,9 @@ public class InventoryUI {
             drawScrollIndicator(g2, startX + (width / 2) - 60, startY, sortedCards.size());
         }
 
+        // OBIECTE CHEIE: artefactele primite de la boss-i (gates.json)
+        drawKeyItems(g2, startX, y + height - gp.tileSize * 2 + 4);
+
         // 7. INFO SUBSOL
         g2.setFont(g2.getFont().deriveFont(14F));
         g2.setColor(Color.LIGHT_GRAY);
@@ -209,6 +212,30 @@ public class InventoryUI {
         messageTicks = 120;
         Main.SoundManager.getInstance().playSE(ok ? (r.isEquipped ? "ability" : "click") : "deny");
         if (ok && r.isEquipped) gp.fx.burst(2, 330, 360, 14, r.color, 5f, 30, 4f, 0.1f);
+    }
+
+    private void drawKeyItems(Graphics2D g2, int x, int y) {
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+        g2.setColor(new Color(255, 215, 0));
+        g2.drawString("OBIECTE CHEIE:", x, y);
+        var items = gp.story.keyItems();
+        g2.setFont(g2.getFont().deriveFont(15F));
+        if (items.isEmpty()) {
+            g2.setColor(Color.GRAY);
+            g2.drawString("Niciun artefact încă. Învinge boss-ii fiecărei zone.", x, y + 26);
+            return;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            var it = items.get(i);
+            int ly = y + 12 + i * 22;
+            int cx = x + 8, cy = ly + 2;
+            g2.setColor(new Color(it.color));
+            g2.fillPolygon(new int[]{cx, cx + 8, cx, cx - 8}, new int[]{cy - 9, cy, cy + 9, cy}, 4);
+            g2.setColor(Color.WHITE);
+            g2.drawString(it.name, x + 24, ly + 6);
+            g2.setColor(new Color(165, 165, 185));
+            g2.drawString("- " + it.purpose, x + 24 + g2.getFontMetrics().stringWidth(it.name) + 8, ly + 6);
+        }
     }
 
     private void drawScrollIndicator(Graphics2D g2, int scrollX, int startY, int totalCards) {

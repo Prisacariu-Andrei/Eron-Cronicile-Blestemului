@@ -60,59 +60,25 @@ public class EventHandler {
                 // BLOCAJ TELEPORTĂRI BAZAT PE QUEST-URI (Înlocuitor Gardian)
                 // =====================================================================
 
-                // TELEPORTARE BÂRLOG (ID 42) - Permisă dacă ai primit Quest 2
-                if (tileNum == 42) {
-                    var q2 = gp.questManager.getQuestById(2, true);
-                    if (q2 != null || (q2.isReceived || q2.isCompleted)) {
-                        changeMap("/Maps/Barlogul", "Barlogul", 47, 14);
-                    } else {
-                        gp.ui.message = "Bârlogul e blocat! Vorbește cu Bătrânul Înțelept.";
-                        gp.ui.messageOn = true;
-                        eventCooldown = 30; // Cooldown mic să nu spameze mesajul la fiecare cadru
-                    }
-                }
-
-                // TELEPORTARE ABIS (ID 43) - Quest 4: Trebuie să ai permisiunea/să fii la Quest 4 primit
-                if (tileNum == 43) {
-                    var q4 = gp.questManager.getQuestById(4, true);
-                    if (q4 != null || (q4.isReceived || q4.isCompleted)) {
-                        // Dacă pășești aici și ai misiunea 4 activă, o completăm automat (în loc de gardian)!
-                        if (!q4.isCompleted) {
-                            gp.questManager.updateQuestProgress(4, true, 1);
+                // Pasajele spre zonele 2-5 (res/Data/gates.json): se deschid doar după ce boss-ul zonei dinainte a fost învins
+                var gate = gp.story.gateForTile("Eldoria", tileNum);
+                if (gate != null) {
+                    if (gp.story.isOpen(gate)) {
+                        if (gate.quest > 0) {
+                            var gq = gp.questManager.getQuestById(gate.quest, true);
+                            if (gq != null && gq.isReceived && !gq.isCompleted) gp.questManager.updateQuestProgress(gate.quest, true, 1);
                         }
-                        changeMap("/Maps/Abisul", "Abisul", 13, 18);
-                    } else {
-                        gp.ui.message = "Porțile Abisului sunt pecetluite de Santinele!";
-                        gp.ui.messageOn = true;
-                        eventCooldown = 30;
-                    }
-                }
-
-                // TELEPORTARE CITADELA (ID 44) - Quest 8: Descoperă Citadela Haiducilor
-                if (tileNum == 44) {
-                    var q8 = gp.questManager.getQuestById(8, true);
-                    if (q8 != null && (q8.isReceived || q8.isCompleted)) {
-                        // Dacă ai ajuns aici, înseamnă că ai descoperit locația pentru Quest 8!
-                        if (!q8.isCompleted) {
-                            gp.questManager.updateQuestProgress(8, true, 1);
+                        switch (gate.tile) {
+                            case 42 -> changeMap("/Maps/Barlogul", "Barlogul", 47, 14);
+                            case 43 -> changeMap("/Maps/Abisul", "Abisul", 13, 18);
+                            case 44 -> changeMap("/Maps/Citadela", "Citadela", 66, 43);
+                            case 45 -> changeMap("/Maps/Tundra", "Tundra", 87, 60);
+                            default -> { }
                         }
-                        changeMap("/Maps/Citadela", "Citadela", 66, 43);
                     } else {
-                        gp.ui.message = "Drumul spre Citadelă este periculos și ascuns acum.";
+                        gp.ui.message = gate.blocked;
                         gp.ui.messageOn = true;
-                        eventCooldown = 30;
-                    }
-                }
-
-                // TELEPORTARE TUNDRA (ID 45) - Quest 11: Stăpânul Gheții (Glaciara)
-                if (tileNum == 45) {
-                    var q11 = gp.questManager.getQuestById(11, true);
-                    if (q11 != null && (q11.isReceived || q11.isCompleted)) {
-                        changeMap("/Maps/Tundra", "Tundra", 87, 60);
-                    } else {
-                        gp.ui.message = "Un viscol teribil blochează trecerea spre Nord!";
-                        gp.ui.messageOn = true;
-                        eventCooldown = 30;
+                        eventCooldown = 30; // să nu spameze mesajul la fiecare cadru
                     }
                 }
 

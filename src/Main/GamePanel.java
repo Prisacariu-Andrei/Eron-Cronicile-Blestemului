@@ -68,6 +68,7 @@ public class GamePanel extends JPanel implements Runnable {
     public ShopUI shopUI = new ShopUI(this);
     // Misiuni, niveluri/abilități și obiecte de cules (date în res/Data: quests.json, progression.json)
     public QuestLog questLog = new QuestLog(this);
+    public ProgressManagement.StoryProgress story = new ProgressManagement.StoryProgress(this); // boss-i învinși, pasaje deschise (gates.json)
     public Progression progression = new Progression(this);
     public Pickups pickups = new Pickups(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();

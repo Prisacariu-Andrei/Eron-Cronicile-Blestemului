@@ -90,29 +90,23 @@ public class AssetSetter {
 
     public void setNPC(String currentZone) {
         Arrays.fill(gp.npc, null);
-        // NPC-urile din res/Data/npcs.json se plasează după cei trei din cod (locurile 0-2)
-        try {
-            Entity.NPC.DataNPC.spawnForZone(gp, currentZone, 3);
-        } catch (Exception e) {
-            GameExceptionHandler.getInstance().handleWarning("Nu s-au putut încărca NPC-urile din npcs.json", e);
-        }
 
         if (currentZone.equals("Eldoria")) {
-
             // Bătrânul Cronicar stă la locul lui
             gp.npc[0] = new NPC_BatranulCronicar(gp, gp.tileSize * 15, gp.tileSize * 10);
 
-            // GARDIANUL ABISULUI (Verifică Quest 4: "Deblochează Abisul")
-            // Îl pui la coordonatele exacte din fața tile-ului de teleportare spre Abis (ID 43)
-            gp.npc[1] = new NPC_Gardian(gp, gp.tileSize * 31, gp.tileSize * 37, 4,
-                    "STAI PE LOC! Porțile Abisului de Piatră sunt închise din ordinul Consiliului.\nNu ai ce căuta aici, pleacă!",
-                    "Ah, Eron! Bătrânul Înțelept ne-a trimis cuvânt despre faptele tale.\nPoarta este deschisă. Coboară cu prudență în Abis!");
+            // Câte o Gardă de Fier în fața fiecărui pasaj (res/Data/gates.json); se retrage când boss-ul zonei a fost învins
+            int slot = 1;
+            for (var g : gp.story.gates()) {
+                if (g.zone.equals(currentZone) && slot < gp.npc.length) gp.npc[slot++] = new NPC_Gardian(gp, g);
+            }
+        }
 
-            // GARDIANUL TUNDREI (Verifică Quest 11: "Stăpânul Gheții")
-            // Îl pui în fața tile-ului de teleportare spre Tundra (ID 45)
-            gp.npc[2] = new NPC_Gardian(gp, gp.tileSize * 33, gp.tileSize * 37, 11,
-                    "Viscolul din Nord aduce doar moarte. Nu pot lăsa un nepregătit să treacă.\nÎntoarce-te când ești cu adevărat gata.",
-                    "Runa lui Jean... Înțeleg. Ai dovedit că poți înfrunta urgia.\nTrecerea spre Tundra îți este permisă. Înarmează-te cu răbdare!");
+        // NPC-urile din res/Data/npcs.json se plasează în locurile rămase libere
+        try {
+            Entity.NPC.DataNPC.spawnForZone(gp, currentZone, 1);
+        } catch (Exception e) {
+            GameExceptionHandler.getInstance().handleWarning("Nu s-au putut încărca NPC-urile din npcs.json", e);
         }
     }
 }

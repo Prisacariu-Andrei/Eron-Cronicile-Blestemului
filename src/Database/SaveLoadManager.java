@@ -56,7 +56,7 @@ public class SaveLoadManager {
             // Monedele și relicvele (coloanele sunt adăugate în DatabaseManager)
             try (PreparedStatement extra = conn.prepareStatement("UPDATE saves SET coins = ?, are_dinte_chilimbar = ?, " +
                     "are_diamantul_noptii = ?, are_palos_legendar = ?, are_inel_gheata = ?, are_platosa_valerius = ?, " +
-                    "level = ?, xp = ?, quest_data = ? WHERE slot = ?")) {
+                    "level = ?, xp = ?, quest_data = ?, story_flags = ? WHERE slot = ?")) {
                 extra.setInt(1, player.coins);
                 extra.setInt(2, player.areDinteChilimbar ? 1 : 0);
                 extra.setInt(3, player.areDiamantulNoptii ? 1 : 0);
@@ -66,7 +66,8 @@ public class SaveLoadManager {
                 extra.setInt(7, player.gp.progression.level);
                 extra.setInt(8, player.gp.progression.xp);
                 extra.setString(9, player.gp.questLog.serialize());
-                extra.setInt(10, slot);
+                extra.setString(10, player.gp.story.serialize());
+                extra.setInt(11, slot);
                 extra.executeUpdate();
             }
 
@@ -161,6 +162,11 @@ public class SaveLoadManager {
                 gp.player.arePalosLegendar = rs.getInt("are_palos_legendar") == 1;
                 gp.player.areInelDeGheata = rs.getInt("are_inel_gheata") == 1;
                 gp.player.arePlatosaValerius = rs.getInt("are_platosa_valerius") == 1;
+                try { // salvările vechi nu au flag-uri: le deducem din relicve
+                    gp.story.deserialize(rs.getString("story_flags"));
+                } catch (SQLException e) {
+                    gp.story.deserialize("");
+                }
 
                 // 2. Încărcăm inventarul jucătorului
                 loadInventory(gp.player, slot, conn);

@@ -65,12 +65,20 @@ public class RewardUI {
             g2.setColor(RuneIcon.rarityColor(dr.rarity));
             g2.drawString("Rună nouă: " + dr.name, gp.screenWidth / 2 - 106, 245);
         }
+        if (gp.player.lastKeyItem != null) {
+            var ki = gp.player.lastKeyItem;
+            int kx = gp.screenWidth / 2 - 150, ky = 262;
+            g2.setColor(new Color(ki.color));
+            g2.fillPolygon(new int[]{kx + 12, kx + 24, kx + 12, kx}, new int[]{ky, ky + 14, ky + 28, ky + 14}, 4);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
+            g2.drawString("Obiect cheie: " + ki.name, kx + 40, ky + 24);
+        }
         if (gp.progression.leveledThisBattle) {
             float pulse = 0.5f + 0.5f * (float) Math.sin(gp.fx.ticks * 0.2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 34F));
             g2.setColor(new Color(255, 230, 110, 190 + Math.round(65 * pulse)));
             String up = "NIVEL " + gp.progression.level + "!";
-            g2.drawString(up, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(up) / 2, 285);
+            g2.drawString(up, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(up) / 2, 330);
         }
 
         // 3. Iterăm prin recompense

@@ -72,6 +72,17 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
 **Rună nouă:** adaugă un obiect în `runes` din `runes.json` (id unic). Pentru drop: `"drops": { "Lup": 0.1 }`; pentru magazin: `"rune:<id>"` în `npcs.json`.
 **Efect nou:** adaugă cheia în `Rune.buffText()` și aplic-o într-un loc din luptă cu `player.runeSum("cheie")`.
 
+## Lanțul zonelor 1-4 (artefacte și Gărzi)
+
+- **`res/Data/gates.json`** — ce boss dă ce flag (`bosses`), artefactele-cheie (`artifacts`, apar în inventar la „Obiecte cheie”) și
+  cele patru pasaje din Eldoria (`gates`): tile-ul de teleportare, flag-ul necesar (`requires`), unde stă Garda de Fier cât timp pasajul
+  e închis (`guard`), unde se retrage după (`aside`) și cele două replici (`closedText` / `openText`).
+- Ordinea: Fiara din Eldoria → Munții (Fenris → **Colțul de Chihlimbar**) → Abisul (Feldgug → **Diamantul Nopții**) →
+  Citadela (Jean → **Paloșul Legendar**) → Tundra (Glaciara → **Inelul de Gheață**). Fiecare Gardă blochează pasajul până cade boss-ul dinainte.
+- Flag-urile se salvează (`saves.story_flags`); salvările vechi le deduc din relicvele deja primite.
+
+**Pasaj/boss nou:** adaugă boss-ul la `bosses`, artefactul la `artifacts` și un obiect la `gates` (poziția Gărzii: o căsuță liberă din fața tile-ului).
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

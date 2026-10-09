@@ -45,6 +45,7 @@ public class Player extends Entity {
     // --- Rune (runes.json): bonusurile aplicate acum stării lui Eron, ca să putem scădea exact ce am adăugat ---
     private int runeDamageApplied = 0, runeLifeApplied = 0;
     public Rune lastRuneDrop = null; // runa primită la ultima luptă (ecranul de recompensă)
+    public ProgressManagement.StoryProgress.Artifact lastKeyItem = null; // artefactul primit la ultima luptă
 
     /** Suma unui efect peste toate runele echipate (ex. "turnShield"). */
     public int runeSum(String stat) {
@@ -635,12 +636,22 @@ public class Player extends Entity {
 
             // Rune căzute de la inamic (runes.json -> drops)
             lastRuneDrop = null;
+            lastKeyItem = null;
             String dropId = RuneFactory.rollDrop(inamicNume, inventory::ownsRune);
             if (dropId != null && giveRune(RuneFactory.createRune(dropId))) {
                 lastRuneDrop = inventory.runes.get(inventory.runes.size() - 1);
                 gp.ui.message = "Rună nouă: " + lastRuneDrop.name;
                 gp.ui.messageOn = true;
                 gp.fx.questSound(false);
+            }
+
+            // Progresul poveștii: boss-ul învins deschide pasajul spre zona următoare și dă artefactul
+            var artifact = gp.story.onEnemyDefeated(inamicNume);
+            if (artifact != null) {
+                gp.ui.message = "Obiect cheie: " + artifact.name + "!";
+                gp.ui.messageOn = true;
+                lastKeyItem = artifact;
+                gp.fx.questSound(true);
             }
 
             // --- 1. ATRIBUIRE RUNE DE LA GENERALI ---
@@ -780,6 +791,8 @@ public class Player extends Entity {
 
     public void resetPlayer() {
         clearRunes();           // fără rune și fără bonusurile lor
+        gp.story.reset();       // niciun boss învins, pasajele se închid la loc
+        areDinteChilimbar = areDiamantulNoptii = arePalosLegendar = areInelDeGheata = arePlatosaValerius = false;
         setDefaultValues();
         gp.progression.reset(); // nivel 1, fără XP, esența de bază
         gp.questLog.reset();    // misiunile de la capăt
