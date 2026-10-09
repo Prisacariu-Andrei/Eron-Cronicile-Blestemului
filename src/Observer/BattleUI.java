@@ -138,6 +138,7 @@ public class BattleUI {
             }
         }
 
+        drawAllies(g2, groundY);
         // 4. INTERFAȚĂ (Static methods converted to dynamic)
         drawPlayerStats(g2, groundY);
         drawEnemyStats(g2, groundY);
@@ -160,6 +161,47 @@ public class BattleUI {
         }
         g2.setColor(new Color(0, 0, 0, 50));
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+    }
+
+    /** Aliații lui Eron (allies.json): sprite lângă Eron, bară de viață, scut și ultima abilitate folosită. */
+    private void drawAllies(Graphics2D g2, int groundY) {
+        for (var a : gp.party.members) {
+            int cx = gp.party.allyX(a);
+            int h = (int) (gp.screenWidth * 0.15), barW = (int) (gp.screenWidth * 0.10), barH = (int) (gp.screenHeight * 0.012);
+
+            var img = a.image();
+            if (img != null) {
+                int w = h * img.getWidth() / Math.max(1, img.getHeight());
+                float bob = a.alive() ? (float) Math.sin(gp.fx.ticks * 0.08 + cx) * 3f : 0f;
+                Composite old = g2.getComposite();
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, a.alive() ? 1f : 0.35f));
+                g2.drawImage(img, cx - w / 2, gp.party.allyGroundY() - h - Math.round(bob), w, h, null);
+                g2.setComposite(old);
+            }
+
+            int x = cx - barW / 2, y = gp.party.allyGroundY() + (int) (gp.screenHeight * 0.03);
+            g2.setColor(new Color(50, 50, 50, 200));
+            g2.fillRoundRect(x, y, barW, barH, 5, 5);
+            g2.setColor(new Color(a.color));
+            g2.fillRoundRect(x, y, (int) (barW * Math.max(0, Math.min(1, (double) a.life / a.maxLife))), barH, 5, 5);
+            if (a.shield > 0) {
+                g2.setColor(new Color(52, 152, 219, 210));
+                g2.fillRoundRect(x, y, Math.min(barW, (int) (barW * (double) a.shield / a.maxLife)), barH, 5, 5);
+            }
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.drawRoundRect(x, y, barW, barH, 5, 5);
+
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 115f));
+            g2.drawString(a.name, x, y - (int) (gp.screenHeight * 0.015));
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 130f));
+            String hp = a.life + " / " + a.maxLife + (a.shield > 0 ? "  (+" + a.shield + " scut)" : "");
+            g2.drawString(hp, x, y + barH + (int) (gp.screenHeight * 0.02));
+            if (!a.lastAction.isEmpty()) {
+                g2.setColor(a.alive() ? new Color(a.color) : new Color(220, 120, 120));
+                g2.drawString(a.lastAction, x, y + barH + (int) (gp.screenHeight * 0.04));
+            }
+        }
     }
 
     private void drawPlayerStats(Graphics2D g2, int groundY) {

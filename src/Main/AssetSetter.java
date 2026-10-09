@@ -69,6 +69,7 @@ public class AssetSetter {
     }
 
     private void spawnCitadela() {
+        if (gp.story.has("jean")) return; // Jean a fost învins și s-a alăturat echipei: nu mai stă în Citadelă
         gp.enemy[4] = EnemyFactory.createEnemy("Jean Plesa", gp, gp.tileSize * 15, gp.tileSize * 16);
     }
 

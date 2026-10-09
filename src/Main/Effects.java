@@ -174,6 +174,19 @@ public class Effects {
         sound("ability");
     }
 
+    /** Abilitatea unui aliat: scântei la aliat și, dacă lovește, la inamic. */
+    public void allyCast(int rgb, int ax, int ay, boolean onEnemy) {
+        sparks(ParticleSystem.FRONT, ax, ay, 10, rgb, 6f);
+        burst(ParticleSystem.FRONT, ax, ay, 14, rgb, 4f, 36, 6f, -0.02f);
+        if (onEnemy) sparks(ParticleSystem.FRONT, gp.battleUI.enemyCenterX(), gp.battleUI.enemyCenterY(), 10, rgb, 6f);
+        sound("ability");
+    }
+
+    public void allyHurt(int ax, int ay) {
+        burst(ParticleSystem.FRONT, ax, ay, 12, 0xE04848, 4f, 26, 5f, 0.12f);
+        sound("hit");
+    }
+
     /** Sunet pentru evenimente de misiune: ușor la progres, plin la îndeplinire/predare. */
     public void questSound(boolean big) {
         sound(big ? "reward" : "coin");

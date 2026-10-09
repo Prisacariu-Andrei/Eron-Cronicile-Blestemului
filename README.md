@@ -83,6 +83,19 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
 
 **Pasaj/boss nou:** adaugă boss-ul la `bosses`, artefactul la `artifacts` și un obiect la `gates` (poziția Gărzii: o căsuță liberă din fața tile-ului).
 
+## Aliați și Jean Pleșa
+
+- **`res/Data/allies.json`** — `party` (șansa ca o lovitură a inamicului să ajungă la aliat, cât se reface după luptă, câți aliați pot merge odată) și
+  lista `allies`: `id`, `name`, `sprite`, `color`, `maxLife`, `recruitFrom` (inamicul care, învins, îl recrutează), `scene` (replicile scenei de
+  recrutare) și `abilities` (în ordinea priorității; prima cu condiția `when` adevărată se folosește: `always`, `selfLifeBelow:0.4`,
+  `playerLifeBelow:0.5`, `playerShieldBelow:6`; efecte: `damage` (+status), `shieldPlayer`, `shieldSelf`, `healPlayer`, `healSelf`).
+- În luptă aliatul acționează când Eron își termină tura (înainte de inamic), apare lângă Eron cu bară de viață și ultima abilitate,
+  poate fi lovit și poate cădea (se ridică la 50% după luptă). Viața lui se salvează (`saves.party`).
+- **Jean Pleșa** (Citadela): lovește de două ori și îți aplică *Vulnerabilitate* (+50% damage primit, 2 ture) — e o cursă de damage. După victorie:
+  ecran de recompensă → scenă scurtă → Jean se alătură, iar Paloșul Legendar (obiect cheie) deschide drumul spre Tundra.
+
+**Aliat nou:** adaugă un obiect în `allies` din `allies.json` (inamicul din `recruitFrom` trebuie să existe în `EnemyFactory`).
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare

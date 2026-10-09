@@ -47,7 +47,7 @@ public class DatabaseManager {
 
             // Monedele jucătorului: coloană adăugată ulterior, deci și pentru baze de date vechi
             // Progresia: nivel, XP și starea misiunilor din quests.json (text compact, vezi QuestLog.serialize)
-            for (String column : new String[]{"xp INTEGER DEFAULT 0", "level INTEGER DEFAULT 1", "quest_data TEXT DEFAULT ''", "story_flags TEXT DEFAULT ''"}) {
+            for (String column : new String[]{"xp INTEGER DEFAULT 0", "level INTEGER DEFAULT 1", "quest_data TEXT DEFAULT ''", "story_flags TEXT DEFAULT ''", "party TEXT DEFAULT ''"}) {
                 try {
                     st.execute("ALTER TABLE saves ADD COLUMN " + column + ";");
                 } catch (SQLException alreadyThere) {

@@ -69,7 +69,7 @@ public class KeyHandler implements KeyListener {
             } else if (state instanceof RewardState) { // <--- ADAUGĂ ACEST BLOC NOU!
                 System.out.println("DEBUG: Jucătorul a refuzat recompensa.");
                 gp.rewardUI.commandNum = 0;
-                gp.changeState(new PlayState(gp));
+                gp.leaveReward();
                 return;
             }
         }
@@ -174,7 +174,7 @@ public class KeyHandler implements KeyListener {
                 Card selectedGarde = gp.rewardUI.rewardCards.get(gp.rewardUI.commandNum);
                 gp.fx.rewardBurst(gp.rewardUI.selectedCenterX(), gp.rewardUI.selectedCenterY());
                 gp.player.inventory.cards.add(selectedGarde);
-                gp.changeState(new PlayState(gp));
+                gp.leaveReward();
                 gp.player.worldY -= 10;
             }
         }

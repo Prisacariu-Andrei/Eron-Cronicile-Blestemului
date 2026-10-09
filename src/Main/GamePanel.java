@@ -12,6 +12,8 @@ import ProgressManagement.Progression;
 import ProgressManagement.Pickups;
 import GameState.GameState;
 import GameState.MenuState;
+import GameState.AllySceneState;
+import GameState.PlayState;
 import GameState.InputNameState;
 
 import javax.swing.*;
@@ -69,6 +71,7 @@ public class GamePanel extends JPanel implements Runnable {
     // Misiuni, niveluri/abilități și obiecte de cules (date în res/Data: quests.json, progression.json)
     public QuestLog questLog = new QuestLog(this);
     public ProgressManagement.StoryProgress story = new ProgressManagement.StoryProgress(this); // boss-i învinși, pasaje deschise (gates.json)
+    public Entity.Allies.Party party = new Entity.Allies.Party(this); // aliații lui Eron (allies.json)
     public Progression progression = new Progression(this);
     public Pickups pickups = new Pickups(this);
     public ArrayList<DamagePopUp> popups = new ArrayList<>();
@@ -119,6 +122,14 @@ public class GamePanel extends JPanel implements Runnable {
      * Schimbă starea curentă a jocului asigurând rularea metodelor de exit și enter,
      * și actualizează automat SoundTrack-ul în mod inteligent.
      */
+    /** Din ecranul de recompensă: dacă boss-ul tocmai a recrutat un aliat se joacă scena lui, altfel înapoi pe hartă. */
+    public void leaveReward() {
+        String id = party.pendingRecruit;
+        party.pendingRecruit = null;
+        if (id != null) changeState(new AllySceneState(this, id));
+        else changeState(new PlayState(this));
+    }
+
     public void changeState(GameState newState) {
         GameState previous = currentState;
         if (currentState != null) {

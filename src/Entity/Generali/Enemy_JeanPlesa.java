@@ -2,6 +2,7 @@ package Entity.Generali;
 
 import Entity.Inamici.Enemy;
 import Entity.Player.Player;
+import Entity.StatusEffect;
 import Main.GamePanel;
 import Observer.DamagePopUp;
 
@@ -85,8 +86,9 @@ public class Enemy_JeanPlesa extends Enemy {
             }
             // 2. Atacul clasic (de două ori)
             else if (nextAction == EnemyAction.ATTACK) {
-                // Lovitura 1
+                // Lovitura 1 marchează ținta: Vulnerabilitate (+50% damage primit, 2 ture); lovitura 2 și turele următoare lovesc mai tare
                 player.damagePlayer(intentValue);
+                player.applyStatus(StatusEffect.Type.VULNERABLE, 2, 50);
                 // Lovitura 2
                 player.damagePlayer(intentValue);
 
@@ -95,6 +97,7 @@ public class Enemy_JeanPlesa extends Enemy {
             // 3. Sabotaj (Scade mana și atacă)
             else if (nextAction == EnemyAction.SPECIAL) {
                 player.damagePlayer(intentValue);
+                player.applyStatus(StatusEffect.Type.VULNERABLE, 2, 50);
                 if (player.currentMana > 0) {
                     player.currentMana -= 1;
                     player.notifyObservers();

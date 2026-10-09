@@ -56,7 +56,7 @@ public class SaveLoadManager {
             // Monedele și relicvele (coloanele sunt adăugate în DatabaseManager)
             try (PreparedStatement extra = conn.prepareStatement("UPDATE saves SET coins = ?, are_dinte_chilimbar = ?, " +
                     "are_diamantul_noptii = ?, are_palos_legendar = ?, are_inel_gheata = ?, are_platosa_valerius = ?, " +
-                    "level = ?, xp = ?, quest_data = ?, story_flags = ? WHERE slot = ?")) {
+                    "level = ?, xp = ?, quest_data = ?, story_flags = ?, party = ? WHERE slot = ?")) {
                 extra.setInt(1, player.coins);
                 extra.setInt(2, player.areDinteChilimbar ? 1 : 0);
                 extra.setInt(3, player.areDiamantulNoptii ? 1 : 0);
@@ -67,7 +67,8 @@ public class SaveLoadManager {
                 extra.setInt(8, player.gp.progression.xp);
                 extra.setString(9, player.gp.questLog.serialize());
                 extra.setString(10, player.gp.story.serialize());
-                extra.setInt(11, slot);
+                extra.setString(11, player.gp.party.serialize());
+                extra.setInt(12, slot);
                 extra.executeUpdate();
             }
 
@@ -167,6 +168,12 @@ public class SaveLoadManager {
                 } catch (SQLException e) {
                     gp.story.deserialize("");
                 }
+                try {
+                    gp.party.deserialize(rs.getString("party"));
+                } catch (SQLException e) {
+                    gp.party.deserialize("");
+                }
+                if (gp.story.has("jean") && !gp.party.has("jean")) gp.party.recruit("jean"); // salvare dinainte de aliați
 
                 // 2. Încărcăm inventarul jucătorului
                 loadInventory(gp.player, slot, conn);

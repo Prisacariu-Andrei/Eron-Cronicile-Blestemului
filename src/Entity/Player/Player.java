@@ -466,6 +466,14 @@ public class Player extends Entity {
                 deathTimer.setRepeats(false); deathTimer.start();
                 return;
             }
+
+            // Tura aliaților (allies.json): acționează după Eron, înainte de inamic
+            gp.party.actAll(this, currentEnemy);
+            if (currentEnemy.life <= 0 && !currentEnemy.alive) {
+                Timer deathTimer = new Timer(900, e -> { winBattle(); ((Timer)e.getSource()).stop(); });
+                deathTimer.setRepeats(false); deathTimer.start();
+                return;
+            }
         }
 
         gp.battleUI.announceTurn("TURNUL INAMICULUI");
@@ -528,6 +536,19 @@ public class Player extends Entity {
         }
 
         boolean inBattle = gp.getCurrentState() instanceof BattleState;
+
+        // Cu un aliat în viață, o parte din lovituri ajung la el (allies.json -> party.targetChance)
+        if (inBattle && gp.party.redirectHit(amount)) return;
+
+        // Vulnerabilitate (ex. Jean Pleșa): primești mai mult damage cât timp statusul e activ
+        for (StatusEffect s : activeStatuses) {
+            if (s.type == StatusEffect.Type.VULNERABLE) {
+                amount += amount * s.value / 100;
+                gp.popups.add(new DamagePopUp(gp.tileSize * 3, gp.tileSize * 4, "VULNERABIL", new Color(255, 120, 200)));
+                break;
+            }
+        }
+
         if (this.shield < amount) {
             int remaining = amount - shield;
             shield = 0;
@@ -617,6 +638,8 @@ public class Player extends Entity {
         this.shield = 0;
         this.voltCount = 0;
         this.lastCardPlayed = null;
+        activeStatuses.clear();
+        gp.party.startBattle();
         this.inventory.prepareForBattle();
         if (currentEnemy != null) currentEnemy.setNextIntent();
     }
@@ -653,6 +676,8 @@ public class Player extends Entity {
                 gp.ui.messageOn = true;
                 gp.fx.questSound(false);
             }
+
+            gp.party.onEnemyDefeated(inamicNume); // boss-ii care recrutează un aliat (scena se joacă după recompensă)
 
             // Progresul poveștii: boss-ul învins deschide pasajul spre zona următoare și dă artefactul
             var artifact = gp.story.onEnemyDefeated(inamicNume);
@@ -793,6 +818,8 @@ public class Player extends Entity {
             currentEnemy.alive = false;
             currentEnemy = null;
         }
+        activeStatuses.clear();      // nicio vulnerabilitate rămasă din luptă
+        gp.party.afterBattle();      // aliații se refac parțial (allies.json)
         this.inventory.resetDeckAfterBattle();
         gp.rewardUI.generateRewards();
         gp.changeState(new RewardState(gp));
@@ -800,6 +827,7 @@ public class Player extends Entity {
 
     public void resetPlayer() {
         clearRunes();           // fără rune și fără bonusurile lor
+        gp.party.reset();       // fără aliați
         gp.story.reset();       // niciun boss învins, pasajele se închid la loc
         areDinteChilimbar = areDiamantulNoptii = arePalosLegendar = areInelDeGheata = arePlatosaValerius = false;
         setDefaultValues();
