@@ -279,7 +279,7 @@ public class Effects {
 
     private static boolean isOverlay(GameState s) {
         return s instanceof PauseState || s instanceof InventoryState || s instanceof DialogueState
-                || s instanceof QuestGameState || s instanceof ShopState;
+                || s instanceof QuestGameState || s instanceof ShopState || s instanceof DebugState;
     }
 
     /** Apelată de GamePanel la fiecare changeState. Decide ce tranziție vizuală se potrivește. */

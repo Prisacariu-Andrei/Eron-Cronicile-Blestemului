@@ -42,8 +42,25 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
+        // Modul de test (oprit implicit, vezi DebugMode): F9 deschide meniul "Sari la zonă"
+        if (DebugMode.ENABLED) {
+            if (code == KeyEvent.VK_F9 && state instanceof PlayState) {
+                gp.changeState(new DebugState(gp));
+                return;
+            }
+            if (state instanceof DebugState ds) {
+                if (code == KeyEvent.VK_ESCAPE || code == KeyEvent.VK_F9) ds.close();
+                else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) ds.move(-1);
+                else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) ds.move(1);
+                else if (code == KeyEvent.VK_ENTER) ds.chooseSelected();
+                else if (code >= KeyEvent.VK_1 && code <= KeyEvent.VK_7) ds.choose(code - KeyEvent.VK_1);
+                return;
+            }
+        }
+
         if (code == KeyEvent.VK_ESCAPE) {
             if (state instanceof PlayState) {
+
                 System.out.println("DEBUG: Jocul a trecut în PAUZĂ.");
                 SoundManager.getInstance().playSE("click"); // <--- ADĂUGAT: Pune efect de click!
                 gp.changeState(new PauseState(gp));

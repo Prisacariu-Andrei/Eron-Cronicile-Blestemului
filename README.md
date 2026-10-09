@@ -118,6 +118,12 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
   *Faza III, Eclipsa* — atacul lui crește cu fiecare tură. Fiecare fază are banner cu text, flash și scuturat.
 - După victorie: **epilogul** (cutscene peste Eldoria, același sistem ca prologul; `CutsceneUI.Script.EPILOGUE`), apoi genericul. Dalele lipsă ale Castelului au o variantă provizorie până apar desenele reale.
 
+## Mod de test (oprit implicit)
+
+Pornește jocul cu opțiunea JVM `-Deron.debug=true` (IntelliJ: Run → Edit Configurations → Modify options → Add VM options) sau cu variabila `ERON_DEBUG=1`.
+Apoi, în joc, **F9** deschide „Sari la zonă”: alegi Eldoria, Munți, Abis, Citadela, Tundra, Pod sau Castel (tastele **1–7** sau **W/S + ENTER**) și primești progresul
+necesar (boss-ii dinainte, artefactele, Jean, nivelul) și ești teleportat. Doar adaugă progres, nu scoate nimic. Fără opțiune, F9 nu face nimic.
+
 ## Cum se simte jocul ("game feel")
 
 Toate reglajele sunt într-un singur fișier: [`src/Main/GameFeel.java`](src/Main/GameFeel.java), cu comentarii pentru fiecare
