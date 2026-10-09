@@ -50,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
     // ENTITĂȚI
     public Player player = new Player(this, keyH);
     public Enemy[] enemy = new Enemy[15];
-    public NPC[] npc = new NPC[10];
+    public NPC[] npc = new NPC[14];
 
     // UI & OBSERVERS
     public UI ui = new UI(this);

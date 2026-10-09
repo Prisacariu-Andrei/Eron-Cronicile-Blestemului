@@ -37,6 +37,13 @@ public class RuneFactory {
     public static int slots() { load(); return slots; }
     public static int bagSize() { load(); return bagSize; }
     public static List<String> ids() { load(); return new ArrayList<>(defs.keySet()); }
+    /** Runele primite la începutul jocului (runes.json -> "start": true). */
+    public static List<String> startingIds() {
+        load();
+        List<String> out = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Object>> e : defs.entrySet()) if (Json.bool(e.getValue().get("start"), false)) out.add(e.getKey());
+        return out;
+    }
     public static boolean exists(String id) { load(); return defs.containsKey(id); }
 
     /** Creează runa după id (ex. "vapaie"); null dacă id-ul nu există. */
@@ -53,7 +60,7 @@ public class RuneFactory {
         int color;
         try { color = Integer.parseInt(hex, 16); } catch (NumberFormatException e) { color = 0xFFFFFF; }
         return new Rune(id, Json.str(d.get("name"), id), Json.str(d.get("description"), ""), Json.str(d.get("glyph"), "flame"),
-                color, Json.str(d.get("rarity"), "Comună"), Json.integer(d.get("price"), 100), buffs);
+                color, Json.str(d.get("rarity"), "Comună"), Json.integer(d.get("price"), 100), Json.bool(d.get("bound"), false), buffs);
     }
 
     /** Aruncă zarul pentru inamicul învins (numele dinaintea virgulei). Returnează id-ul unei rune sau null. */

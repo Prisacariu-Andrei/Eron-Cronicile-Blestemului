@@ -164,7 +164,7 @@ public class InventoryUI {
         int ly = ty + 82;
         for (String line : wrap(g2, r.description, 530)) { g2.drawString(line, left + 14, ly); ly += 21; }
         g2.setColor(new Color(150, 150, 170));
-        g2.drawString("Valoare de vânzare: " + Main.Economy.get().sellPriceOf(r.price) + " monede (la negustor)", left + 14, ty + th - 12);
+        g2.drawString(r.bound ? "Nu poate fi vândută." : "Valoare de vânzare: " + Main.Economy.get().sellPriceOf(r.price) + " monede (la negustor)", left + 14, ty + th - 12);
     }
 
     private static java.util.List<String> wrap(Graphics2D g2, String text, int width) {

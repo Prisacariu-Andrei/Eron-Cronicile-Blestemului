@@ -10,11 +10,13 @@ public class Rune {
     public final String glyph;      // flame | shield | heart | drop | fang (desenat în cod)
     public final int color;         // 0xRRGGBB
     public final String rarity;
+    public final boolean bound;     // nu se poate vinde (ex. Manuscrisul Străvechi)
     public final int price;         // prețul de cumpărare
     public final Map<String, Integer> buffs;
     public boolean isEquipped;
 
-    public Rune(String id, String name, String description, String glyph, int color, String rarity, int price, Map<String, Integer> buffs) {
+    public Rune(String id, String name, String description, String glyph, int color, String rarity, int price, boolean bound, Map<String, Integer> buffs) {
+        this.bound = bound;
         this.id = id;
         this.name = name;
         this.description = description;

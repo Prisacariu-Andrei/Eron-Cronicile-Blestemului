@@ -73,6 +73,11 @@ public class Player extends Entity {
 
     /** După încărcarea unei salvări: viața maximă salvată include deja bonusul, daunele nu. */
     public void restoreRunes() {
+        for (String id : RuneFactory.startingIds()) { // salvările vechi nu au Manuscrisul
+            if (inventory.ownsRune(id)) continue;
+            Rune r = RuneFactory.createRune(id);
+            if (inventory.addRune(r) && inventory.equippedCount() < inventory.runeSlots()) r.isEquipped = true;
+        }
         runeLifeApplied = runeSum("maxLife");
         runeDamageApplied = 0;
         refreshRunes();
@@ -162,6 +167,7 @@ public class Player extends Entity {
         exploreMana = maxExploreMana;
 
         this.inventory.cards.addAll(CardManager.getStartingDeck(this));
+        for (String id : RuneFactory.startingIds()) giveRune(RuneFactory.createRune(id)); // ex. Manuscrisul Străvechi
     }
 
     public void update() {

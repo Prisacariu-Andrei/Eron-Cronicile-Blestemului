@@ -194,7 +194,7 @@ public class ShopUI {
         for (Card c : gp.player.inventory.cards) counts.merge(c.name, 1, Integer::sum);
         List<String[]> out = new ArrayList<>();
         for (Map.Entry<String, Integer> e : counts.entrySet()) out.add(new String[]{e.getKey(), String.valueOf(e.getValue()), "card"});
-        for (Rune r : gp.player.inventory.runes) out.add(new String[]{r.name, "1", "rune"});
+        for (Rune r : gp.player.inventory.runes) if (!r.bound) out.add(new String[]{r.name, "1", "rune"});
         return out;
     }
 
