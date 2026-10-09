@@ -27,4 +27,12 @@ public class CadereaStelelor extends Card {
             enemy.takeDamage(player,totalDamage);
         }
     }
+
+    // play() adaugă +3 cu Colțul, iar Enemy.takeDamage încă +3
+    private static String describe(Player p) {
+        return "Focul din cer mistuie \noștile potrivnice.\n Paguba: " + (BASE_DAMAGE + p.damage + (p.areDinteChilimbar ? 6 : 0));
+    }
+
+    @Override
+    public String getDynamicDescription(Player player) { return describe(player); }
 }

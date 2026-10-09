@@ -226,7 +226,7 @@ public class SaveLoadManager {
             ResultSet rs = pr.executeQuery();
             while (rs.next()) {
                 Entity.Items.Rune r = Entity.Runes.RuneFactory.createRune(rs.getString("item_name"));
-                if (r != null && player.inventory.addRune(r)) r.isEquipped = rs.getInt("quantity") == 1 && player.inventory.equippedCount() < player.inventory.runeSlots();
+                if (r != null && player.inventory.addRune(r)) r.isEquipped = !r.story && rs.getInt("quantity") == 1 && player.inventory.equippedCount() < player.inventory.runeSlots();
             }
         }
     }

@@ -142,10 +142,11 @@ public class InventoryUI {
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 19F));
             g2.setColor(RuneIcon.rarityColor(r.rarity));
             g2.drawString(r.name, left + rowH + 10, ry + 23);
-            if (r.isEquipped) {
+            if (r.isEquipped || r.story) {
                 g2.setFont(g2.getFont().deriveFont(Font.BOLD, 15F));
-                g2.setColor(new Color(120, 230, 140));
-                g2.drawString("ECHIPATĂ", left + 560 - 90, ry + 22);
+                g2.setColor(r.story ? new Color(255, 215, 120) : new Color(120, 230, 140));
+                String tag = r.story ? "POVESTE" : "ECHIPATĂ";
+                g2.drawString(tag, left + 560 - 12 - g2.getFontMetrics().stringWidth(tag), ry + 22);
             }
         }
 
@@ -161,7 +162,7 @@ public class InventoryUI {
         g2.drawString(r.name + "  (" + r.rarity + ")", left + 80, ty + 32);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 17F));
         g2.setColor(new Color(120, 230, 140));
-        g2.drawString(r.buffText(), left + 80, ty + 56);
+        g2.drawString(r.story ? "Obiect de poveste - permite învățarea abilităților" : r.buffText(), left + 80, ty + 56);
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 16F));
         g2.setColor(new Color(205, 205, 220));
         int ly = ty + 82;

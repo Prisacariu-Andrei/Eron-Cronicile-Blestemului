@@ -11,12 +11,16 @@ public class Rune {
     public final int color;         // 0xRRGGBB
     public final String rarity;
     public final boolean bound;     // nu se poate vinde (ex. Manuscrisul Străvechi)
+    public final boolean story;           // obiect de poveste: nu se echipează, nu dă bonusuri
+    public final boolean grantsAbilities; // deținătorul poate folosi abilitățile
     public final int price;         // prețul de cumpărare
     public final Map<String, Integer> buffs;
     public boolean isEquipped;
 
-    public Rune(String id, String name, String description, String glyph, int color, String rarity, int price, boolean bound, Map<String, Integer> buffs) {
+    public Rune(String id, String name, String description, String glyph, int color, String rarity, int price, boolean bound, boolean story, boolean grantsAbilities, Map<String, Integer> buffs) {
         this.bound = bound;
+        this.story = story;
+        this.grantsAbilities = grantsAbilities;
         this.id = id;
         this.name = name;
         this.description = description;

@@ -77,7 +77,7 @@ public class Player extends Entity {
         for (String id : RuneFactory.startingIds()) { // salvările vechi nu au Manuscrisul
             if (inventory.ownsRune(id)) continue;
             Rune r = RuneFactory.createRune(id);
-            if (inventory.addRune(r) && inventory.equippedCount() < inventory.runeSlots()) r.isEquipped = true;
+            inventory.addRune(r); // obiectele de poveste nu se echipează
         }
         runeLifeApplied = runeSum("maxLife");
         runeDamageApplied = 0;
@@ -86,6 +86,7 @@ public class Player extends Entity {
 
     /** Echipează/dezechipează runa. Returnează un mesaj pentru jucător. */
     public String toggleRune(Rune r) {
+        if (r.story) return r.name + " este un obiect de poveste: nu se echipează.";
         if (r.isEquipped) {
             r.isEquipped = false;
             refreshRunes();
@@ -100,7 +101,7 @@ public class Player extends Entity {
     /** Adaugă runa în rucsac și o echipează dacă mai e un slot liber. */
     public boolean giveRune(Rune r) {
         if (!inventory.addRune(r)) return false;
-        if (inventory.equippedCount() < inventory.runeSlots()) { r.isEquipped = true; refreshRunes(); }
+        if (!r.story && inventory.equippedCount() < inventory.runeSlots()) { r.isEquipped = true; refreshRunes(); }
         return true;
     }
 
@@ -167,6 +168,9 @@ public class Player extends Entity {
         currentMana = maxMana;
         exploreMana = maxExploreMana;
 
+        inventory.cards.clear();     // setDefaultValues rulează și la joc nou: fără clear pachetul s-ar dubla
+        inventory.hand.clear();
+        inventory.discardPile.clear();
         this.inventory.cards.addAll(CardManager.getStartingDeck(this));
         for (String id : RuneFactory.startingIds()) giveRune(RuneFactory.createRune(id)); // ex. Manuscrisul Străvechi
     }
@@ -386,6 +390,11 @@ public class Player extends Entity {
         var ability = gp.progression.abilityAt(slot);
         if (ability == null || !isPlayerTurn || currentEnemy == null || !currentEnemy.alive || life <= 0) return;
 
+        if (!inventory.canLearnAbilities()) { // fără Manuscrisul Străvechi nu poți învăța abilități
+            gp.fx.denied();
+            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "Ai nevoie de Manuscris", Color.ORANGE));
+            return;
+        }
         if (!gp.progression.isUnlocked(ability)) {
             gp.fx.denied();
             gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "Nivel " + ability.unlockLevel + " necesar", Color.ORANGE));

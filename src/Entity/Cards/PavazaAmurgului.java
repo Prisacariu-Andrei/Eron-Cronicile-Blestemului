@@ -16,4 +16,11 @@ public class PavazaAmurgului extends Card {
         }
         player.addShield(amount);
     }
+
+    private static String describe(Player p) {
+        return "Ridici un zid de spirit ce \noprește orice asalt. \nArmura " + (16 + p.bonusShield + (p.areInelDeGheata ? 6 : 0));
+    }
+
+    @Override
+    public String getDynamicDescription(Player player) { return describe(player); }
 }

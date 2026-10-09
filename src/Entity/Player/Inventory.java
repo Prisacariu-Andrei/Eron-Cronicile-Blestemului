@@ -29,6 +29,12 @@ public class Inventory {
         return false;
     }
 
+    /** Abilitățile (progression.json) se pot folosi doar cu o rună de poveste care le permite (Manuscrisul Străvechi). */
+    public boolean canLearnAbilities() {
+        for (Rune r : runes) if (r.grantsAbilities) return true;
+        return false;
+    }
+
     public boolean runeBagFull() { return runes.size() >= Entity.Runes.RuneFactory.bagSize(); }
 
     public void addItem(Card card) {

@@ -1,5 +1,5 @@
 {
-  "_help": "Toate runele jocului. slots = câte rune poate purta Eron odată; bagSize = câte rune poate avea în total. start: true = o primești de la începutul jocului, bound: true = nu se poate vinde. Fiecare rună: id (unic), name, description, glyph (flame|shield|heart|drop|fang), color (#RRGGBB), rarity (Comună|Rară|Epică), price (cumpărare; vânzarea = price * sellRatio din economy.json), buffs {damage, maxLife, turnShield, battleHeal}, drops {numeInamic: șansă 0..1} (numele dinaintea virgulei, ca în economy.json). Magazin: adaugă \"rune:<id>\" în shop.stock al unui negustor din npcs.json.",
+  "_help": "Toate runele jocului. slots = câte rune poate purta Eron odată; bagSize = câte rune poate avea în total. story: true = obiect de poveste (nu se echipează, nu ocupă slot), grantsAbilities: true = cine o are poate folosi abilitățile (progression.json). start: true = o primești de la începutul jocului, bound: true = nu se poate vinde. Fiecare rună: id (unic), name, description, glyph (flame|shield|heart|drop|fang), color (#RRGGBB), rarity (Comună|Rară|Epică), price (cumpărare; vânzarea = price * sellRatio din economy.json), buffs {damage, maxLife, turnShield, battleHeal}, drops {numeInamic: șansă 0..1} (numele dinaintea virgulei, ca în economy.json). Magazin: adaugă \"rune:<id>\" în shop.stock al unui negustor din npcs.json.",
 
   "slots": 3,
   "bagSize": 12,
@@ -7,9 +7,9 @@
   "runes": [
     {
       "id": "manuscris", "name": "Manuscris Străvechi", "glyph": "flame", "color": "#FF7A3C", "rarity": "Comună", "price": 0,
-      "start": true, "bound": true,
-      "description": "Pergamentul primit de la Bătrânul Cronicar vibrează de o putere latentă. Descântecele lui ard în palmele tale și toate loviturile dau mai mult.",
-      "buffs": { "damage": 2 },
+      "start": true, "bound": true, "story": true, "grantsAbilities": true,
+      "description": "Pergamentul primit de la Bătrânul Cronicar vibrează de o putere latentă. Nu dă putere în luptă: este cheia care îți permite să înveți abilități noi, pe măsură ce crești în nivel.",
+      "buffs": {},
       "drops": {}
     },
     {

@@ -24,4 +24,12 @@ public class ParjolulSferic extends Card {
         }
     }
 
+
+    private static String describe(Player p) {
+        return "Aruncă o bilă de foc \nputernică.\n Paguba " + (baseDamage + p.damage + (p.areDinteChilimbar ? 3 : 0)) + "\n Arsura " + burnTurns;
+    }
+
+    /** Descrierea ține cont de bonusurile din acest moment (runele echipate, relicve). */
+    @Override
+    public String getDynamicDescription(Player player) { return describe(player); }
 }

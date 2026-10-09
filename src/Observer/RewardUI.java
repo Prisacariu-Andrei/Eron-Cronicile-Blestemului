@@ -133,7 +133,7 @@ public class RewardUI {
 
             // Dacă descrierea e lungă, o putem "împacheta" sau afișa simplu
             // Aici presupun că ai variabila 'descriere' în clasa Card
-            String description = currentCard.description;
+            String description = currentCard.getDynamicDescription(gp.player);
             int descY = cardY + 120;
 
             // Logica simplă de split pentru descriere (dacă are \n)

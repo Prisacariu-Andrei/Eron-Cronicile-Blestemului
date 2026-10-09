@@ -60,7 +60,7 @@ public class RuneFactory {
         int color;
         try { color = Integer.parseInt(hex, 16); } catch (NumberFormatException e) { color = 0xFFFFFF; }
         return new Rune(id, Json.str(d.get("name"), id), Json.str(d.get("description"), ""), Json.str(d.get("glyph"), "flame"),
-                color, Json.str(d.get("rarity"), "Comună"), Json.integer(d.get("price"), 100), Json.bool(d.get("bound"), false), buffs);
+                color, Json.str(d.get("rarity"), "Comună"), Json.integer(d.get("price"), 100), Json.bool(d.get("bound"), false), Json.bool(d.get("story"), false), Json.bool(d.get("grantsAbilities"), false), buffs);
     }
 
     /** Aruncă zarul pentru inamicul învins (numele dinaintea virgulei). Returnează id-ul unei rune sau null. */

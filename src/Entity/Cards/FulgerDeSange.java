@@ -19,4 +19,11 @@ public class FulgerDeSange extends Card {
         if (enemy != null) enemy.takeDamage(player,baseDamage+player.damage);
         ++player.voltCount;
     }
+
+    private static String describe(Player p) {
+        return "O descărcare aprigă ce \nfrânge carnea.\nPaguba " + (baseDamage + p.damage + (p.areDinteChilimbar ? 3 : 0));
+    }
+
+    @Override
+    public String getDynamicDescription(Player player) { return describe(player); }
 }

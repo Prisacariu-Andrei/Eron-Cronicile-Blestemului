@@ -281,7 +281,7 @@ public class ShopUI {
             }
             Card c = preview.get(key);
             int price = Economy.get().buyPrice(key);
-            drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[0], c.name, c.manaCost, firstLine(c.description),
+            drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[0], c.name, c.manaCost, firstLine(c.getDynamicDescription(gp.player)),
                     "Cumpără  " + price, gp.player.coins >= price, null);
         }
         drawScrollHint(g2, x + w + 10, y, first, stock.size());
@@ -306,7 +306,7 @@ public class ShopUI {
             for (Card c : gp.player.inventory.cards) if (c.name.equals(name)) { sample = c; break; }
             int price = Economy.get().sellPriceForCardName(name, gp.player);
             drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[1], count > 1 ? name + "  x" + count : name,
-                    sample == null ? 0 : sample.manaCost, sample == null ? "" : firstLine(sample.description),
+                    sample == null ? 0 : sample.manaCost, sample == null ? "" : firstLine(sample.getDynamicDescription(gp.player)),
                     "Vinde  +" + price, canSell, null);
         }
         drawScrollHint(g2, x + w + 10, y, first, entries.size());
