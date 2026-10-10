@@ -741,14 +741,17 @@ public class Player extends Entity {
     public void interactObject() {
         int t = gp.tileSize;
         Rectangle pr = new Rectangle(worldX + hitBox.x - t, worldY + hitBox.y - t, hitBox.width + 2 * t, hitBox.height + 2 * t);
+        NPC nearest = null;
+        long best = Long.MAX_VALUE;
         for (int i = 0; i < gp.npc.length; i++) {
             NPC n = gp.npc[i];
             if (n == null || !n.usesF()) continue;
-            if (pr.intersects(new Rectangle(n.worldX + n.hitBox.x, n.worldY + n.hitBox.y, n.hitBox.width, n.hitBox.height))) {
-                n.use();
-                return;
-            }
+            Rectangle nr = new Rectangle(n.worldX + n.hitBox.x, n.worldY + n.hitBox.y, n.hitBox.width, n.hitBox.height);
+            if (!pr.intersects(nr)) continue;
+            long dx = nr.x + nr.width / 2 - (worldX + hitBox.x + hitBox.width / 2), dy = nr.y + nr.height / 2 - (worldY + hitBox.y + hitBox.height / 2);
+            if (dx * dx + dy * dy < best) { best = dx * dx + dy * dy; nearest = n; }   // cel mai apropiat (oglinzile stau aproape una de alta)
         }
+        if (nearest != null) nearest.use();
     }
 
     public void startBattle() {

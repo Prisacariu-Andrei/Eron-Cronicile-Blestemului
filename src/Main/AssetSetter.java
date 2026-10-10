@@ -273,5 +273,6 @@ public class AssetSetter {
             GameExceptionHandler.getInstance().handleWarning("Nu s-au putut încărca NPC-urile din npcs.json", e);
         }
         spawnChests(currentZone);
+        if (currentZone.equals("Tundra")) Entity.NPC.TundraPuzzle.spawn(gp);   // manivela, cristalul, oglinzile și poarta (res/Data/tundra.json)
     }
 }

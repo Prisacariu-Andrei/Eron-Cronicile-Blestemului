@@ -1,0 +1,12 @@
+{
+  "_help": "Puzzle-ul din Tundra (Ritul Luminii Captive). crank = Axul Solstițiului (manivela) din fundătura labirintului: cu F aprinde Lancea de Lumină. emitter = cristalul din Sala Oglinzilor care trimite fasciculul (dir: east|west|north|south). mirrors = Oglinzile de Selenit (col,row; start: '/' sau '\\'), cu F se întorc. door = Poarta de Gheață spre Glaciara (col,row,lățime în dale): se topește când fasciculul o atinge. Coordonatele sunt în dale. Starea (manivela trasă, poarta deschisă) se salvează ca flag-uri: tundra_crank, tundra_door.",
+
+  "crank":   { "col": 31, "row": 24 },
+  "emitter": { "col": 41, "row": 20, "dir": "east" },
+  "mirrors": [
+    { "col": 46, "row": 20, "start": "\\" },
+    { "col": 46, "row": 17, "start": "/" },
+    { "col": 52, "row": 17, "start": "\\" }
+  ],
+  "door":    { "col": 51, "row": 15, "widthTiles": 3 }
+}
