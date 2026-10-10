@@ -247,8 +247,11 @@ public class BattleUI {
         drawMessages(g2);
     }
 
+    /** Fundalul zonei, pus de BattleState la începutul luptei (null = rămâne fundalul vechi al inamicului). */
+    public java.awt.image.BufferedImage zoneBackground;
+
     private void drawBackground(Graphics2D g2) {
-        java.awt.image.BufferedImage zoneBg = Main.ZoneInfo.battleImage(gp.tileM.currentZone, gp.screenWidth, gp.screenHeight);   // res/Background, din zones.json
+        java.awt.image.BufferedImage zoneBg = zoneBackground != null ? zoneBackground : Main.ZoneInfo.battleImage(gp.tileM.currentZone, gp.screenWidth, gp.screenHeight);
         if (zoneBg != null) {
             g2.drawImage(zoneBg, 0, 0, gp.screenWidth, gp.screenHeight, null);
         } else if (gp.player.currentEnemy != null && gp.player.currentEnemy.battleBackground != null) {

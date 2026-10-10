@@ -10,7 +10,17 @@ public class BattleState implements GameState {
         this.gp = gp;
     }
 
-    @Override public void enter() { gp.battleUI.onBattleStart(); }
+    /** Fundalul zonei curente (res/Background/bg_<Zonă>.png), încărcat o singură dată la intrarea în luptă; null dacă lipsește. */
+    private java.awt.image.BufferedImage background;
+
+    @Override
+    public void enter() {
+        String path = "/Background/bg_" + gp.tileM.currentZone + ".png";
+        background = Main.ZoneInfo.image(path, gp.screenWidth, gp.screenHeight);
+        if (background == null) System.out.println("[WARNING] Fundalul de luptă lipsește: " + path + " (rămâne fundalul vechi)");
+        gp.battleUI.zoneBackground = background;   // BattleUI îl desenează primul, înaintea arenei
+        gp.battleUI.onBattleStart();
+    }
 
     @Override
     public void update() {
