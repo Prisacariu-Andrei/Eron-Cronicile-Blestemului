@@ -6,6 +6,7 @@ import Entity.Inamici.Enemy;
 import Entity.Inamici.EnemyFactory;
 import Entity.Inamici.Groups;
 import Entity.Items.Card;
+import Entity.NPC.NPC;
 import Entity.Cards.Combos;
 import Entity.Items.Rune;
 import Entity.Runes.RuneFactory;
@@ -736,7 +737,22 @@ public class Player extends Entity {
         }
     }
 
+    /** F: deschide un cufăr sau folosește o poartă din apropiere (obiectele NPC cu usesF()). */
+    public void interactObject() {
+        int t = gp.tileSize;
+        Rectangle pr = new Rectangle(worldX + hitBox.x - t, worldY + hitBox.y - t, hitBox.width + 2 * t, hitBox.height + 2 * t);
+        for (int i = 0; i < gp.npc.length; i++) {
+            NPC n = gp.npc[i];
+            if (n == null || !n.usesF()) continue;
+            if (pr.intersects(new Rectangle(n.worldX + n.hitBox.x, n.worldY + n.hitBox.y, n.hitBox.width, n.hitBox.height))) {
+                n.use();
+                return;
+            }
+        }
+    }
+
     public void startBattle() {
+
         winDelay = -1;
         this.moveVelocity = 0f; // nu mai alunecă când revine pe hartă
         this.moveRemainder = 0f;

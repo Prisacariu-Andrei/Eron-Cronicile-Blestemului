@@ -1,0 +1,17 @@
+{
+  "_help": "Cufere (tasta F). Fiecare intrare pune un cufăr în zona dată, pe o dală liberă aleasă o singură dată (la fel la fiecare încărcare). Conținut: coins = [min,max] monede, rune = id din runes.json (dacă o ai deja, primești monede în schimb), card = id de carte. Un cufăr deschis rămâne deschis (se salvează în flag-urile poveștii, chest_<zonă>_<număr>).",
+  "runeDuplicateCoins": 60,
+  "chests": [
+    { "zone": "Eldoria",  "coins": [30, 50] },
+    { "zone": "Eldoria",  "coins": [20, 30], "card": "ScanteiaDeJar" },
+    { "zone": "Barlogul", "coins": [40, 60], "rune": "izvor" },
+    { "zone": "Barlogul", "coins": [30, 50] },
+    { "zone": "Abisul",   "coins": [50, 70], "rune": "strajer" },
+    { "zone": "Abisul",   "coins": [40, 60], "card": "ArcElectric" },
+    { "zone": "Citadela", "coins": [60, 90], "card": "LanceDeFoc" },
+    { "zone": "Tundra",   "coins": [70, 100], "card": "SocTermic" },
+    { "zone": "Tundra",   "coins": [50, 80], "rune": "viata" },
+    { "zone": "Podul",    "coins": [80, 120], "card": "ExecutieUmbrita" },
+    { "zone": "Castelul", "coins": [120, 160], "card": "InimaFurtunii" }
+  ]
+}

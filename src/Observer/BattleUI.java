@@ -620,6 +620,11 @@ public class BattleUI {
                 }
             }
 
+            // numărul tastei care alege cartea (1-8)
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, titleFontSize * 0.95f));
+            g2.setColor(i == commandNum ? Color.YELLOW : new Color(190, 190, 210));
+            g2.drawString(String.valueOf(i + 1), x + cardWidth - (int)(cardWidth * 0.17), y + (int)(cardHeight * 0.14));
+
             // C. Mana Crystal (Mutat pe colțul din stânga sus, ușor decalat în exterior)
             int crystalSize = (int)(cardWidth * 0.28);
             int crystalX = x - (crystalSize / 3);
@@ -692,6 +697,9 @@ public class BattleUI {
      * Abilitățile (progression.json) în colțul de sus-stânga: tasta, nume, cost în esență.
      * Cele nedeblocate arată nivelul necesar; cele pe care nu le poți plăti acum sunt estompate.
      */
+    /** Tastele abilităților în luptă (cifrele 1-8 aleg cărțile). */
+    public static final String ABILITY_KEYS = "QERZ";
+
     private void drawAbilities(Graphics2D g2) {
         var list = gp.progression.abilities;
         int x = 16, y = 96, w = 232, h = 40;
@@ -711,7 +719,7 @@ public class BattleUI {
             // tasta
             g2.setFont(old.deriveFont(Font.BOLD, 16F));
             g2.setColor(unlocked ? Color.WHITE : new Color(110, 110, 125));
-            g2.drawString("[" + (i + 1) + "]", x + 10, ry + 26);
+            g2.drawString("[" + ABILITY_KEYS.charAt(i) + "]", x + 10, ry + 26);
             // nume
             g2.setFont(old.deriveFont(Font.BOLD, 15F));
             g2.setColor(unlocked ? (affordable ? Color.WHITE : new Color(165, 165, 180)) : new Color(110, 110, 125));
@@ -737,6 +745,10 @@ public class BattleUI {
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 110f));
         g2.setColor(Color.WHITE);
         g2.drawString("[T] END TURN", (int)(gp.screenWidth * 0.88), gp.screenHeight - (int)(gp.screenHeight * 0.03));
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, gp.screenWidth / 125f));
+        g2.setColor(new Color(200, 200, 215));
+        String keysHint = "[1-8] alege carte   [ENTER] joacă   [Q E R Z] abilități   [W/S] țintă   [T] termină tura";
+        g2.drawString(keysHint, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(keysHint) / 2, (int)(gp.screenHeight * 0.115));
 
         Font baseFont = g2.getFont();
         // Copie a listei: popup-urile se pot adăuga/șterge între timp (alt thread), iar un indice vechi ar da eroare

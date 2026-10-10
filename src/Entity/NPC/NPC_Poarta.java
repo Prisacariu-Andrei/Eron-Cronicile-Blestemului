@@ -30,7 +30,14 @@ public class NPC_Poarta extends NPC {
 
     private boolean isGone() { return worldX < -50000; }
 
+    @Override public boolean usesF() { return true; }
+    @Override public void use() {
+        if (isGone() || isShowingDialogue) return;
+        gp.activeNpcIndex = java.util.Arrays.asList(gp.npc).indexOf(this);
+        speak();
+    }
     @Override public void getImage() { }
+
     @Override public void setDialogue() { }
 
     @Override

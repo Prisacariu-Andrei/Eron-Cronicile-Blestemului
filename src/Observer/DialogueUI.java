@@ -51,7 +51,7 @@ public class DialogueUI {
 
         if (charIndex < currentDialogue.length()) {
             counter++;
-            if (counter >= 2) { // Viteza: cu cât e numărul mai mare, cu atât e mai lent (2-3 e ideal)
+            if (counter >= Main.Settings.dialogueTicksPerChar()) { // Viteza: cu cât e numărul mai mare, cu atât e mai lent (2-3 e ideal)
                 char c = currentDialogue.charAt(charIndex);
                 charIndex++;
                 counter = 0;

@@ -31,6 +31,25 @@ Salvările se scriu în `eron_save.db`, lângă proiect (nu este urmărit de git
 | F3 | Afișează/ascunde panoul de performanță (FPS, durata update/desenare, tile-uri desenate, entități, memorie) |
 | În prolog: ENTER, SPACE (ținut), ESC | Continuă, text mai rapid, sari peste prolog |
 
+## Taste
+
+| Tastă | Unde | Ce face |
+| --- | --- | --- |
+| W A S D / săgeți, Space | hartă | mers, dash |
+| E | hartă | vorbește cu un NPC |
+| **F** | hartă | deschide un cufăr / folosește poarta Castelului |
+| **M** | hartă | harta ținutului (zona curentă, zone deschise / închise) |
+| **T** | hartă, pauză | setări: volum, scuturat ecran, viteza textului (se salvează) |
+| I, J, ESC | hartă | inventar, jurnal de misiuni, pauză |
+| **1–8** | luptă | alege cartea din mână |
+| A / D, ENTER | luptă | mută cursorul prin mână, joacă cartea aleasă |
+| **Q E R Z** | luptă | abilitățile 1–4 (progression.json) |
+| W / S, TAB | luptă | schimbă ținta |
+| T | luptă | termină tura |
+| F3 / F9 | oriunde / mod test | panou de performanță / „Sari la zonă” (vezi Mod de test) |
+
+Cufere: `res/Data/chests.json` (monede, rună și/sau carte; zona, conținutul); un cufăr deschis rămâne deschis după salvare. Pozițiile pe hartă (M) și zonele deschise: `zones.json` (`map`, `requires`).
+
 ## Monede, magazin și NPC-uri (date, nu cod)
 
 - **`res/Data/economy.json`** — monedele de start, câte monede dă fiecare inamic (`enemyDrops`) și fiecare misiune

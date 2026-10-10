@@ -58,8 +58,27 @@ public class KeyHandler implements KeyListener {
             }
         }
 
+        // Hartă (M), setări (T), interacțiune cu obiecte (F)
+        if (state instanceof MapState ms) {
+            if (code == KeyEvent.VK_M || code == KeyEvent.VK_ESCAPE) ms.close();
+            return;
+        }
+        if (state instanceof SettingsState ss) {
+            if (code == KeyEvent.VK_T || code == KeyEvent.VK_ESCAPE) ss.close();
+            else if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) ss.move(-1);
+            else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) ss.move(1);
+            else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) ss.change(-1);
+            else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) ss.change(1);
+            else if (code == KeyEvent.VK_ENTER) ss.change(0);
+            return;
+        }
+        if (state instanceof PlayState && code == KeyEvent.VK_M) { gp.changeState(new MapState(gp)); return; }
+        if ((state instanceof PlayState || state instanceof PauseState) && code == KeyEvent.VK_T) { gp.changeState(new SettingsState(gp, state)); return; }
+        if (state instanceof PlayState && code == KeyEvent.VK_F) { gp.player.interactObject(); return; }
+
         if (code == KeyEvent.VK_ESCAPE) {
             if (state instanceof PlayState) {
+
 
                 System.out.println("DEBUG: Jocul a trecut în PAUZĂ.");
                 SoundManager.getInstance().playSE("click"); // <--- ADĂUGAT: Pune efect de click!
@@ -171,11 +190,21 @@ public class KeyHandler implements KeyListener {
                 gp.player.endTurn();
                 return;
             }
-            // Abilități (progression.json): tastele 1-4
-            if (code >= KeyEvent.VK_1 && code <= KeyEvent.VK_9) {
-                gp.player.useAbility(code - KeyEvent.VK_1);
+            // Cifrele 1-8 aleg cartea din mână (ENTER o joacă); abilitățile (progression.json) sunt pe Q, E, R, Z (BattleUI.ABILITY_KEYS)
+            if (code >= KeyEvent.VK_1 && code <= KeyEvent.VK_8) {
+                int idx = code - KeyEvent.VK_1;
+                if (idx < gp.player.inventory.hand.size() && idx != gp.battleUI.commandNum) {
+                    gp.battleUI.commandNum = idx;
+                    SoundManager.getInstance().playSE("click");
+                }
                 return;
             }
+            int abilitySlot = code == KeyEvent.VK_Q ? 0 : code == KeyEvent.VK_E ? 1 : code == KeyEvent.VK_R ? 2 : code == KeyEvent.VK_Z ? 3 : -1;
+            if (abilitySlot >= 0) {
+                gp.player.useAbility(abilitySlot);
+                return;
+            }
+
         }
 
         // 3. GESTIUNE REWARD SCREEN

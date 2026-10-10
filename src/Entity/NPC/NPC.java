@@ -34,6 +34,12 @@ public abstract class NPC extends Entity {
     /** Jucătorul a ales o opțiune dintr-un dialog cu variante (doar NPC-urile din date, vezi DataNPC, o folosesc). */
     public void choose(int index) {}
 
+    /** Obiectele cu care se interacționează cu F (cufere, porți) în loc de E. */
+    public boolean usesF() { return false; }
+
+    /** Ce se întâmplă când apeși F lângă obiect. */
+    public void use() { }
+
     // Metoda apelată când apeși [E] (Modificată pentru State Pattern)
     public void speak() {
         if (dialogues[dialogueIndex] == null) {

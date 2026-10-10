@@ -1,5 +1,5 @@
 {
-  "_help": "Ecranul de tranziție dintre zone și imaginile zonelor. loadingTicks = cât stă ecranul de încărcare (60 = o secundă). Pentru fiecare zonă: title/subtitle (text pe ecranul de încărcare), loading = imaginea ecranului de încărcare (res/Loading), battle = fundalul luptelor din zonă (opțional, nefolosit acum: imaginile din res/Background sunt capturi de ecran cu interfața inclusă), exit = unde apare Eron în Eldoria când iese din zonă după ce a învins boss-ul ei: map, zone, col, row. special = imagini pentru prolog, epilog și harta (tasta M).",
+  "_help": "Ecranul de tranziție dintre zone și imaginile zonelor. loadingTicks = cât stă ecranul de încărcare (60 = o secundă). Pentru fiecare zonă: title/subtitle (text pe ecranul de încărcare), loading = imaginea ecranului de încărcare (res/Loading), battle = fundalul luptelor din zonă (opțional, nefolosit acum: imaginile din res/Background sunt capturi de ecran cu interfața inclusă), exit = unde apare Eron în Eldoria când iese din zonă după ce a învins boss-ul ei: map, zone, col, row. map = poziția zonei pe harta din tasta M (x,y între 0 și 1), requires = flag-ul de poveste care deschide zona (gol = mereu deschisă). special = imagini pentru prolog, epilog și harta (tasta M).",
   "loadingTicks": 110,
 
   "special": {
@@ -9,23 +9,23 @@
   },
 
   "zones": {
-    "Eldoria":  { "title": "Eldoria",               "subtitle": "Ecoul Speranței",
+    "Eldoria":  { "map": [0.471, 0.500], "requires": "", "title": "Eldoria",               "subtitle": "Ecoul Speranței",
                   "loading": "/Loading/02_Eldoria.png" },
-    "Barlogul": { "title": "Bârlogul Lupului cel Bătrân", "subtitle": "Munții de Miazăzi",
+    "Barlogul": { "map": [0.490, 0.740], "requires": "fiara", "title": "Bârlogul Lupului cel Bătrân", "subtitle": "Munții de Miazăzi",
                   "loading": "/Loading/03_Barlogul.png",
                   "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 34, "row": 39 } },
-    "Abisul":   { "title": "Abisul de Piatră",      "subtitle": "Bezne și Furtuni",
+    "Abisul":   { "map": [0.276, 0.708], "requires": "fenris", "title": "Abisul de Piatră",      "subtitle": "Bezne și Furtuni",
                   "loading": "/Loading/04_Abisul.png",
                   "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 65, "row": 34 } },
-    "Citadela": { "title": "Citadela Haiducilor",   "subtitle": "Veselie Disperată",
+    "Citadela": { "map": [0.224, 0.417], "requires": "feldgug", "title": "Citadela Haiducilor",   "subtitle": "Veselie Disperată",
                   "loading": "/Loading/05_Citadela.png",
                   "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 11, "row": 12 } },
-    "Tundra":   { "title": "Tundra Tăcerii",        "subtitle": "Labirintul de Gheață",
+    "Tundra":   { "map": [0.470, 0.236], "requires": "jean", "title": "Tundra Tăcerii",        "subtitle": "Labirintul de Gheață",
                   "loading": "/Loading/06_Tundra.png",
                   "exit": { "map": "/Maps/Eldoria", "zone": "Eldoria", "col": 12, "row": 39 } },
-    "Podul":    { "title": "Podul Umbrelor",        "subtitle": "Drumul spre Castel",
+    "Podul":    { "map": [0.719, 0.463], "requires": "glaciara", "title": "Podul Umbrelor",        "subtitle": "Drumul spre Castel",
                   "loading": "/Loading/07_Podul.png" },
-    "Castelul": { "title": "Castelul de Obsidian",  "subtitle": "Apogeul Blestemului",
+    "Castelul": { "map": [0.846, 0.481], "requires": "glaciara", "title": "Castelul de Obsidian",  "subtitle": "Apogeul Blestemului",
                   "loading": "/Loading/08_Castelul.png" }
   }
 }

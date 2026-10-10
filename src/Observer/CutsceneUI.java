@@ -197,7 +197,7 @@ public class CutsceneUI {
         // --- textul apare literă cu literă; SPACE ținut îl accelerează ---
         boolean typing = mode == Mode.SHOT || (mode == Mode.INTRO && modeTicks > 36) || (mode == Mode.CUT_IN && modeTicks > 6);
         if (typing && isWriting()) {
-            float perTick = (speedUp ? GameFeel.CUTSCENE_SPEEDUP_FACTOR : 1f) / GameFeel.CUTSCENE_TEXT_TICKS_PER_CHAR;
+            float perTick = (speedUp ? GameFeel.CUTSCENE_SPEEDUP_FACTOR : 1f) * Main.Settings.cutsceneSpeedFactor() / GameFeel.CUTSCENE_TEXT_TICKS_PER_CHAR;
             charProgress += perTick;
             while (charProgress >= 1f && isWriting()) {
                 charProgress -= 1f;

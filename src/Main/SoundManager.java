@@ -103,7 +103,7 @@ public class SoundManager {
             // --- FORȚARE VOLUM MAXIM ---
             if (backgroundMusic.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 FloatControl gainControl = (FloatControl) backgroundMusic.getControl(FloatControl.Type.MASTER_GAIN);
-                gainControl.setValue(gainControl.getMaximum()); // Forțează volumul maxim din Java
+                gainControl.setValue(gainFor(gainControl)); // volumul maxim al sistemului, înmulțit cu setarea jucătorului (T)
             }
 
             backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
@@ -118,7 +118,26 @@ public class SoundManager {
     /**
      * Redă un efect sonor scurt o singură dată.
      */
+    /** Volumul jucătorului (Settings.volume, 0..1) în decibeli: 0 dB la 100%, tot mai jos cu cât scazi. */
+    private static float volumeDb() {
+        float v = Settings.volume;
+        return v <= 0.001f ? -80f : (float) (20 * Math.log10(v));
+    }
+
+    private static float gainFor(FloatControl c) {
+        return Math.max(c.getMinimum(), Math.min(c.getMaximum(), c.getMaximum() + volumeDb()));
+    }
+
+    /** Aplică imediat volumul din setări muzicii care rulează (efectele îl iau la următoarea redare). */
+    public void applyVolume() {
+        if (backgroundMusic != null && backgroundMusic.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gc = (FloatControl) backgroundMusic.getControl(FloatControl.Type.MASTER_GAIN);
+            gc.setValue(gainFor(gc));
+        }
+    }
+
     public void playSE(String key) {
+
         URL url = seFiles.get(key);
         if (url == null) {
             // Nu există fișier pentru acest efect: folosim varianta creată în cod (vezi mai jos)
@@ -134,7 +153,7 @@ public class SoundManager {
             // --- FORȚARE VOLUM MAXIM ---
             if (seClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 FloatControl gainControl = (FloatControl) seClip.getControl(FloatControl.Type.MASTER_GAIN);
-                gainControl.setValue(gainControl.getMaximum());
+                gainControl.setValue(gainFor(gainControl));
             }
 
             seClip.start();
@@ -191,6 +210,10 @@ public class SoundManager {
             }
             clip.stop();
             clip.setFramePosition(0);
+            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl gc = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                gc.setValue(Math.max(gc.getMinimum(), Math.min(gc.getMaximum(), volumeDb())));
+            }
             clip.start();
         } catch (Exception | LinkageError e) {
             synthUnavailable = true; // o singură încercare, apoi renunțăm în liniște

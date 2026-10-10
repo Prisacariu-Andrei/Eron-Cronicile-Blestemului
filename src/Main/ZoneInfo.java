@@ -27,7 +27,18 @@ public final class ZoneInfo {
 
     public static String subtitle(String zone) { return Json.str(zone(zone).get("subtitle"), ""); }
 
-    public static int loadingTicks() { return Json.integer(root().get("loadingTicks"), 110); }
+    /** Poziția zonei pe harta din tasta M (x, y între 0 și 1), sau null. */
+    public static double[] mapPos(String zone) {
+        java.util.List<Object> l = Json.list(zone(zone).get("map"));
+        if (l.size() < 2) return null;
+        return new double[]{Json.number(l.get(0), 0), Json.number(l.get(1), 0)};
+    }
+
+    /** Flag-ul de poveste care deschide zona ("" = mereu deschisă). */
+    public static String requires(String zone) { return Json.str(zone(zone).get("requires"), ""); }
+
+    public static int loadingTicks()
+ { return Json.integer(root().get("loadingTicks"), 110); }
 
     /** Titlul/subtitlul/imaginea unei scene speciale: "prologue", "epilogue" sau "map". */
     public static Map<String, Object> special(String key) { return Json.map(Json.map(root().get("special")).get(key)); }

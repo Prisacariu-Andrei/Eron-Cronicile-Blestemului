@@ -48,6 +48,7 @@ public class Effects {
     // =====================================================================================
 
     public void shake(float strength, int tickCount) {
+        if (!Settings.shake) return;   // setare: scuturatul ecranului oprit (tasta T)
         strength = Math.min(strength, GameFeel.SHAKE_MAX);
         if (strength <= 0 || tickCount <= 0) return;
         if (strength >= currentShake()) { // nu înlocuim un shake mai puternic cu unul mai slab

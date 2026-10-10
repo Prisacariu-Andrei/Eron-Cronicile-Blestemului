@@ -51,26 +51,7 @@ public class AssetSetter {
         var specs = Groups.spawns(zone);
         if (specs.isEmpty()) return;
         java.util.Random rng = new java.util.Random(zone.hashCode() * 31L + 7);
-        var tm = gp.tileM;
-        int cols = tm.actualMapCols, rows = tm.actualMapRows;
-
-        // dalele "de pardoseală" = cele mai frecvente dintre cele fără coliziune (restul sunt teleportări, capcane, decor)
-        java.util.Map<Integer, Integer> freq = new java.util.HashMap<>();
-        for (int c = 0; c < cols; c++) for (int r = 0; r < rows; r++) {
-            int id = tm.mapTileNum[c][r];
-            if (id >= 0 && id < tm.tile.length && tm.tile[id] != null && !tm.tile[id].collision) freq.merge(id, 1, Integer::sum);
-        }
-        java.util.Set<Integer> floor = new java.util.HashSet<>();
-        int walkable = freq.values().stream().mapToInt(Integer::intValue).sum();
-        freq.entrySet().stream().filter(e -> e.getValue() * 20 >= walkable).sorted((a, b) -> b.getValue() - a.getValue()).limit(3).forEach(e -> floor.add(e.getKey()));
-
-        java.util.List<int[]> candidates = new java.util.ArrayList<>();
-        for (int c = 2; c < cols - 2; c++) for (int r = 2; r < rows - 2; r++) {
-            boolean ok = true;
-            for (int dc = -1; dc <= 1 && ok; dc++) for (int dr = -1; dr <= 1 && ok; dr++) ok = floor.contains(tm.mapTileNum[c + dc][r + dr]);
-            if (ok) candidates.add(new int[]{c, r});
-        }
-        java.util.Collections.shuffle(candidates, rng);
+        java.util.List<int[]> candidates = floorSpots(rng);
 
         java.util.List<int[]> taken = new java.util.ArrayList<>();
         for (var e : gp.enemy) if (e != null) taken.add(new int[]{e.worldX / gp.tileSize, e.worldY / gp.tileSize});
@@ -102,6 +83,60 @@ public class AssetSetter {
                 for (Object w : with) enemy.packExtras.add(Json.str(w, ""));
                 gp.enemy[slot] = enemy;
             }
+        }
+    }
+
+    /** Dalele libere din jurul cărora totul e podea (nu zid, nu teleportare), amestecate cu generatorul dat. */
+    private java.util.List<int[]> floorSpots(java.util.Random rng) {
+        var tm = gp.tileM;
+        int cols = tm.actualMapCols, rows = tm.actualMapRows;
+
+        // dalele "de pardoseală" = cele mai frecvente dintre cele fără coliziune (restul sunt teleportări, capcane, decor)
+        java.util.Map<Integer, Integer> freq = new java.util.HashMap<>();
+        for (int c = 0; c < cols; c++) for (int r = 0; r < rows; r++) {
+            int id = tm.mapTileNum[c][r];
+            if (id >= 0 && id < tm.tile.length && tm.tile[id] != null && !tm.tile[id].collision) freq.merge(id, 1, Integer::sum);
+        }
+        java.util.Set<Integer> floor = new java.util.HashSet<>();
+        int walkable = freq.values().stream().mapToInt(Integer::intValue).sum();
+        freq.entrySet().stream().filter(e -> e.getValue() * 20 >= walkable).sorted((a, b) -> b.getValue() - a.getValue()).limit(3).forEach(e -> floor.add(e.getKey()));
+
+        java.util.List<int[]> candidates = new java.util.ArrayList<>();
+        for (int c = 2; c < cols - 2; c++) for (int r = 2; r < rows - 2; r++) {
+            boolean ok = true;
+            for (int dc = -1; dc <= 1 && ok; dc++) for (int dr = -1; dr <= 1 && ok; dr++) ok = floor.contains(tm.mapTileNum[c + dc][r + dr]);
+            if (ok) candidates.add(new int[]{c, r});
+        }
+        java.util.Collections.shuffle(candidates, rng);
+        return candidates;
+    }
+
+    /** Cufere (res/Data/chests.json): pe dale libere, departe de intrări, inamici și NPC-uri; aceleași locuri la fiecare încărcare. */
+    private void spawnChests(String zone) {
+        var all = Json.list(Json.map(Json.parseResource("/Data/chests.json")).get("chests"));
+        java.util.Random rng = new java.util.Random(zone.hashCode() * 31L + 13);
+        java.util.List<int[]> candidates = null;
+        java.util.List<int[]> taken = new java.util.ArrayList<>();
+        for (var e : gp.enemy) if (e != null) taken.add(new int[]{e.worldX / gp.tileSize, e.worldY / gp.tileSize});
+        for (var n : gp.npc) if (n != null && n.worldX >= 0) taken.add(new int[]{n.worldX / gp.tileSize, n.worldY / gp.tileSize});
+        var safe = Groups.safe(zone);
+        int index = 0;
+        for (Object o : all) {
+            var d = Json.map(o);
+            if (!zone.equals(Json.str(d.get("zone"), ""))) continue;
+            String id = zone + "_" + index++;
+            if (candidates == null) candidates = floorSpots(rng);
+            int[] spot = null;
+            for (int[] cand : candidates) {
+                if (nearAny(cand, taken, 6) || inSafe(cand, safe)) continue;
+                spot = cand;
+                break;
+            }
+            int slot = -1;
+            for (int i = 0; i < gp.npc.length; i++) if (gp.npc[i] == null) { slot = i; break; }
+            if (spot == null || slot < 0) continue;
+            taken.add(spot);
+            gp.npc[slot] = new Entity.NPC.NPC_Chest(gp, spot[0], spot[1], id, d);
         }
     }
 
@@ -240,5 +275,6 @@ public class AssetSetter {
         } catch (Exception e) {
             GameExceptionHandler.getInstance().handleWarning("Nu s-au putut încărca NPC-urile din npcs.json", e);
         }
+        spawnChests(currentZone);
     }
 }
