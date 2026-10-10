@@ -202,10 +202,7 @@ public class AssetSetter {
     }
 
     private void spawnTundra() {
-        gp.enemy[0] = EnemyFactory.createEnemy("Lup", gp, gp.tileSize * 61, gp.tileSize * 46);
-        gp.enemy[1] = EnemyFactory.createEnemy("Lup", gp, gp.tileSize * 50, gp.tileSize * 60);
-        gp.enemy[2] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 32, gp.tileSize * 53);
-        gp.enemy[3] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 85, gp.tileSize * 14);
+        // lupii și Yeti-ii din labirint vin din res/Data/enemies.json (spawns); aici doar boss-ul
         if (!gp.story.has("glaciara")) gp.enemy[5] = EnemyFactory.createEnemy("Glaciara, Stăpânul Inelului de Gheață", gp, gp.tileSize * 51+32, gp.tileSize * 11);
     }
 

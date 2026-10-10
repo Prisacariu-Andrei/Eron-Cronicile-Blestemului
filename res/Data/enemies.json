@@ -16,6 +16,7 @@
     { "id": "Haiduc Beat", "map": "/Enemy/JeanPlesa", "fight": "/Enemy/JeanPlesa", "tint": "#B5655A", "hp": 65, "dmg": 12, "role": "brute", "passive": true, "mapSize": 1.2, "music": "InamiciCitadela" },
     { "id": "Haiduc cu Arcul", "map": "/Enemy/JeanPlesa", "fight": "/Enemy/JeanPlesa", "tint": "#5A8FB5", "hp": 50, "dmg": 14, "role": "mage", "heal": 10, "passive": true, "mapSize": 1.2, "music": "InamiciCitadela" },
     { "id": "Lup de Gheață", "map": "/Enemy/Wolf", "fight": "/Enemy/WolfFight", "tint": "#A8D8FF", "hp": 65, "dmg": 11, "role": "brute", "music": "InamiciTundra" },
+    { "id": "Yeti", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#E4F3FF", "hp": 95, "dmg": 15, "role": "brute", "mapSize": 1.7, "music": "InamiciTundra" },
     { "id": "Vrăjitor de Brumă", "map": "/Enemy/Crow", "fight": "/Enemy/CrowFight", "tint": "#7FE3FF", "hp": 50, "dmg": 13, "role": "mage", "heal": 12, "music": "InamiciTundra" },
     { "id": "Umbră Rătăcitoare", "map": "/Enemy/Crow", "fight": "/Enemy/CrowFight", "tint": "#6A5A8A", "hp": 55, "dmg": 13, "role": "brute", "music": "InamiciPodul" },
     { "id": "Cavaler Blestemat", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#7A3030", "hp": 85, "dmg": 16, "role": "brute", "mapSize": 1.6, "music": "InamiciCastelull" },
@@ -47,7 +48,8 @@
       { "enemy": "Haiduc cu Arcul", "count": 2, "pack": [1, 1], "with": ["Haiduc Beat"] }
     ],
     "Tundra": [
-      { "enemy": "Lup de Gheață", "count": 3, "pack": [2, 3] },
+      { "enemy": "Lup de Gheață", "count": 4, "pack": [2, 3] },
+      { "enemy": "Yeti", "count": 3, "pack": [1, 1] },
       { "enemy": "Vrăjitor de Brumă", "count": 2, "pack": [1, 1], "with": ["Lup de Gheață", "Lup de Gheață"] }
     ],
     "Podul": [
@@ -65,7 +67,7 @@
     "Barlogul": [[47, 14, 10]],
     "Abisul": [[13, 18, 10]],
     "Citadela": [[66, 43, 10]],
-    "Tundra": [[87, 60, 10]],
+    "Tundra": [[87, 60, 10], [52, 18, 13], [52, 11, 8]],
     "Podul": [[5, 24, 10]],
     "Castelul": [[6, 35, 12]]
   }

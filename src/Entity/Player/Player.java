@@ -915,6 +915,11 @@ public class Player extends Entity {
                     gp.questManager.updateQuestProgress(3, true, 1);
                     break;
 
+                case "Yeti":
+                    // Side Quest 4: Vânătorul de Yeti
+                    gp.questManager.updateQuestProgress(4, false, 1);
+                    break;
+
                 case "Trol de Pestera":
                     // Quest 5: Învinge 5 inamici în Abisul de Piatra
                     var q5 = gp.questManager.getQuestById(5, true);
