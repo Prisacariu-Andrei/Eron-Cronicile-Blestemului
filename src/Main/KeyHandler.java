@@ -43,6 +43,12 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
+        // Dialogul dinaintea luptei cu un boss: ENTER sau E trece la replica următoare
+        if (state instanceof BattleIntroState intro) {
+            if (code == KeyEvent.VK_ENTER || code == KeyEvent.VK_E) intro.advance();
+            return;
+        }
+
         if (code == KeyEvent.VK_F3) {
             DebugStats.visible = !DebugStats.visible; // FPS / performanță
             return;

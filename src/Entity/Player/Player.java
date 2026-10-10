@@ -201,8 +201,17 @@ public class Player extends Entity {
     public final java.util.Set<String> lastDefeated = new java.util.LinkedHashSet<>(); // numele inamicilor învinși la ultima luptă (recompense de carte)
     public double enemyDmgScale = 1.0;                      // cu cât mai mulți inamici, cu atât lovesc mai slab (enemies.json)
 
-    /** Începe lupta cu inamicul de pe hartă și grupul lui (enemies.json -> packExtras). */
+    /**
+     * Lupta cu inamicul de pe hartă și grupul lui (enemies.json -> packExtras). Întâi scena de dinaintea luptei (dialog la boss-i,
+     * apoi tranziția în spirală); lupta propriu-zisă începe în startBattleNow, când ecranul e negru.
+     */
     public void beginBattle(Enemy first) {
+        if (gp.getCurrentState() instanceof BattleIntroState || gp.getCurrentState() instanceof BattleState) return;
+        gp.changeState(new BattleIntroState(gp, first));
+    }
+
+    /** Începe efectiv lupta (apelată de BattleIntroState când spirala a acoperit ecranul). */
+    public void startBattleNow(Enemy first) {
         team.clear();
         currentEnemy = first;
         gp.changeState(new BattleState(gp));

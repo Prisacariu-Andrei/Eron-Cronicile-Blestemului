@@ -80,6 +80,9 @@ public class GamePanel extends JPanel implements Runnable {
     public int currentMenuOption = 0;
     public int activeNpcIndex = -1;
 
+    /** Tranziția în spirală dintre hartă și luptă (se desenează peste orice stare). */
+    public final SpiralWipe spiral = new SpiralWipe();
+
     /** Fereastra jocului (pusă de Main): F11 / Alt+Enter / setările o trec în ecran complet fără ramă și înapoi. */
     public javax.swing.JFrame window;
 
@@ -276,6 +279,7 @@ public class GamePanel extends JPanel implements Runnable {
         updatePopups();
         healthUI.update();
         fx.update();
+        spiral.update();
         DebugStats.onUpdate(System.nanoTime() - t0);
     }
 
@@ -327,6 +331,7 @@ public class GamePanel extends JPanel implements Runnable {
         fx.drawFront(g2);
         fx.endFrame(g2);
         fx.drawOverlay(g2); // fade-uri / flash-uri peste tot ecranul
+        spiral.draw(g2, screenWidth, screenHeight);   // tranziția în spirală (doar vizuală: nu blochează input-ul)
 
         DebugStats.onRender(System.nanoTime() - t0);
         if (DebugStats.visible) DebugStats.draw(g2, this);

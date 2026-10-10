@@ -1,0 +1,64 @@
+{
+  "_help": "Dialogul de dinaintea luptelor cu boss-ii (BattleIntroState). Cheia = numele inamicului dinaintea virgulei (ca în gates.json -> bosses). name = numele afișat în căsuță; lines = replicile, în ordine (who: 'boss' sau 'eron'), 2-4 pe boss, ENTER sau E trece la următoarea. Inamicii obișnuiți nu au dialog: doar tranziția în spirală.",
+
+  "bosses": {
+    "Valerius": {
+      "name": "Valerius, Cavalerul Neînvins",
+      "lines": [
+        { "who": "boss", "text": "Încă un drum ce se sfârșește la poarta mea. Am purtat platoșa asta atât de mult, încât nu mai știu dacă ea mă apără pe mine, sau eu pe ea." },
+        { "who": "eron", "text": "Nu caut moartea ta, cavalere. Caut doar puterea de a opri blestemul." },
+        { "who": "boss", "text": "Atunci arată-mi că ai mai mult decât vorbe, Ghenerar de Stele. Ridică-ți cărțile: onoarea nu se uită." }
+      ]
+    },
+    "Fenris cel Alb": {
+      "name": "Fenris cel Alb",
+      "lines": [
+        { "who": "boss", "text": "Miroși a cenușă de sat și a lumină de stele. Rar mai simt lumină, în ceața asta nesfârșită." },
+        { "who": "eron", "text": "Ceața nu e vina ta, Fenris. Malakor ți-a furat suflarea, nu sufletul." },
+        { "who": "boss", "text": "Mi-a furat aproape tot. Colții însă îmi mai aparțin. Vino, să vedem dacă lumina ta ține de frig." }
+      ]
+    },
+    "Feldgug": {
+      "name": "Feldgug, Regele Trol",
+      "lines": [
+        { "who": "boss", "text": "Cobori în burta pământului cu o lumânare, vrăjitorule. Aici întunericul e rege, iar eu doar îi țin tronul." },
+        { "who": "eron", "text": "Nu vreau tronul tău. Diamantul Nopții trebuie să se întoarcă la lumină." },
+        { "who": "boss", "text": "Lanțurile mele sunt de obsidian, iar ciomagul, din vise uitate. Dacă mă înfrângi, poate voi dormi, în sfârșit." }
+      ]
+    },
+    "Jean Plesa": {
+      "name": "Jean Pleșa",
+      "lines": [
+        { "who": "boss", "text": "Haiducii beau ca să uite cine au fost. Eu am uitat prea mult, străine." },
+        { "who": "eron", "text": "Atunci amintește-ți: jurământul acela murdar nu e al tău. Malakor ți l-a pus în gură." },
+        { "who": "boss", "text": "Frumoase cuvinte. Dar o sabie nu se lasă convinsă de cuvinte... Apără-te, Eron!" }
+      ]
+    },
+    "Glaciara": {
+      "name": "Glaciara, Stăpânul Inelului de Gheață",
+      "lines": [
+        { "who": "boss", "text": "Cândva priveam stelele curgând ca un râu de argint. Acum privesc doar gheață, iar ea nu-mi răspunde." },
+        { "who": "eron", "text": "Aduc lumina înapoi, Glaciara. Lasă-mă să-ți dezgheț timpul." },
+        { "who": "boss", "text": "Timpul meu e prea greu pentru brațe muritoare. Ia Inelul, dacă îți poți răscumpăra iertarea cu propria ta viață." },
+        { "who": "eron", "text": "Atunci o voi plăti, dacă trebuie." }
+      ]
+    },
+    "Charon": {
+      "name": "Charon, Străjerul Umbrelor fără Tihnă",
+      "lines": [
+        { "who": "boss", "text": "Fiecare suflet are un preț, călătorule, iar podul acesta le-a numărat pe toate. Al tău e încă nehotărât." },
+        { "who": "eron", "text": "Nu trec ca un mort, ci ca un om viu care are ceva de sfârșit." },
+        { "who": "boss", "text": "Cei vii nu cântăresc nimic pe barca mea. Să vedem ce rămâne din tine când ți se sting cărțile." }
+      ]
+    },
+    "Malakor": {
+      "name": "Malakor, Monarhul Amurgului",
+      "lines": [
+        { "who": "boss", "text": "Ai ajuns la capătul unei veșnicii pe care eu am clădit-o. Atâtea inele, atâtea ecouri... și tot tu, la ușa mea." },
+        { "who": "eron", "text": "Ai furat nemurirea, Malakor, și ai pierdut tot ce o făcea frumoasă." },
+        { "who": "boss", "text": "Frumusețea e pentru cei care mor. Eu am ales să rămân, iar odată cu mine, lumea întreagă." },
+        { "who": "eron", "text": "Atunci lumea va învăța din nou să apună. Pentru un răsărit." }
+      ]
+    }
+  }
+}
