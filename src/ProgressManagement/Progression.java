@@ -140,6 +140,7 @@ public class Progression {
         leveledThisBattle = true;
 
         StringBuilder msg = new StringBuilder("NIVEL " + level + "!");
+        for (Ability a : abilities) if (a.unlockLevel == level) msg.append("  |  Abilitate nouă [").append(a.key).append("]: ").append(a.name);
         if (hp > 0) msg.append("  +").append(hp).append(" viață maximă");
         List<String> fresh = cardsUnlockedAt(level);
         if (!fresh.isEmpty()) msg.append("  |  Cărți noi (magazin și recompense): ").append(String.join(", ", fresh));
