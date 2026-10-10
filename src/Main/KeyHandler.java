@@ -37,6 +37,12 @@ public class KeyHandler implements KeyListener {
         int code = keyE.getKeyCode();
         GameState state = gp.getCurrentState();
 
+        // Ecran complet: F11 sau Alt+Enter, din orice stare
+        if (code == KeyEvent.VK_F11 || (code == KeyEvent.VK_ENTER && keyE.isAltDown())) {
+            gp.toggleFullscreen();
+            return;
+        }
+
         if (code == KeyEvent.VK_F3) {
             DebugStats.visible = !DebugStats.visible; // FPS / performanță
             return;

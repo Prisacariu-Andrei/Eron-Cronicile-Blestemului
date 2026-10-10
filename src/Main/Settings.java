@@ -10,6 +10,7 @@ public final class Settings {
     public static float volume = 1.0f;        // 0..1
     public static boolean shake = true;       // scuturatul ecranului la lovituri
     public static int textSpeed = 1;          // 0 = lent, 1 = normal, 2 = rapid
+    public static boolean fullscreen = false; // ecran complet fără ramă (F11 / Alt+Enter / setări)
 
     private static final File FILE = new File("eron_settings.properties");
 
@@ -25,6 +26,7 @@ public final class Settings {
             volume = Math.max(0f, Math.min(1f, Float.parseFloat(p.getProperty("volume", "1.0"))));
             shake = Boolean.parseBoolean(p.getProperty("shake", "true"));
             textSpeed = Math.max(0, Math.min(2, Integer.parseInt(p.getProperty("textSpeed", "1"))));
+            fullscreen = Boolean.parseBoolean(p.getProperty("fullscreen", "false"));
         } catch (Exception ignored) { /* fișier stricat: rămân valorile implicite */ }
     }
 
@@ -34,6 +36,7 @@ public final class Settings {
             p.setProperty("volume", String.valueOf(volume));
             p.setProperty("shake", String.valueOf(shake));
             p.setProperty("textSpeed", String.valueOf(textSpeed));
+            p.setProperty("fullscreen", String.valueOf(fullscreen));
             p.store(out, "Eron: setari");
         } catch (Exception ignored) { /* setările rămân doar în memorie */ }
     }

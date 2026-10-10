@@ -169,7 +169,10 @@ public class Player extends Entity {
 
     // Mișcare cu accelerare (vezi GameFeel)
     public float moveVelocity = 0f;   // 0..1: cât de aproape de viteza maximă merge Eron acum
-    private float moveRemainder = 0f; // fracțiunea de pixel neconsumată între ticks
+    private float moveRemainder = 0f;  // fracțiunea de pixel neconsumată între ticks (axa X)
+    private float moveRemainderY = 0f; // idem, axa Y (mersul pe diagonală consumă fiecare axă separat)
+    private float moveNx = 0f, moveNy = 0f;   // direcția de mers, vector normalizat (diagonalele nu sunt mai rapide)
+    private float dashNx = 0f, dashNy = 0f;   // direcția dash-ului, fixată la începutul lui
     private int dustCounter = 0;
     private int stepSoundCounter = 0;
 
@@ -362,16 +365,30 @@ public class Player extends Entity {
             isDashing = true;
             dashCounter = 0;
             exploreMana -= DASH_COST;
-            gp.fx.dust(feetX(), feetY(), dirX(), dirY(), 9); // nor de praf la start
+            // dash-ul merge în direcția tastelor apăsate (inclusiv pe diagonală); fără taste, în direcția în care privește Eron
+            int dix = (keyH.rightPressed ? 1 : 0) - (keyH.leftPressed ? 1 : 0), diy = (keyH.downPressed ? 1 : 0) - (keyH.upPressed ? 1 : 0);
+            if (dix == 0 && diy == 0) {
+                dix = "right".equals(direction) ? 1 : "left".equals(direction) ? -1 : 0;
+                diy = "down".equals(direction) ? 1 : "up".equals(direction) ? -1 : 0;
+            }
+            float dlen = (float) Math.sqrt(dix * dix + diy * diy);
+            dashNx = dlen == 0 ? 0 : dix / dlen;
+            dashNy = dlen == 0 ? 0 : diy / dlen;
+            gp.fx.dust(feetX(), feetY(), dashNx, dashNy, 9); // nor de praf la start
             if (GameFeel.SOUND_FEEDBACK) SoundManager.getInstance().playSE("dash");
         }
 
-        boolean wantsMove = keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed;
+        // 8 direcții: două taste de direcție apăsate dau o diagonală, cu viteza normalizată (nu cu ~41% mai repede)
+        int ix = (keyH.rightPressed ? 1 : 0) - (keyH.leftPressed ? 1 : 0);
+        int iy = (keyH.downPressed ? 1 : 0) - (keyH.upPressed ? 1 : 0);
+        boolean wantsMove = ix != 0 || iy != 0;
         if (wantsMove) {
-            if (keyH.upPressed) direction = "up";
-            if (keyH.downPressed) direction = "down";
-            if (keyH.leftPressed) direction = "left";
-            if (keyH.rightPressed) direction = "right";
+            // sprite-urile au doar patru direcții: pe diagonală Eron privește pe orizontală (stânga/dreapta)
+            if (ix != 0) direction = ix > 0 ? "right" : "left";
+            else direction = iy > 0 ? "down" : "up";
+            float len = (float) Math.sqrt(ix * ix + iy * iy);
+            moveNx = ix / len;
+            moveNy = iy / len;
             // Accelerează treptat până la viteza maximă...
             moveVelocity = Math.min(1f, moveVelocity + 1f / GameFeel.PLAYER_ACCEL_TICKS);
         } else {
@@ -383,6 +400,7 @@ public class Player extends Entity {
             updateMovement();
         } else {
             moveRemainder = 0f;
+            moveRemainderY = 0f;
         }
         gp.eHandler.checkEvent();
         checkEnemyCollision();
@@ -391,39 +409,56 @@ public class Player extends Entity {
     // Pozițiile picioarelor (pentru praf) și direcția de mers ca vector
     private float feetX() { return worldX + gp.tileSize / 2f; }
     private float feetY() { return worldY + gp.tileSize * 0.88f; }
-    private float dirX() { return "left".equals(direction) ? -1f : "right".equals(direction) ? 1f : 0f; }
-    private float dirY() { return "up".equals(direction) ? -1f : "down".equals(direction) ? 1f : 0f; }
+    private float dirX() { return isDashing ? dashNx : moveNx; }
+    private float dirY() { return isDashing ? dashNy : moveNy; }
+
+    /** Un pas pe o singură axă (direcția "left"/"right"/"up"/"down"), dacă dalele din față sunt libere. Returnează fals dacă e zid. */
+    private boolean stepAlong(String dir, int step) {
+        String facing = direction;
+        direction = dir;            // CollisionChecker.checkTile se uită în direcția dată, "step" pixeli înainte
+        speed = step;
+        collisionOn = false;
+        gp.cChecher.checkTile(this);
+        direction = facing;
+        if (collisionOn) return false;
+        switch (dir) {
+            case "up" -> worldY -= step;
+            case "down" -> worldY += step;
+            case "left" -> worldX -= step;
+            default -> worldX += step;
+        }
+        return true;
+    }
 
     private void updateMovement() {
         // Viteza în pixeli pe tick: dash-ul e o explozie de viteză, mersul urmează curba de accelerare.
-        // Viteza fracționară (ex. 4.4 px) se adună între ticks, iar coliziunea se verifică pentru pasul întreg.
+        // Viteza se împarte pe axe după vectorul normalizat; partea fracționară (ex. 4.4 px) se adună între ticks.
         float pxPerTick = isDashing ? dashSpeed
                 : NORMAL_SPEED * GameFeel.PLAYER_SPEED_SCALE * Easing.outQuad(moveVelocity);
-        moveRemainder += pxPerTick;
-        int step = (int) moveRemainder;
-        moveRemainder -= step;
+        float nx = isDashing ? dashNx : moveNx, ny = isDashing ? dashNy : moveNy;
+        moveRemainder += pxPerTick * Math.abs(nx);
+        moveRemainderY += pxPerTick * Math.abs(ny);
+        int stepX = (int) moveRemainder, stepY = (int) moveRemainderY;
+        moveRemainder -= stepX;
+        moveRemainderY -= stepY;
 
-        if (step > 0) {
-            speed = step; // CollisionChecker.checkTile se uită cu "speed" pixeli înainte
-            collisionOn = false;
-            gp.cChecher.checkTile(this);
-
-            if (!collisionOn) {
-                switch (direction) {
-                    case "up": worldY -= step; break;
-                    case "down": worldY += step; break;
-                    case "left": worldX -= step; break;
-                    case "right": worldX += step; break;
-                }
-            } else {
-                // Lovit de un zid: un mic nor de praf și oprire pe loc (nu mai "împinge" în perete)
-                if (moveVelocity > 0.6f) gp.fx.dust(feetX(), feetY(), dirX(), dirY(), 3);
-                moveVelocity = 0f;
-                moveRemainder = 0f;
-                if (isDashing) isDashing = false;
-            }
-            speed = isDashing ? dashSpeed : NORMAL_SPEED;
+        // Axele se rezolvă separat: pe diagonală, un zid oprește doar axa lui, iar Eron alunecă pe lângă el
+        boolean tried = stepX > 0 || stepY > 0, moved = false;
+        if (stepX > 0) {
+            if (stepAlong(nx > 0 ? "right" : "left", stepX)) moved = true; else moveRemainder = 0f;
         }
+        if (stepY > 0) {
+            if (stepAlong(ny > 0 ? "down" : "up", stepY)) moved = true; else moveRemainderY = 0f;
+        }
+        if (tried && !moved) {
+            // Lovit de un zid pe toate axele: un mic nor de praf și oprire pe loc (nu mai "împinge" în perete)
+            if (moveVelocity > 0.6f) gp.fx.dust(feetX(), feetY(), nx, ny, 3);
+            moveVelocity = 0f;
+            moveRemainder = 0f;
+            moveRemainderY = 0f;
+            if (isDashing) isDashing = false;
+        }
+        speed = isDashing ? dashSpeed : NORMAL_SPEED;
 
         spriteCounter++;
         if (spriteCounter > 12) {
@@ -811,6 +846,7 @@ public class Player extends Entity {
         winDelay = -1;
         this.moveVelocity = 0f; // nu mai alunecă când revine pe hartă
         this.moveRemainder = 0f;
+        this.moveRemainderY = 0f;
         gp.progression.leveledThisBattle = false;
         this.isPlayerTurn = true;
         this.currentMana = this.maxMana + runeSum("firstTurnMana");   // Runa Haiducului: esență în plus doar în prima tură

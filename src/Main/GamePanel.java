@@ -80,6 +80,24 @@ public class GamePanel extends JPanel implements Runnable {
     public int currentMenuOption = 0;
     public int activeNpcIndex = -1;
 
+    /** Fereastra jocului (pusă de Main): F11 / Alt+Enter / setările o trec în ecran complet fără ramă și înapoi. */
+    public javax.swing.JFrame window;
+
+    public void toggleFullscreen() {
+        Settings.fullscreen = !Settings.fullscreen;
+        Settings.save();
+        if (window != null) ScreenMode.apply(window, this, Settings.fullscreen);
+    }
+
+    // --- scalare: jocul se desenează mereu la 1600x900 și se mărește cu raport 16:9 păstrat (benzi negre) ---
+    private java.awt.image.BufferedImage frameBuffer;
+    private double viewScale = 1.0;
+    private int viewOffX = 0, viewOffY = 0;
+
+    /** Coordonate de pe ecran (ex. mouse) -> coordonate ale jocului (1600x900), ținând cont de scalare și de benzile negre. */
+    public int toGameX(int screenX) { return (int) Math.round((screenX - viewOffX) / viewScale); }
+    public int toGameY(int screenY) { return (int) Math.round((screenY - viewOffY) / viewScale); }
+
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
@@ -273,9 +291,35 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void paintComponent(Graphics g) {
         long t0 = System.nanoTime();
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
+        super.paintComponent(g);   // fundal negru: benzile din jurul imaginii când fereastra nu e 16:9
+        int pw = getWidth(), ph = getHeight();
 
+        if (pw == screenWidth && ph == screenHeight) {   // fereastră normală: se desenează direct, fără cost în plus
+            viewScale = 1.0; viewOffX = 0; viewOffY = 0;
+            Graphics2D g2 = (Graphics2D) g;
+            renderFrame(g2);
+            g2.dispose();
+            return;
+        }
+
+        // ecran complet (sau altă mărime): cadrul se desenează la 1600x900 și apoi se mărește o singură dată
+        if (frameBuffer == null) frameBuffer = new java.awt.image.BufferedImage(screenWidth, screenHeight, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        Graphics2D fg = frameBuffer.createGraphics();
+        renderFrame(fg);
+        fg.dispose();
+
+        viewScale = Math.min(pw / (double) screenWidth, ph / (double) screenHeight);
+        int dw = (int) Math.round(screenWidth * viewScale), dh = (int) Math.round(screenHeight * viewScale);
+        viewOffX = (pw - dw) / 2;
+        viewOffY = (ph - dh) / 2;
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);   // grafica e mixtă (pixel art + fundaluri netede)
+        g2.drawImage(frameBuffer, viewOffX, viewOffY, dw, dh, null);
+        g2.dispose();
+    }
+
+    private void renderFrame(Graphics2D g2) {
+        long t0 = System.nanoTime();
         fx.beginFrame(g2); // screen shake
         if (currentState != null) {
             currentState.draw(g2);
@@ -286,7 +330,5 @@ public class GamePanel extends JPanel implements Runnable {
 
         DebugStats.onRender(System.nanoTime() - t0);
         if (DebugStats.visible) DebugStats.draw(g2, this);
-
-        g2.dispose();
     }
 }

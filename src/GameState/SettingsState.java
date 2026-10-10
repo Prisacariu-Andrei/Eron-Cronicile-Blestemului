@@ -6,12 +6,12 @@ import Main.SoundManager;
 
 import java.awt.*;
 
-/** Setările (tasta T): volum, scuturatul ecranului, viteza textului. W/S aleg rândul, A/D schimbă valoarea, T sau ESC închid și salvează. */
+/** Setările (tasta T): volum, scuturatul ecranului, viteza textului, ecran complet. W/S aleg rândul, A/D schimbă valoarea, T sau ESC închid și salvează. */
 public class SettingsState implements GameState {
     private final GamePanel gp;
     private final GameState back;
     private int selected = 0;
-    private static final String[] ROWS = {"Volum", "Scuturat ecran", "Viteză text"};
+    private static final String[] ROWS = {"Volum", "Scuturat ecran", "Viteză text", "Ecran complet"};
 
     public SettingsState(GamePanel gp, GameState back) {
         this.gp = gp;
@@ -32,6 +32,7 @@ public class SettingsState implements GameState {
             }
             case 1 -> Settings.shake = !Settings.shake;
             case 2 -> Settings.textSpeed = Math.floorMod(Settings.textSpeed + (dir == 0 ? 1 : dir), 3);
+            case 3 -> gp.toggleFullscreen();   // se salvează singur; același lucru fac F11 și Alt+Enter
             default -> { }
         }
     }
@@ -53,7 +54,7 @@ public class SettingsState implements GameState {
         g2.setColor(new Color(0, 0, 0, 175));
         g2.fillRect(0, 0, W, H);
 
-        int pw = 640, ph = 360, px = W / 2 - pw / 2, py = H / 2 - ph / 2;
+        int pw = 640, ph = 400, px = W / 2 - pw / 2, py = H / 2 - ph / 2;
         g2.setColor(new Color(24, 22, 36, 245));
         g2.fillRoundRect(px, py, pw, ph, 26, 26);
         g2.setColor(new Color(212, 175, 55));
@@ -63,7 +64,7 @@ public class SettingsState implements GameState {
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 32F));
         g2.drawString("SETĂRI", px + 36, py + 56);
 
-        String[] values = {volumeBar(), Settings.shake ? "Pornit" : "Oprit", Settings.textSpeedLabel()};
+        String[] values = {volumeBar(), Settings.shake ? "Pornit" : "Oprit", Settings.textSpeedLabel(), Settings.fullscreen ? "Pornit" : "Oprit"};
         for (int i = 0; i < ROWS.length; i++) {
             int y = py + 120 + i * 62;
             if (i == selected) {
@@ -79,7 +80,7 @@ public class SettingsState implements GameState {
         }
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 16F));
         g2.setColor(new Color(150, 150, 170));
-        g2.drawString("[W/S] alege   [A/D] schimbă   [T] sau [ESC] închide și salvează", px + 36, py + ph - 22);
+        g2.drawString("[W/S] alege   [A/D] schimbă   [F11] ecran complet   [T] sau [ESC] închide și salvează", px + 36, py + ph - 22);
     }
 
     private static String volumeBar() {

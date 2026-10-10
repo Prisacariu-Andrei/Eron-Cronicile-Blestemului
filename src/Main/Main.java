@@ -13,6 +13,7 @@ public class Main {
         window.setTitle("ERON: CRONICILE BLESTEMULUI");
 
         GamePanel gamePanel = new GamePanel();
+        gamePanel.window = window;
         window.add(gamePanel);
 
         window.pack();
@@ -20,7 +21,9 @@ public class Main {
         gamePanel.setupGame();
 
         window.setLocationRelativeTo(null);
+        if (Settings.fullscreen) ScreenMode.apply(window, gamePanel, true);   // alegerea din setări se păstrează între porniri
         window.setVisible(true);
+        gamePanel.requestFocusInWindow();
 
         gamePanel.startGameThread();
     }
