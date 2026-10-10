@@ -1,16 +1,14 @@
 {
   "_help": [
-    "Toată echilibrarea nivelurilor, XP-ului și abilităților. Monedele și prețurile sunt în economy.json, recompensele misiunilor în quests.json.",
-    "XP necesar pentru nivelul următor = round(xpBase * xpGrowth ^ (nivel - 1)). La fiecare nivel: +hpPerLevel viață maximă; la nivelurile din manaBonusAtLevels: +1 esență maximă (acum gol: esența rămâne 3, ca strategia să conteze).",
-    "Abilitățile se deblochează AUTOMAT la unlockLevel (nu există puncte de abilitate). Se folosesc în luptă cu tastele 1-4 și costă esență (mană), ca și cărțile.",
-    "effects (se aplică în ordine): damage {value, scalesWithDamage}, shield {value}, heal {value}, mana {value}, status {status: BURN|POISON|WEAK|VULNERABLE, turns, value}."
+    "Nivelurile și XP-ul. Nivelul NU mai dă viață, daune sau abilități: singurul lucru pe care îl aduce sunt cărțile noi. cardLevels = nivelul de la care o carte apare în magazin și în recompensele de după luptă (implicit 1); cărțile legate de un boss cad oricând de la boss.",
+    "XP necesar pentru nivelul următor = round(xpBase * xpGrowth ^ (nivel - 1)). hpPerLevel / healOnLevelUp rămân aici doar ca să poți reaprinde bonusul (acum 0 / false). abilities: gol (cheia lipsește)."
   ],
 
   "maxLevel": 10,
   "xpBase": 40,
   "xpGrowth": 1.35,
-  "hpPerLevel": 8,
-  "healOnLevelUp": true,
+  "hpPerLevel": 0,
+  "healOnLevelUp": false,
   "baseMana": 3,
   "manaBonusAtLevels": [],
 
@@ -44,29 +42,14 @@
     "Malakor": 500
   },
 
-  "abilities": [
-    {
-      "id": "scanteie", "name": "Scânteie Stelară", "unlockLevel": 2, "cost": 1, "color": "#FFD36B",
-      "description": "O lovitură rapidă de lumină: 8 damage.",
-      "effects": [ { "type": "damage", "value": 8, "scalesWithDamage": true } ]
-    },
-    {
-      "id": "scut", "name": "Scut de Rune", "unlockLevel": 3, "cost": 1, "color": "#7FC8FF",
-      "description": "Runele te învelesc: 9 armură.",
-      "effects": [ { "type": "shield", "value": 9 } ]
-    },
-    {
-      "id": "izvor", "name": "Izvorul Luminii", "unlockLevel": 5, "cost": 2, "color": "#7DFFA0",
-      "description": "Te vindecă cu 18 viață.",
-      "effects": [ { "type": "heal", "value": 18 } ]
-    },
-    {
-      "id": "pecete", "name": "Pecetea Slăbiciunii", "unlockLevel": 7, "cost": 2, "color": "#C58BFF",
-      "description": "6 damage și inamicul primește mai mult damage 2 ture (Vulnerabil).",
-      "effects": [
-        { "type": "damage", "value": 6, "scalesWithDamage": true },
-        { "type": "status", "status": "VULNERABLE", "turns": 2, "value": 50 }
-      ]
-    }
-  ]
+  "cardLevels": {
+    "ScanteiaDeJar": 1, "Turtura": 1, "ParjolulSferic": 1, "FulgerDeSange": 1, "PavazaGlaciara": 1,
+    "ScanteiaStrabuna": 2, "TortaVie": 2, "RafalaDeBruma": 2, "ManiorulIernii": 2, "SuflulPirjolit": 2, "ValDeCeata": 2,
+    "PloaieRece": 3, "ArcElectric": 3, "SulitaDeFoc": 3, "ClesteDeUmbra": 3, "GeamatulEcoului": 3, "Dezolare": 3,
+    "LanceDeFoc": 4, "SocTermic": 4, "PavazaAmurgului": 4, "SuflulVietii": 4, "FluxulStrabun": 4, "DeslusireaRunelor": 4,
+    "FulgerInLant": 5, "InfernulMic": 5, "Rezonanta": 5, "UraganDeAzur": 5, "PovaraAnilor": 5,
+    "PrabusireaGerului": 6, "ArmoniaElementelor": 6, "ExecutieUmbrita": 6, "RitualulUmbrelor": 6,
+    "CadereaStelelor": 7, "SabieSiVraja": 7, "TrasnetulVidului": 7,
+    "FurtunaHaiducilor": 9, "InimaFurtunii": 9
+  }
 }

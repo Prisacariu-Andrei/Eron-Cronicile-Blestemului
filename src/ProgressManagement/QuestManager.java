@@ -65,9 +65,9 @@ public class QuestManager {
         mainQuests.add(new Quest(7, "Runa lui Feldgug", "Învinge-l pe Feldgug și obține runa sa.", true, 1));
         mainQuests.add(new Quest(8, "Descopera Citadela", "Găsește drumul spre Citadela Haiducilor.", true, 1));
         mainQuests.add(new Quest(9, "Jean Pleșa", "Recrutează-l pe Jean Pleșa și obține-i runa.", true, 1));
-        mainQuests.add(new Quest(10, "Inelul Blestemului", "Găsește o soluție pentru a purifica Inelul Blestemului.", true, 1));
-        mainQuests.add(new Quest(11, "Stăpânul Gheții", "Învinge-o pe Glaciara și obține runa de gheață.", true, 1));
-        mainQuests.add(new Quest(12, "Calea către Castel", "Eliberează calea spre Castelul de Obsidian, învingându-l pe Charon.", true, 1));
+        mainQuests.add(new Quest(10, "Labirintul de Gheață", "Străbate labirintul Tundrei Tăcerii, trezește Axul Solstițiului din fundătură și topește Poarta de Gheață cu Lancea de Lumină.", true, 1));
+        mainQuests.add(new Quest(11, "Stăpânul Gheții", "Dincolo de Poarta de Gheață te așteaptă Glaciara. Învinge-o și obține Inelul și runa ei.", true, 1));
+        mainQuests.add(new Quest(12, "Calea către Castel", "Cu Glaciara înfrântă, ai găsit drumul: Podul Umbrelor. Traversează-l și învinge-l pe Charon, Străjerul Umbrelor.", true, 1));
         mainQuests.add(new Quest(13, "Salvează tărâmul", "Pregătește-te pentru bătălia finală.", true, 1));
         mainQuests.add(new Quest(14, "Malakor, Monarhul Amurgului", "Învinge-l pe Malakor și salvează Eldoria.", true, 1));
     }

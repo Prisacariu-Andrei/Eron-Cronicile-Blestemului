@@ -64,6 +64,23 @@ public class Progression {
         return slot >= 0 && slot < abilities.size() ? abilities.get(slot) : null;
     }
 
+    /** Nivelul de la care o carte apare în magazin și în recompense (progression.json -> cardLevels; implicit 1). */
+    public int cardUnlockLevel(String cardId) {
+        return Json.integer(Json.map(root.get("cardLevels")).get(cardId), 1);
+    }
+
+    public boolean cardUnlocked(String cardId) { return level >= cardUnlockLevel(cardId); }
+
+    /** Numele cărților care se deblochează exact la nivelul dat. */
+    private List<String> cardsUnlockedAt(int lvl) {
+        List<String> out = new ArrayList<>();
+        for (Map.Entry<String, Object> e : Json.map(root.get("cardLevels")).entrySet()) {
+            if (Json.integer(e.getValue(), 1) != lvl) continue;
+            try { out.add(Entity.Cards.CardFactory.createCard(e.getKey(), gp.player).name); } catch (Exception ignored) { }
+        }
+        return out;
+    }
+
     public boolean isUnlocked(Ability a) { return level >= a.unlockLevel; }
 
     /** Joc nou: nivel 1, fără XP, esența de bază. */
@@ -99,15 +116,18 @@ public class Progression {
     }
 
     private void levelUp() {
-        int hp = Json.integer(root.get("hpPerLevel"), 8);
+        int hp = Json.integer(root.get("hpPerLevel"), 0);
         gp.player.maxLife += hp;
-        gp.player.life = Json.bool(root.get("healOnLevelUp"), true) ? gp.player.maxLife : Math.min(gp.player.maxLife, gp.player.life + hp);
+        if (hp > 0) gp.player.life = Json.bool(root.get("healOnLevelUp"), false) ? gp.player.maxLife : Math.min(gp.player.maxLife, gp.player.life + hp);
         int manaBefore = manaBonusesUpTo(level - 1), manaNow = manaBonusesUpTo(level);
         if (manaNow > manaBefore) gp.player.maxMana += manaNow - manaBefore;
         gp.player.notifyObservers();
         leveledThisBattle = true;
 
-        StringBuilder msg = new StringBuilder("NIVEL " + level + "!  +" + hp + " viață maximă");
+        StringBuilder msg = new StringBuilder("NIVEL " + level + "!");
+        if (hp > 0) msg.append("  +").append(hp).append(" viață maximă");
+        List<String> fresh = cardsUnlockedAt(level);
+        if (!fresh.isEmpty()) msg.append("  |  Cărți noi (magazin și recompense): ").append(String.join(", ", fresh));
         if (manaNow > manaBefore) msg.append(", +1 esență");
         for (Ability a : abilities) if (a.unlockLevel == level) msg.append("  |  Abilitate nouă: ").append(a.name);
         gp.ui.message = msg.toString();

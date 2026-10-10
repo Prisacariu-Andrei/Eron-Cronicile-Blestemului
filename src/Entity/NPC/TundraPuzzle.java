@@ -265,6 +265,7 @@ public class TundraPuzzle {
             gp.fx.phaseChange();
             gp.fx.burst(2, gp.camera.screenX(worldX) + gp.tileSize * widthTiles / 2f, gp.camera.screenY(worldY) + gp.tileSize / 2f, 50, 0xBFEFFF, 9f, 50, 7f, 0.05f);
             say(gp, "Lancea de Lumină topește Poarta de Gheață: calea spre Glaciara e liberă!");
+            gp.questManager.updateQuestProgress(10, true, 1);   // misiunea "Labirintul de Gheață"
         }
 
         @Override public void speak() { hint(gp, "O poartă de gheață veche de veacuri. Doar lumina captivă a Solstițiului o poate topi."); }

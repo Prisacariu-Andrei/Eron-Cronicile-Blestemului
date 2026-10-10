@@ -62,7 +62,7 @@
       "openText": "Inelul de Gheață la tine... Glaciara a căzut. Fie ca Eternitatea să te ierte, Eron.\nPodul e al tău. Dincolo te așteaptă Castelul de Obsidian și Regele Vrăjitor."
     },
     {
-      "id": "tundra", "zone": "Eldoria", "tile": 45, "requires": "jean", "quest": 11,
+      "id": "tundra", "zone": "Eldoria", "tile": 45, "requires": "jean",
       "guard": [12, 39], "aside": [13, 38],
       "blocked": "Un viscol teribil blochează trecerea spre Nord!",
       "closedText": "Viscolul din Nord aduce doar moarte. Nu pot lăsa un nepregătit să treacă.\nÎntoarce-te după ce ai dovedit că poți învinge un spadasin ca Jean Pleșa.",

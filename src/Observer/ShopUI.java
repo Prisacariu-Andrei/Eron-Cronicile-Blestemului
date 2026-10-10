@@ -56,6 +56,7 @@ public class ShopUI {
                     if (r != null) { stock.add(key); runePreview.put(key, r); }
                     continue;
                 }
+                if (!gp.progression.cardUnlocked(key)) continue;   // cărțile mai puternice apar pe măsură ce urci în nivel
                 Card c = CardFactory.createCard(key, gp.player);
                 if (c != null) { stock.add(key); preview.put(key, c); }
             } catch (Exception ignored) { /* cheie necunoscută: nu apare în magazin */ }

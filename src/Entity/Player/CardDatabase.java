@@ -40,9 +40,10 @@ public class CardDatabase {
         }
 
         Map<String, Integer> pool = new LinkedHashMap<>();
-        for (String id : cardRegistry) pool.put(id, CardCatalog.baseCardWeight());
+        for (String id : cardRegistry) if (player.gp.progression.cardUnlocked(id)) pool.put(id, CardCatalog.baseCardWeight());
         for (String id : CardCatalog.dataIds()) {
             var def = CardCatalog.def(id);
+            if (!player.gp.progression.cardUnlocked(id)) continue;
             for (Object z : Main.Json.list(Main.Json.map(def.get("drop")).get("zones"))) {
                 if (String.valueOf(z).equals(zone)) pool.put(id, CardCatalog.rarityWeight(Main.Json.str(def.get("rarity"), "Comună")));
             }
