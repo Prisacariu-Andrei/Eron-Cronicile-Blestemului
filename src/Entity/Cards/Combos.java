@@ -54,7 +54,8 @@ public final class Combos {
         if (target != null) {
             for (Map<String, Object> a : card.applies) {   // statusurile cărților din cod (Fulger de Sânge -> Încărcat...)
                 try {
-                    target.applyStatus(StatusEffect.Type.valueOf(Json.str(a.get("status"), "")), Json.integer(a.get("turns"), 2), Json.integer(a.get("value"), 0));
+                    StatusEffect.Type st = StatusEffect.Type.valueOf(Json.str(a.get("status"), ""));
+                    target.applyStatus(st, Json.integer(a.get("turns"), 2) + p.statusTurns(st), Json.integer(a.get("value"), 0));
                 } catch (IllegalArgumentException ignored) { }
             }
             if (card.offensive && target.alive) {
@@ -74,7 +75,7 @@ public final class Combos {
             if (it.next().type == consumed) { it.remove(); break; }
         }
         announce(p, "Reacție: " + r.name() + "!", r.color(), target);
-        if (r.damage() > 0) target.takeDamage(p, r.damage());
+        if (r.damage() > 0) target.takeDamage(p, r.damage() + p.runeSum("reactionDamage"));   // Runa Glaciarei
         if (r.aoeDamage() > 0) {
             for (Enemy e : p.livingEnemies()) {
                 if (e == target) continue;

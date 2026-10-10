@@ -10,7 +10,7 @@ public class PavazaAmurgului extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        int amount = 16 + player.bonusShield;
+        int amount = 16 + player.bonusShield + player.runeSum("cardShield");
         if(player.areInelDeGheata){
             amount += 3;
         }
@@ -18,7 +18,7 @@ public class PavazaAmurgului extends Card {
     }
 
     private static String describe(Player p) {
-        return "Ridici un zid de spirit ce \noprește orice asalt. \nArmura " + (16 + p.bonusShield + (p.areInelDeGheata ? 6 : 0));
+        return "Ridici un zid de spirit ce \noprește orice asalt. \nArmura " + (16 + p.bonusShield + p.runeSum("cardShield") + (p.areInelDeGheata ? 6 : 0));
     }
 
     @Override

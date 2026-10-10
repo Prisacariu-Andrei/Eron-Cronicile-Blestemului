@@ -81,7 +81,7 @@
         }
       },
       "shop": {
-        "stock": ["ParjolulSferic", "FulgerDeSange", "PavazaGlaciara", "PavazaAmurgului", "Dezolare", "SuflulVietii", "GeamatulEcoului", "UraganDeAzur", "RafalaDeBruma", "PloaieRece", "ScanteiaStrabuna", "ScanteiaDeJar", "LanceDeFoc", "SocTermic", "Turtura", "ArcElectric", "TortaVie", "rune:viata", "rune:izvor", "rune:strajer"]
+        "stock": ["ParjolulSferic", "FulgerDeSange", "PavazaGlaciara", "PavazaAmurgului", "Dezolare", "SuflulVietii", "GeamatulEcoului", "UraganDeAzur", "RafalaDeBruma", "PloaieRece", "ScanteiaStrabuna", "ScanteiaDeJar", "LanceDeFoc", "SocTermic", "Turtura", "ArcElectric", "TortaVie", "rune:viata", "rune:izvor", "rune:strajer", "rune:scanteii", "rune:jar"]
       }
     },
     {

@@ -12,7 +12,7 @@ public class PavazaGlaciara extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        int amount = 7 + player.bonusShield;
+        int amount = 7 + player.bonusShield + player.runeSum("cardShield");
         if(player.areInelDeGheata){
             amount += 3;
         }
@@ -21,7 +21,7 @@ public class PavazaGlaciara extends Card {
 
     // play() adaugă +3 cu Inelul, iar Player.addShield încă +3
     private static String describe(Player p) {
-        return "Ridică un zid de gheată\nce te protejeaza de atac.\nArmura " + (7 + p.bonusShield + (p.areInelDeGheata ? 6 : 0));
+        return "Ridică un zid de gheată\nce te protejeaza de atac.\nArmura " + (7 + p.bonusShield + p.runeSum("cardShield") + (p.areInelDeGheata ? 6 : 0));
     }
 
     @Override

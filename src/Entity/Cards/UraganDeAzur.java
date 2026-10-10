@@ -15,14 +15,14 @@ public class UraganDeAzur extends Card {
 
     @Override
     public String getDynamicDescription(Player player) {
-        int currentDmg = baseDamage + player.damage + (player.voltCount * scalePerVolt);
+        int currentDmg = baseDamage + player.cardDamage(this) + (player.voltCount * scalePerVolt);
         return "Mânia furtunii sporește \ncu fiecare scânteie. \nPaguba: " + currentDmg +
                 "\n(: " + player.voltCount + ")";
     }
 
     @Override
     public void play(Player player, Enemy enemy) {
-        int totalDamage = baseDamage + player.damage + (player.voltCount * scalePerVolt);
+        int totalDamage = baseDamage + player.cardDamage(this) + (player.voltCount * scalePerVolt);
         if (enemy != null) {
             enemy.takeDamage(player,totalDamage);
             // Incrementăm contorul global al jucătorului

@@ -39,11 +39,34 @@ public class Rune {
     /** Efectele pe scurt, pentru tooltip: ex. "+2 daune, +15 viață maximă". */
     public String buffText() {
         StringBuilder sb = new StringBuilder();
-        append(sb, "damage", "daune");
-        append(sb, "maxLife", "viață maximă");
-        append(sb, "turnShield", "armură pe tură");
-        append(sb, "battleHeal", "viață după luptă");
+        for (String stat : buffs.keySet()) append(sb, stat, label(stat));
         return sb.length() == 0 ? "fără efect" : sb.toString();
+    }
+
+    /** Numele efectului pentru tooltip; cheile cu punct (tagDamage.FULGER, statusPower.BURN) folosesc numele elementului/statusului din cards.json. */
+    private static String label(String stat) {
+        int dot = stat.indexOf('.');
+        String key = dot < 0 ? stat : stat.substring(0, dot), arg = dot < 0 ? "" : stat.substring(dot + 1);
+        return switch (key) {
+            case "damage" -> "daune";
+            case "maxLife" -> "viață maximă";
+            case "turnShield" -> "armură pe tură";
+            case "battleShield" -> "armură la începutul luptei";
+            case "battleHeal" -> "viață după luptă";
+            case "cardShield" -> "armură la cărțile cu armură";
+            case "comboDamage" -> "paguba la combo";
+            case "reactionDamage" -> "paguba reacțiilor";
+            case "firstTurnMana" -> "esență în prima tură";
+            case "killHeal" -> "viață per inamic doborât";
+            case "tagDamage" -> "paguba cărților " + Entity.Cards.CardCatalog.tagLabel(arg);
+            case "statusPower" -> "putere " + statusName(arg);
+            case "statusTurns" -> "ture de " + statusName(arg);
+            default -> stat;
+        };
+    }
+
+    private static String statusName(String type) {
+        try { return Entity.Cards.CardCatalog.statusLabel(Entity.StatusEffect.Type.valueOf(type)); } catch (IllegalArgumentException e) { return type; }
     }
 
     private void append(StringBuilder sb, String stat, String label) {

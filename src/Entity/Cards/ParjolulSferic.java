@@ -19,14 +19,15 @@ public class ParjolulSferic extends Card {
     @Override
     public void play(Player player, Enemy enemy) {
         if (enemy != null) {
-            enemy.takeDamage(player,baseDamage+player.damage);
-            enemy.applyStatus(StatusEffect.Type.BURN, burnTurns, burnDamage);
+            enemy.takeDamage(player,baseDamage+player.cardDamage(this));
+            enemy.applyStatus(StatusEffect.Type.BURN, burnTurns + player.statusTurns(StatusEffect.Type.BURN), burnDamage + player.statusPower(StatusEffect.Type.BURN));
         }
     }
 
 
-    private static String describe(Player p) {
-        return "Aruncă o bilă de foc \nputernică.\n Paguba " + (baseDamage + p.damage + (p.areDinteChilimbar ? 3 : 0)) + "\n Arsura " + burnTurns;
+    private String describe(Player p) {
+        return "Aruncă o bilă de foc \nputernică.\n Paguba " + (baseDamage + p.cardDamage(this) + (p.areDinteChilimbar ? 3 : 0))
+                + "\n Arsura " + (burnDamage + p.statusPower(StatusEffect.Type.BURN)) + " (" + (burnTurns + p.statusTurns(StatusEffect.Type.BURN)) + " ture)";
     }
 
     /** Descrierea ține cont de bonusurile din acest moment (runele echipate, relicve). */

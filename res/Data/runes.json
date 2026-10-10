@@ -1,47 +1,216 @@
 {
-  "_help": "Toate runele jocului. slots = câte rune poate purta Eron odată; bagSize = câte rune poate avea în total. story: true = obiect de poveste (nu se echipează, nu ocupă slot), grantsAbilities: true = cine o are poate folosi abilitățile (progression.json). start: true = o primești de la începutul jocului, bound: true = nu se poate vinde (runele de boss sunt legate). Fiecare rună: id (unic), name, description, glyph (flame|shield|heart|drop|fang), color (#RRGGBB), rarity (Comună|Rară|Epică), price (cumpărare; vânzarea = price * sellRatio din economy.json), buffs {damage, maxLife, turnShield, battleHeal}, drops {numeInamic: șansă 0..1} (numele dinaintea virgulei, ca în economy.json). Magazin: adaugă \"rune:<id>\" în shop.stock al unui negustor din npcs.json.",
-
+  "_help": "Toate runele jocului. slots = câte rune poate purta Eron odată; bagSize = câte rune poate avea în total. story: true = obiect de poveste (nu se echipează, nu ocupă slot), grantsAbilities: true = cine o are poate folosi abilitățile (progression.json). start: true = o primești de la începutul jocului, bound: true = nu se poate vinde (runele de boss sunt legate). Fiecare rună: id (unic), name, description, glyph (flame|shield|heart|drop|fang), color (#RRGGBB), rarity (Comună|Rară|Epică), price (cumpărare; vânzarea = price * sellRatio din economy.json), buffs {damage, maxLife, turnShield, battleHeal}, drops {numeInamic: șansă 0..1} (numele dinaintea virgulei, ca în economy.json). Magazin: adaugă \"rune:<id>\" în shop.stock al unui negustor din npcs.json. EFECTE (buffs): maxLife = viață maximă; turnShield = armură la începutul fiecărei ture; battleShield = armură la începutul luptei; battleHeal = viață după luptă; tagDamage.<ELEMENT> = paguba cărților cu elementul (FOC, GHEATA, FULGER, UMBRA), apare scrisă pe carte; cardShield = armura cărților care dau armură; statusPower.<STATUS> / statusTurns.<STATUS> = cât de tare / cât de mult ține un status pus de cărți (BURN, POISON, FROZEN, CHARGED...); comboDamage = paguba în plus când se îndeplinește combo-ul unei cărți; reactionDamage = paguba în plus la reacțiile dintre elemente; firstTurnMana = esență în plus doar în prima tură; killHeal = viață primită pentru fiecare inamic doborât.",
   "slots": 3,
-  "bagSize": 12,
-
+  "bagSize": 14,
   "runes": [
     {
-      "id": "manuscris", "name": "Manuscris Străvechi", "glyph": "flame", "color": "#FF7A3C", "rarity": "Comună", "price": 0,
-      "start": true, "bound": true, "story": true, "grantsAbilities": true,
+      "id": "manuscris",
+      "name": "Manuscris Străvechi",
+      "glyph": "flame",
+      "color": "#FF7A3C",
+      "rarity": "Comună",
+      "price": 0,
+      "start": true,
+      "bound": true,
+      "story": true,
+      "grantsAbilities": true,
       "description": "Pergamentul primit de la Bătrânul Cronicar vibrează de o putere latentă. Nu dă putere în luptă: este cheia care îți permite să înveți abilități noi, pe măsură ce crești în nivel.",
       "buffs": {},
       "drops": {}
     },
     {
-      "id": "platosa", "name": "Platoșa Amintirii", "glyph": "shield", "color": "#D8BE6A", "rarity": "Epică", "price": 0, "bound": true,
+      "id": "platosa",
+      "name": "Platoșa Amintirii",
+      "glyph": "shield",
+      "color": "#D8BE6A",
+      "rarity": "Epică",
+      "price": 0,
+      "bound": true,
       "description": "Platoșa lui Valerius, cavalerul neînvins. La începutul fiecărei ture îți ridică un scut. O rună de boss: nu se poate vinde.",
-      "buffs": { "turnShield": 3 },
-      "drops": { "Valerius": 1.0 }
+      "buffs": {
+        "turnShield": 3
+      },
+      "drops": {
+        "Valerius": 1.0
+      }
     },
     {
-      "id": "strajer"
-, "name": "Runa Străjerului", "glyph": "shield", "color": "#5FB4FF", "rarity": "Rară", "price": 120,
-      "description": "Gărzile de Fier o poartă pe scuturi. La începutul fiecărei ture primești armură.",
-      "buffs": { "turnShield": 3 },
-      "drops": { "Trol de Elită": 0.30 }
+      "id": "strajer",
+      "name": "Runa Străjerului",
+      "glyph": "shield",
+      "color": "#5FB4FF",
+      "rarity": "Rară",
+      "price": 120,
+      "description": "Gărzile de Fier o poartă pe scuturi. Toate cărțile care dau armură dau cu 2 mai multă.",
+      "buffs": {
+        "cardShield": 2
+      },
+      "drops": {
+        "Trol de Elită": 0.3
+      }
     },
     {
-      "id": "viata", "name": "Runa Vieții", "glyph": "heart", "color": "#E8506A", "rarity": "Comună", "price": 80,
+      "id": "viata",
+      "name": "Runa Vieții",
+      "glyph": "heart",
+      "color": "#E8506A",
+      "rarity": "Comună",
+      "price": 80,
       "description": "O rună caldă, ca ultima lumină dinaintea blestemului. Crește viața maximă.",
-      "buffs": { "maxLife": 15 },
-      "drops": { "Lup": 0.06, "Cioara": 0.10 }
+      "buffs": {
+        "maxLife": 10
+      },
+      "drops": {
+        "Lup": 0.06,
+        "Cioara": 0.1
+      }
     },
     {
-      "id": "izvor", "name": "Runa Izvorului", "glyph": "drop", "color": "#53E0C0", "rarity": "Rară", "price": 100,
+      "id": "izvor",
+      "name": "Runa Izvorului",
+      "glyph": "drop",
+      "color": "#53E0C0",
+      "rarity": "Rară",
+      "price": 100,
       "description": "Apă din izvoare neatinse de Rege. După fiecare luptă câștigată te vindeci.",
-      "buffs": { "battleHeal": 8 },
-      "drops": { "Cioara": 0.08, "Lup de Elită": 0.15 }
+      "buffs": {
+        "battleHeal": 8
+      },
+      "drops": {
+        "Cioara": 0.08,
+        "Lup de Elită": 0.15
+      }
     },
     {
-      "id": "fenris", "name": "Runa lui Fenris", "glyph": "fang", "color": "#DDE8F5", "rarity": "Epică", "price": 200, "bound": true,
-      "description": "Colțul lupului cel alb. Atacurile tale mușcă mai adânc, iar pielea ți se întărește.",
-      "buffs": { "damage": 3, "maxLife": 5 },
-      "drops": { "Fenris cel Alb": 1.0 }
+      "id": "fenris",
+      "name": "Runa lui Fenris",
+      "glyph": "fang",
+      "color": "#DDE8F5",
+      "rarity": "Epică",
+      "price": 200,
+      "bound": true,
+      "description": "Colțul lupului cel alb. Cărțile de Gheață lovesc cu 3 mai tare.",
+      "buffs": {
+        "tagDamage.GHEATA": 3
+      },
+      "drops": {
+        "Fenris cel Alb": 1.0
+      }
+    },
+    {
+      "id": "scanteii",
+      "name": "Runa Scânteii",
+      "glyph": "bolt",
+      "color": "#FFE36B",
+      "rarity": "Rară",
+      "price": 130,
+      "description": "Un fir de trăsnet prins în piatră. Cărțile Fulger lovesc cu 3 mai tare.",
+      "buffs": {
+        "tagDamage.FULGER": 3
+      },
+      "drops": {
+        "Corb de Ceață": 0.07,
+        "Vrăjitor de Brumă": 0.08
+      }
+    },
+    {
+      "id": "jar",
+      "name": "Runa Jarului",
+      "glyph": "flame",
+      "color": "#FF7A3C",
+      "rarity": "Rară",
+      "price": 130,
+      "description": "Un cărbune care nu se stinge. Arsura pusă de cărți arde cu 2 mai tare și ține o tură în plus.",
+      "buffs": {
+        "statusPower.BURN": 2,
+        "statusTurns.BURN": 1
+      },
+      "drops": {
+        "Lup Flămând": 0.05,
+        "Lup de Elită": 0.1
+      }
+    },
+    {
+      "id": "umbra",
+      "name": "Runa Umbrei",
+      "glyph": "moon",
+      "color": "#B58CFF",
+      "rarity": "Epică",
+      "price": 200,
+      "description": "Ce se ascunde în umbră lovește de două ori. Când combo-ul unei cărți se îndeplinește, mai dai 5 pagubă.",
+      "buffs": {
+        "comboDamage": 5
+      },
+      "drops": {
+        "Umbră Rătăcitoare": 0.12,
+        "Cavaler Blestemat": 0.1
+      }
+    },
+    {
+      "id": "glaciara",
+      "name": "Runa Glaciarei",
+      "glyph": "snow",
+      "color": "#9FE8FF",
+      "rarity": "Epică",
+      "price": 0,
+      "bound": true,
+      "description": "Inima turnului de gheață. Reacțiile dintre elemente lovesc cu 6 mai tare, iar Înghețul ține o tură în plus. O rună de boss.",
+      "buffs": {
+        "reactionDamage": 6,
+        "statusTurns.FROZEN": 1
+      },
+      "drops": {
+        "Glaciara": 1.0
+      }
+    },
+    {
+      "id": "jean",
+      "name": "Runa Haiducului",
+      "glyph": "star",
+      "color": "#E8B04A",
+      "rarity": "Epică",
+      "price": 0,
+      "bound": true,
+      "description": "Ambuscada lui Jean Pleșa: începi lupta cu o esență în plus, dar doar în prima tură. O rună de boss.",
+      "buffs": {
+        "firstTurnMana": 1
+      },
+      "drops": {
+        "Jean Plesa": 1.0,
+        "Jean Pleșa": 1.0
+      }
+    },
+    {
+      "id": "feldgug",
+      "name": "Runa lui Feldgug",
+      "glyph": "gem",
+      "color": "#8C7BB0",
+      "rarity": "Epică",
+      "price": 0,
+      "bound": true,
+      "description": "Piatra tiranului din Abis. Începi fiecare luptă cu 10 armură. O rună de boss.",
+      "buffs": {
+        "battleShield": 10
+      },
+      "drops": {
+        "Feldgug": 1.0
+      }
+    },
+    {
+      "id": "charon",
+      "name": "Runa lui Charon",
+      "glyph": "wave",
+      "color": "#6FA3C8",
+      "rarity": "Epică",
+      "price": 0,
+      "bound": true,
+      "description": "Moneda Străjerului. Pentru fiecare inamic doborât te vindeci cu 6. O rună de boss.",
+      "buffs": {
+        "killHeal": 6
+      },
+      "drops": {
+        "Charon": 1.0
+      }
     }
   ]
 }

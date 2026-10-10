@@ -273,6 +273,12 @@ public abstract class Enemy extends Entity {
         if (life <= 0) {
             life = 0;
             alive = false;
+            int kh = player.runeSum("killHeal");   // Runa lui Charon: te vindeci pentru fiecare inamic doborât
+            if (kh > 0 && player.life > 0) {
+                player.life = Math.min(player.maxLife, player.life + kh);
+                gp.popups.add(new DamagePopUp(gp.tileSize * 3, gp.tileSize * 2, "+" + kh, Color.GREEN));
+                player.notifyObservers();
+            }
             // Progresul quest-urilor se actualizează în Player.winBattle()
         }
     }

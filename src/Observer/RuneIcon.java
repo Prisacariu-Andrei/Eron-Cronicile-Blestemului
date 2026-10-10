@@ -55,6 +55,38 @@ public final class RuneIcon {
                 p.moveTo(cx - s, cy - s * 1.2f); p.lineTo(cx + s, cy - s * 1.2f); p.lineTo(cx + s * 0.3f, cy + s * 1.3f);
                 p.lineTo(cx - s * 0.2f, cy + s * 1.3f); p.closePath();
             }
+            case "bolt" -> {
+                p.moveTo(cx + s * 0.3f, cy - s * 1.4f); p.lineTo(cx - s * 0.8f, cy + s * 0.2f); p.lineTo(cx - s * 0.05f, cy + s * 0.2f);
+                p.lineTo(cx - s * 0.4f, cy + s * 1.4f); p.lineTo(cx + s * 0.9f, cy - s * 0.3f); p.lineTo(cx + s * 0.1f, cy - s * 0.3f); p.closePath();
+            }
+            case "snow" -> { // floare de gheață cu 6 vârfuri
+                for (int i = 0; i < 12; i++) {
+                    double a = Math.PI / 6 * i - Math.PI / 2;
+                    float rr = i % 2 == 0 ? s * 1.5f : s * 0.55f;
+                    float px = cx + (float) Math.cos(a) * rr, py = cy + (float) Math.sin(a) * rr;
+                    if (i == 0) p.moveTo(px, py); else p.lineTo(px, py);
+                }
+                p.closePath();
+            }
+            case "moon" -> { // semilună
+                java.awt.geom.Area moon = new java.awt.geom.Area(new java.awt.geom.Ellipse2D.Float(cx - s * 1.2f, cy - s * 1.2f, s * 2.4f, s * 2.4f));
+                moon.subtract(new java.awt.geom.Area(new java.awt.geom.Ellipse2D.Float(cx - s * 0.2f, cy - s * 1.4f, s * 2.2f, s * 2.2f)));
+                p.append(moon, false);
+            }
+            case "star" -> { // stea cu patru raze
+                p.moveTo(cx, cy - s * 1.5f); p.lineTo(cx + s * 0.4f, cy - s * 0.4f); p.lineTo(cx + s * 1.5f, cy); p.lineTo(cx + s * 0.4f, cy + s * 0.4f);
+                p.lineTo(cx, cy + s * 1.5f); p.lineTo(cx - s * 0.4f, cy + s * 0.4f); p.lineTo(cx - s * 1.5f, cy); p.lineTo(cx - s * 0.4f, cy - s * 0.4f); p.closePath();
+            }
+            case "gem" -> { // diamant
+                p.moveTo(cx - s, cy - s * 0.5f); p.lineTo(cx - s * 0.5f, cy - s * 1.2f); p.lineTo(cx + s * 0.5f, cy - s * 1.2f); p.lineTo(cx + s, cy - s * 0.5f);
+                p.lineTo(cx, cy + s * 1.3f); p.closePath();
+            }
+            case "wave" -> { // val
+                p.moveTo(cx - s * 1.4f, cy); p.curveTo(cx - s * 0.9f, cy - s * 1.2f, cx - s * 0.3f, cy - s * 1.2f, cx, cy);
+                p.curveTo(cx + s * 0.3f, cy + s * 1.2f, cx + s * 0.9f, cy + s * 1.2f, cx + s * 1.4f, cy);
+                p.lineTo(cx + s * 1.4f, cy + s * 0.7f); p.curveTo(cx + s * 0.9f, cy + s * 1.9f, cx + s * 0.3f, cy + s * 1.9f, cx, cy + s * 0.7f);
+                p.curveTo(cx - s * 0.3f, cy - s * 0.5f, cx - s * 0.9f, cy - s * 0.5f, cx - s * 1.4f, cy + s * 0.7f); p.closePath();
+            }
             default -> { // flame
                 p.moveTo(cx, cy - s * 1.5f);
                 p.curveTo(cx + s * 0.3f, cy - s * 0.6f, cx + s * 1.2f, cy - s * 0.2f, cx + s * 0.9f, cy + s * 0.7f);

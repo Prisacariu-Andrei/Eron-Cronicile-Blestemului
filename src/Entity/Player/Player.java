@@ -60,6 +60,17 @@ public class Player extends Entity {
         return sum;
     }
 
+    /** Paguba de bază a unei cărți: bonusul general + bonusul runelor pentru elementele ei (tagDamage.FULGER etc.). Descrierile cărților o folosesc, deci arată mereu valoarea reală. */
+    public int cardDamage(Card c) {
+        int d = damage;
+        for (String t : c.tags) d += runeSum("tagDamage." + t);
+        return d;
+    }
+
+    /** Cât de tare / cât de mult ține un status pus de o carte, după runele echipate (statusPower.BURN, statusTurns.FROZEN...). */
+    public int statusPower(StatusEffect.Type t) { return runeSum("statusPower." + t.name()); }
+    public int statusTurns(StatusEffect.Type t) { return runeSum("statusTurns." + t.name()); }
+
     /** Repune daune și viață maximă conform runelor echipate acum (apelat la echipare/dezechipare). */
     public void refreshRunes() {
         int dmg = runeSum("damage"), hp = runeSum("maxLife");
@@ -761,8 +772,9 @@ public class Player extends Entity {
         this.moveRemainder = 0f;
         gp.progression.leveledThisBattle = false;
         this.isPlayerTurn = true;
-        this.currentMana = this.maxMana;
+        this.currentMana = this.maxMana + runeSum("firstTurnMana");   // Runa Haiducului: esență în plus doar în prima tură
         this.shield = 0;
+        if (runeSum("battleShield") > 0) addShield(runeSum("battleShield"));   // Runa lui Feldgug
         this.voltCount = 0;
         this.lastCardPlayed = null;
         activeStatuses.clear();
@@ -834,13 +846,6 @@ public class Player extends Entity {
             // Progresul poveștii: boss-ul învins deschide pasajul spre zona următoare și dă artefactul
             boolean areaBoss = gp.story.isBoss(inamicNume) && !gp.story.has(gp.story.flagOf(inamicNume)); // primul triumf asupra lui
             var artifact = gp.story.onEnemyDefeated(inamicNume);
-            // Quest 10 "Inelul Blestemului": cu Diamantul Nopții și Inelul de Gheață în mână, Inelul Eternității se poate purifica
-            var q10 = gp.questManager.getQuestById(10, true);
-            if (q10 != null && !q10.isCompleted && (gp.story.has("feldgug") || "Feldgug".equals(inamicNume)) && (gp.story.has("glaciara") || "Glaciara".equals(inamicNume))) {
-                gp.questManager.updateQuestProgress(10, true, 1);
-                gp.ui.message = "Misiune completată: Inelul Blestemului";
-                gp.ui.messageOn = true;
-            }
             if (areaBoss && ZoneInfo.exitOf(gp.tileM.currentZone) != null) gp.pendingExitZone = gp.tileM.currentZone;
             if (artifact != null) {
                 gp.ui.message = "Obiect cheie: " + artifact.name + "!";
@@ -951,8 +956,10 @@ public class Player extends Entity {
                     break;
 
                 case "Glaciara":
-                    // Quest 11: Învinge-o pe Glaciara
+                    // Quest 11: Învinge-o pe Glaciara; gheața se topește și arată drumul spre Podul Umbrelor
                     gp.questManager.updateQuestProgress(11, true, 1);
+                    gp.ui.message = "Ghețurile se topesc: ai găsit drumul spre Podul Umbrelor!";
+                    gp.ui.messageOn = true;
                     break;
 
                 case "Charon":

@@ -6,7 +6,7 @@ import Entity.Player.Player;
 
 
 public class FulgerDeSange extends Card {
-    public static final int baseDamage= 24;
+    public static final int baseDamage= 16;
 
     public FulgerDeSange(Player player) {
         super("Fulger de Sânge",
@@ -16,12 +16,12 @@ public class FulgerDeSange extends Card {
     }
     @Override
     public void play(Player player, Enemy enemy) {
-        if (enemy != null) enemy.takeDamage(player,baseDamage+player.damage);
+        if (enemy != null) enemy.takeDamage(player,baseDamage+player.cardDamage(this));
         ++player.voltCount;
     }
 
-    private static String describe(Player p) {
-        return "O descărcare aprigă ce \nfrânge carnea.\nPaguba " + (baseDamage + p.damage + (p.areDinteChilimbar ? 3 : 0));
+    private String describe(Player p) {
+        return "O descărcare aprigă ce \nfrânge carnea.\nPaguba " + (baseDamage + p.cardDamage(this) + (p.areDinteChilimbar ? 3 : 0));
     }
 
     @Override
