@@ -5,13 +5,13 @@
     "healBelow": 0.4,
     "heal": [3, 5],
     "bigAttack": 10,
-    "armor": [6, 9],
-    "attack": { "weight": 5, "damage": [8, 12] },
+    "armor": [4, 7],
+    "attack": { "weight": 5, "damage": [6, 9] },
     "debuff": {
       "weight": 3,
       "options": [
         { "status": "WEAK", "turns": 2, "value": 25, "text": "Slăbiciune" },
-        { "status": "VULNERABLE", "turns": 2, "value": 50, "text": "Fragilitate" }
+        { "status": "VULNERABLE", "turns": 1, "value": 50, "text": "Fragilitate" }
       ]
     },
     "buff": { "weight": 1, "armor": [2, 3] },

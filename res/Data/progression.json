@@ -55,11 +55,11 @@
 
   "abilities": [
     {
-      "id": "scanteie", "name": "Scânteie Stelară", "key": "Q", "unlockLevel": 2, "cooldown": 1, "color": "#FFD36B", "tags": ["FULGER"],
-      "effects": [ { "type": "damage", "value": 5 } ]
+      "id": "scanteie", "name": "Scânteie Stelară", "key": "Q", "unlockLevel": 2, "cooldown": 2, "color": "#FFD36B", "tags": ["FULGER"],
+      "effects": [ { "type": "damage", "value": 4 } ]
     },
     {
-      "id": "scut", "name": "Scut de Rune", "key": "W", "unlockLevel": 3, "cooldown": 2, "color": "#7FC8FF",
+      "id": "scut", "name": "Scut de Rune", "key": "W", "unlockLevel": 3, "cooldown": 3, "color": "#7FC8FF",
       "effects": [ { "type": "shield", "value": 4 } ]
     },
     {
@@ -68,7 +68,7 @@
     },
     {
       "id": "izvor", "name": "Izvorul Luminii", "key": "R", "unlockLevel": 7, "oncePerBattle": true, "color": "#7DFFA0",
-      "effects": [ { "type": "heal", "value": 15 } ]
+      "effects": [ { "type": "heal", "value": 10 } ]
     }
   ]
 }

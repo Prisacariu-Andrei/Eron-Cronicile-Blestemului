@@ -2,8 +2,8 @@
   "_help": "Inamici din date și grupurile din luptă. groups.damage / groups.hp: înmulțitori după câți inamici sunt în luptă (index 0 = singur, 1 = doi, 2 = trei, 3+ = patru): cu cât sunt mai mulți, cu atât lovesc mai slab. types: inamici noi (id = numele), role = brute (atacă, uneori se apără) | healer (vindecă/protejează aliații, lovește slab) | mage (atac magic, vindecă un aliat rănit) | guard (protejează aliații). map/fight = sprite-urile (fără .png), tint = culoare peste sprite, hp/dmg = viața și lovitura de bază, passive = stă pe loc și luptă doar dacă te atingi tu de el. spawns: inamici adăugați în fiecare zonă: enemy = numele (din types sau din EnemyFactory), count = câte grupuri, pack = [min,max] inamici în grup (primul e cel de pe hartă), with = membri suplimentari (ex. un șaman). safe = [col,row,rază]: zone în care nu apar inamici (intrări). Pozițiile se aleg o singură dată, pe dale libere, la fel la fiecare încărcare.",
 
   "groups": {
-    "damage": [1.0, 0.8, 0.7, 0.6],
-    "hp":     [1.0, 1.0, 1.0, 0.83],
+    "damage": [1.0, 0.85, 0.75, 0.7],
+    "hp":     [1.0, 1.0, 1.0, 0.9],
     "maxSize": 4
   },
 

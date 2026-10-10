@@ -28,7 +28,7 @@
       "bound": true,
       "description": "Platoșa lui Valerius, cavalerul neînvins. La începutul fiecărei ture îți ridică un scut. O rună de boss: nu se poate vinde.",
       "buffs": {
-        "turnShield": 3
+        "turnShield": 2
       },
       "drops": {
         "Valerius": 1.0
@@ -89,9 +89,9 @@
       "rarity": "Epică",
       "price": 200,
       "bound": true,
-      "description": "Colțul lupului cel alb. Cărțile de Gheață lovesc cu 3 mai tare.",
+      "description": "Colțul lupului cel alb. Cărțile de Gheață lovesc cu 2 mai tare.",
       "buffs": {
-        "tagDamage.GHEATA": 3
+        "tagDamage.GHEATA": 2
       },
       "drops": {
         "Fenris cel Alb": 1.0
@@ -104,9 +104,9 @@
       "color": "#FFE36B",
       "rarity": "Rară",
       "price": 130,
-      "description": "Un fir de trăsnet prins în piatră. Cărțile Fulger lovesc cu 3 mai tare.",
+      "description": "Un fir de trăsnet prins în piatră. Cărțile Fulger lovesc cu 2 mai tare.",
       "buffs": {
-        "tagDamage.FULGER": 3
+        "tagDamage.FULGER": 2
       },
       "drops": {
         "Corb de Ceață": 0.07,
@@ -137,9 +137,9 @@
       "color": "#B58CFF",
       "rarity": "Epică",
       "price": 200,
-      "description": "Ce se ascunde în umbră lovește de două ori. Când combo-ul unei cărți se îndeplinește, mai dai 5 pagubă.",
+      "description": "Ce se ascunde în umbră lovește de două ori. Când combo-ul unei cărți se îndeplinește, mai dai 3 pagubă.",
       "buffs": {
-        "comboDamage": 5
+        "comboDamage": 3
       },
       "drops": {
         "Umbră Rătăcitoare": 0.12,
@@ -154,9 +154,9 @@
       "rarity": "Epică",
       "price": 0,
       "bound": true,
-      "description": "Inima turnului de gheață. Reacțiile dintre elemente lovesc cu 6 mai tare, iar Înghețul ține o tură în plus. O rună de boss.",
+      "description": "Inima turnului de gheață. Reacțiile dintre elemente lovesc cu 3 mai tare, iar Înghețul ține o tură în plus. O rună de boss.",
       "buffs": {
-        "reactionDamage": 6,
+        "reactionDamage": 3,
         "statusTurns.FROZEN": 1
       },
       "drops": {
@@ -188,9 +188,9 @@
       "rarity": "Epică",
       "price": 0,
       "bound": true,
-      "description": "Piatra tiranului din Abis. Începi fiecare luptă cu 10 armură. O rună de boss.",
+      "description": "Piatra tiranului din Abis. Începi fiecare luptă cu 6 armură. O rună de boss.",
       "buffs": {
-        "battleShield": 10
+        "battleShield": 6
       },
       "drops": {
         "Feldgug": 1.0
@@ -204,9 +204,9 @@
       "rarity": "Epică",
       "price": 0,
       "bound": true,
-      "description": "Moneda Străjerului. Pentru fiecare inamic doborât te vindeci cu 6. O rună de boss.",
+      "description": "Moneda Străjerului. Pentru fiecare inamic doborât te vindeci cu 4. O rună de boss.",
       "buffs": {
-        "killHeal": 6
+        "killHeal": 4
       },
       "drops": {
         "Charon": 1.0
