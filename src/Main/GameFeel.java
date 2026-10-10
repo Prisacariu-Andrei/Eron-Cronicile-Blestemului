@@ -38,6 +38,10 @@ public final class GameFeel {
     public static final float SHAKE_MAX = 14f;                 // plafon, ca să nu se dezmembreze ecranul
     public static final int SHAKE_HIT_TICKS = 16;
     public static final float SHAKE_ENEMY_HIT_BASE = 2f;       // la lovitura dată de Eron
+    public static final int SHAKE_BIG_HIT_DAMAGE = 20;         // de la atât în sus, o lovitură e "mare" și scutură în plus
+    public static final float SHAKE_BIG_HIT_BONUS = 2.5f;
+    public static final float SHAKE_BOSS_MULT = 1.6f;          // în lupta cu un boss toate scuturăturile de lovitură sunt mai puternice
+    public static final float FLASH_ALPHA = 0.8f;              // cât de opac e fulgerul alb/roșu pe sprite-ul lovit (scade la 0 pe durata animației)
     public static final int DEATH_ANIM_TICKS = 55;             // cât ține animația de moarte a unui inamic
     public static final int WIN_DELAY_TICKS = 80;              // pauza dintre ultima lovitură și ecranul de recompensă (60 = 1 secundă)
     public static final int DEATH_PARTICLES = 34;

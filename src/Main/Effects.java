@@ -85,7 +85,7 @@ public class Effects {
 
     /** Eron a fost lovit în luptă. */
     public void playerHurt(int damage) {
-        shake(GameFeel.SHAKE_PLAYER_HIT_BASE + damage * GameFeel.SHAKE_PER_DAMAGE, GameFeel.SHAKE_HIT_TICKS);
+        shake(hitShake(GameFeel.SHAKE_PLAYER_HIT_BASE + damage * GameFeel.SHAKE_PER_DAMAGE, damage), GameFeel.SHAKE_HIT_TICKS);
         hitStopForDamage(damage);
         sparks(ParticleSystem.FRONT, gp.battleUI.playerCenterX(), gp.battleUI.playerCenterY(),
                 GameFeel.HIT_SPARKS + damage / 3, 0xFF4A4A, 7f);
@@ -101,9 +101,23 @@ public class Effects {
         sound("block");
     }
 
+    /** Lupta curentă e cu un boss (gates.json -> bosses sau Malakor)? Atunci loviturile scutură mai tare. */
+    private boolean bossFight() {
+        var e = gp.player.currentEnemy;
+        if (e == null) return false;
+        String n = e.name.split(",")[0].trim();
+        return gp.story.isBoss(n) || n.startsWith("Malakor");
+    }
+
+    /** Scuturat de lovitură: crește cu damage-ul, are un plus la loviturile mari și e mai puternic în luptele cu boss (doar vizual). */
+    private float hitShake(float base, int damage) {
+        float s = base + (damage >= GameFeel.SHAKE_BIG_HIT_DAMAGE ? GameFeel.SHAKE_BIG_HIT_BONUS : 0f);
+        return Math.min(GameFeel.SHAKE_MAX * (bossFight() ? GameFeel.SHAKE_BOSS_MULT : 1f), s * (bossFight() ? GameFeel.SHAKE_BOSS_MULT : 1f));
+    }
+
     /** Eron a lovit inamicul. */
     public void enemyHurt(int damage) {
-        shake(GameFeel.SHAKE_ENEMY_HIT_BASE + damage * 0.08f, 10);
+        shake(hitShake(GameFeel.SHAKE_ENEMY_HIT_BASE + damage * 0.08f, damage), 10);
         hitStopForDamage(damage);
         sparks(ParticleSystem.FRONT, gp.battleUI.enemyCenterX(), gp.battleUI.enemyCenterY(),
                 GameFeel.HIT_SPARKS + damage / 3, 0xFFD36B, 8f);

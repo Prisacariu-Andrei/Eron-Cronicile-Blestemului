@@ -266,7 +266,7 @@ public abstract class Enemy extends Entity {
             hitFeedback(remaining, false);
         } else {
             shield -= finalDamage;
-            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "-" + finalDamage + " BLOCK", Color.GRAY));
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "BLOCAT", new Color(130, 180, 235)));
             hitFeedback(0, true);
         }
 

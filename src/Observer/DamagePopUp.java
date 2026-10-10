@@ -12,6 +12,7 @@ public class DamagePopUp {
     public int lifeSpan = 60; // Va dura 60 de ticks (1 secundă)
     public float alpha = 1.0f; // Pentru efect de fade-out
     public float scale = 0.35f; // Apare mic și face un "pop" până la mărimea normală
+    public float size = 1f;     // multiplicator față de fontul de bază: numerele de damage / vindecare / BLOCAT sunt mai mari decât textele obișnuite
 
     private final int startY;
     private int age = 0;
@@ -22,6 +23,9 @@ public class DamagePopUp {
         this.startY = y;
         this.text = text;
         this.color = color;
+        if (text.matches("-\\d+( HP)?")) size = 2.6f;          // damage
+        else if (text.matches("\\+\\d+( HP)?")) size = 2.2f;   // vindecare
+        else if (text.equals("BLOCAT")) size = 2.1f;            // armura a absorbit tot
     }
 
     public void update() {

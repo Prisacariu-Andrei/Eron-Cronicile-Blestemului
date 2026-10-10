@@ -719,7 +719,7 @@ public class Player extends Entity {
             else gp.fx.mapHurt(remaining);               // spike-uri pe hartă
         } else {
             shield -= amount;
-            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "-" + amount + " BLOCK", Color.GRAY));
+            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "BLOCAT", new Color(130, 180, 235)));
             if (inBattle) gp.fx.blocked();               // scutul a oprit lovitura
         }
 

@@ -194,7 +194,29 @@ public class BattleUI {
     }
 
     /** Desenează un personaj de luptă: respiră ușor când stă și se strivește/dă înapoi când e lovit. */
+    /** Siluete colorate (alb / roșu) ale sprite-urilor, făcute o singură dată: fulgerul de pe personajul lovit. */
+    private final java.util.Map<BufferedImage, BufferedImage> whiteSilhouettes = new java.util.IdentityHashMap<>(),
+            redSilhouettes = new java.util.IdentityHashMap<>();
+
+    private static BufferedImage silhouette(java.util.Map<BufferedImage, BufferedImage> cache, BufferedImage src, Color c) {
+        return cache.computeIfAbsent(src, s -> {
+            BufferedImage out = new BufferedImage(s.getWidth(), s.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = out.createGraphics();
+            g.drawImage(s, 0, 0, null);
+            g.setComposite(AlphaComposite.SrcAtop);   // doar peste pixelii desenați ai sprite-ului
+            g.setColor(c);
+            g.fillRect(0, 0, s.getWidth(), s.getHeight());
+            g.dispose();
+            return out;
+        });
+    }
+
     private void drawFighter(Graphics2D g2, BufferedImage img, int x, int groundY, int w, int h, int hitTimer, float phase) {
+        drawFighter(g2, img, x, groundY, w, h, hitTimer, phase, false);
+    }
+
+    /** redFlash: Eron a fost lovit (fulger roșu); altfel inamicul lovit de Eron are fulger alb. */
+    private void drawFighter(Graphics2D g2, BufferedImage img, int x, int groundY, int w, int h, int hitTimer, float phase, boolean redFlash) {
         float breath = (float) Math.sin((gp.fx.ticks + phase) * 0.07) * GameFeel.BATTLE_BREATH_SCALE;
         float t = hitTimer / (float) HIT_ANIM_TICKS;               // 1 la lovitură, scade spre 0
         float squash = 0.14f * Easing.outQuad(t);
@@ -202,6 +224,13 @@ public class BattleUI {
         int dw = Math.round(w * (1 + squash));
         int dh = Math.round(h * (1 + breath - squash));
         g2.drawImage(img, x - (dw - w) / 2 + recoil, groundY - dh, dw, dh, null);
+        if (hitTimer > 0) {   // fulger scurt: alb când Eron lovește, roșu când e lovit Eron
+            BufferedImage tint = redFlash ? silhouette(redSilhouettes, img, new Color(255, 40, 40)) : silhouette(whiteSilhouettes, img, Color.WHITE);
+            Composite old = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, GameFeel.FLASH_ALPHA * Math.min(1f, t * 1.5f)));
+            g2.drawImage(tint, x - (dw - w) / 2 + recoil, groundY - dh, dw, dh, null);
+            g2.setComposite(old);
+        }
     }
 
     public void draw(Graphics2D g2) {
@@ -220,7 +249,7 @@ public class BattleUI {
 
         if (gp.player.fightStand != null) {
             int playerX = (int)(gp.screenWidth * 0.08);
-            drawFighter(g2, gp.player.fightStand, playerX, groundY, eronWidth, eronHeight, playerHitTimer, 0f);
+            drawFighter(g2, gp.player.fightStand, playerX, groundY, eronWidth, eronHeight, playerHitTimer, 0f, true);
         }
 
         // 3. DESENARE INAMICI (unul sau o echipă)
@@ -764,12 +793,19 @@ public class BattleUI {
         for (DamagePopUp p : popups) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, p.alpha));
             // "Pop": apare mai mare decât final și se așază (easing cu overshoot)
-            if (Math.abs(p.scale - 1f) > 0.02f) g2.setFont(baseFont.deriveFont(baseFont.getSize2D() * p.scale));
+            float fs = baseFont.getSize2D() * p.scale * p.size;
+            if (Math.abs(fs - baseFont.getSize2D()) > 0.02f) g2.setFont(baseFont.deriveFont(Font.BOLD, fs));
             else g2.setFont(baseFont);
+            // numerele lui Eron (x = 3 sau 4 dale, vezi Player) apar deasupra capului lui, nu peste panoul de abilități
+            int px = p.x, py = p.y;
+            if (p.x == gp.tileSize * 3 || p.x == gp.tileSize * 4) {
+                px = playerCenterX() - gp.tileSize / 2 + (p.x - gp.tileSize * 3);
+                py = p.y + (int) (gp.screenHeight * 0.30);
+            }
             g2.setColor(Color.BLACK);
-            g2.drawString(p.text, p.x + 2, p.y + 2);
+            g2.drawString(p.text, px + 2, py + 2);
             g2.setColor(p.color);
-            g2.drawString(p.text, p.x, p.y);
+            g2.drawString(p.text, px, py);
         }
         g2.setFont(baseFont);
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
