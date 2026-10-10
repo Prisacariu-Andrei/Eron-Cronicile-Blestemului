@@ -1,7 +1,7 @@
 {
-  "_help": "Aliații lui Eron. party: targetChance = șansa ca o lovitură a inamicului să ajungă la un aliat în viață (în loc de Eron); healAfterBattle = cât din viața maximă are aliatul după o luptă câștigată (minim, învie dacă a căzut); maxSize = câți aliați pot merge odată. Fiecare aliat: id, name, sprite, color (#RRGGBB), maxLife, recruitFrom (numele inamicului care, învins, îl recrutează), scene (replicile scenei de recrutare: speaker + text), abilities (în ordinea priorității: prima a cărei condiție 'when' e adevărată se folosește la tura aliatului). when: always | selfLifeBelow:0.4 | playerLifeBelow:0.5 | playerShieldBelow:6. effect.type: damage (inamic; opțional status/statusTurns/statusValue), shieldPlayer, shieldSelf, healPlayer, healSelf, shieldLowest / healLowest (cel mai slab din echipă: Eron sau un aliat); when mai poate fi teamLifeBelow:0.5.",
+  "_help": "Aliații lui Eron. party: targetChance = șansa ca o lovitură a inamicului să ajungă la un aliat în viață (în loc de Eron; 0 = inamicii nu țintesc aliații, cum e acum); healAfterBattle = cât din viața maximă are aliatul după o luptă câștigată (minim, învie dacă a căzut); maxSize = câți aliați pot merge odată. Fiecare aliat: id, name, sprite, color (#RRGGBB), maxLife, recruitFrom (numele inamicului care, învins, îl recrutează), scene (replicile scenei de recrutare: speaker + text), abilities (în ordinea priorității: prima a cărei condiție 'when' e adevărată se folosește la tura aliatului). when: always | selfLifeBelow:0.4 | playerLifeBelow:0.5 | playerShieldBelow:6. effect.type: damage (inamic; opțional status/statusTurns/statusValue), shieldPlayer, shieldSelf, healPlayer, healSelf, shieldLowest / healLowest (cel mai slab din echipă: Eron sau un aliat); when mai poate fi teamLifeBelow:0.5.",
 
-  "party": { "targetChance": 0.30, "healAfterBattle": 0.5, "maxSize": 2 },
+  "party": { "targetChance": 0.0, "healAfterBattle": 0.5, "maxSize": 2 },
 
   "allies": [
     {

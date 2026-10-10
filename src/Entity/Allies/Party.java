@@ -17,7 +17,8 @@ import java.util.Random;
 /**
  * Echipa lui Eron: aliații recrutați, viața lor și tura lor în luptă (res/Data/allies.json).
  * Aliatul acționează când Eron își termină tura, înainte de inamic. Loviturile inamicului pot ajunge la aliat
- * (Player.damagePlayer -> redirectHit). Starea se salvează în saves.party.
+ * (Player.damagePlayer -> redirectHit, oprit cât timp party.targetChance = 0). Starea se salvează în saves.party.
+ * Aliații cu intrare în res/Data/ally_ai.json (Jean) folosesc logica de sprijin de acolo, în funcție de context.
  */
 public class Party {
     private final GamePanel gp;
@@ -25,6 +26,8 @@ public class Party {
     private final Map<String, Map<String, Object>> defs = new LinkedHashMap<>();
     private double targetChance = 0.3, healAfterBattle = 0.5;
     private int maxSize = 2;
+
+    private final Map<String, Object> ai = new LinkedHashMap<>();   // ally_ai.json: logica de sprijin pe id de aliat
 
     public final List<Ally> members = new ArrayList<>();
     /** Aliatul recrutat prin victoria curentă: după ecranul de recompensă se joacă scena (AllySceneState). */
@@ -40,6 +43,9 @@ public class Party {
         for (Object o : Json.list(root.get("allies"))) {
             Map<String, Object> d = Json.map(o);
             defs.put(Json.str(d.get("id"), ""), d);
+        }
+        for (Map.Entry<String, Object> e : Json.map(Json.parseResource("/Data/ally_ai.json")).entrySet()) {
+            if (!e.getKey().startsWith("_")) ai.put(e.getKey(), e.getValue());
         }
     }
 
@@ -92,12 +98,84 @@ public class Party {
     public void actAll(Player p, Enemy enemy) {
         for (Ally a : members) {
             if (!a.alive() || enemy == null || !enemy.alive) continue;
+            Map<String, Object> cfg = Json.map(ai.get(a.id));
+            if (!cfg.isEmpty()) { support(a, cfg, p, enemy); continue; }
             for (Ally.Ability ab : a.abilities) {
                 if (!conditionHolds(ab.when, a, p)) continue;
                 perform(a, ab, p, enemy);
                 break;
             }
         }
+    }
+
+    private int roll(Object range, int def) {
+        List<Object> l = Json.list(range);
+        if (l.isEmpty()) return def;
+        int lo = Json.integer(l.get(0), def), hi = Json.integer(l.size() > 1 ? l.get(1) : null, lo);
+        return lo + (hi > lo ? rng.nextInt(hi - lo + 1) : 0);
+    }
+
+    private void say(Ally a, String text, int ticks) {
+        a.say = text;
+        a.sayTicks = ticks;
+        a.lastAction = text;
+    }
+
+    /**
+     * Sprijinul lui Jean (ally_ai.json), după context: Eron rănit -> îl vindecă; o lovitură mare pe care armura nu o acoperă -> armură;
+     * altfel lovește, slăbește un inamic sau, rar, dă o mică întărire.
+     */
+    private void support(Ally a, Map<String, Object> cfg, Player p, Enemy target) {
+        int ticks = Json.integer(cfg.get("sayTicks"), 150);
+        int ax = allyX(a), ay = allyHeadY();
+
+        // 1. Eron sub pragul de viață -> vindecare mică
+        if (p.life < p.maxLife * Json.number(cfg.get("healBelow"), 0.4)) {
+            int v = roll(cfg.get("heal"), 4);
+            p.life = Math.min(p.maxLife, p.life + v);
+            p.notifyObservers();
+            gp.popups.add(new DamagePopUp(gp.tileSize * 3, gp.tileSize * 2, "+" + v + " HP", Color.GREEN));
+            say(a, "Te vindecă +" + v, ticks);
+            gp.fx.allyCast(a.color, ax, ay, false);
+            return;
+        }
+
+        // 2. un inamic pregătește o lovitură mare pe care armura lui Eron nu o acoperă -> armură
+        int big = Json.integer(cfg.get("bigAttack"), 10);
+        for (Enemy e : p.livingEnemies()) {
+            if (e.nextAction == Enemy.EnemyAction.ATTACK && e.intentValue >= big && p.shield < e.intentValue) {
+                int v = roll(cfg.get("armor"), 7);
+                p.addShield(v);
+                say(a, "Armură +" + v, ticks);
+                gp.fx.allyCast(a.color, ax, ay, false);
+                return;
+            }
+        }
+
+        // 3. altfel: atac, slăbire sau o mică întărire, după greutăți
+        Map<String, Object> atk = Json.map(cfg.get("attack")), deb = Json.map(cfg.get("debuff")), buf = Json.map(cfg.get("buff"));
+        int wa = Json.integer(atk.get("weight"), 5), wd = Json.integer(deb.get("weight"), 3), wb = Json.integer(buf.get("weight"), 1);
+        int r = rng.nextInt(Math.max(1, wa + wd + wb));
+        boolean hits = false;
+        if (r < wa) {
+            int v = roll(atk.get("damage"), 10);
+            target.takeDamage(p, v);
+            say(a, "Lovește -" + v, ticks);
+            hits = true;
+        } else if (r < wa + wd && !Json.list(deb.get("options")).isEmpty()) {
+            List<Object> opts = Json.list(deb.get("options"));
+            Map<String, Object> o = Json.map(opts.get(rng.nextInt(opts.size())));
+            try {
+                target.applyStatus(StatusEffect.Type.valueOf(Json.str(o.get("status"), "WEAK")), Json.integer(o.get("turns"), 2), Json.integer(o.get("value"), 0));
+            } catch (IllegalArgumentException ignored) { /* status necunoscut în JSON */ }
+            say(a, Json.str(o.get("text"), "Slăbiciune") + "!", ticks);
+            hits = true;
+        } else {
+            int v = roll(buf.get("armor"), 3);
+            p.addShield(v);
+            say(a, "Încurajare: armură +" + v, ticks);
+        }
+        gp.fx.allyCast(a.color, ax, ay, hits);
     }
 
     private boolean conditionHolds(String when, Ally a, Player p) {
@@ -114,7 +192,7 @@ public class Party {
     }
 
     private void perform(Ally a, Ally.Ability ab, Player p, Enemy enemy) {
-        int ax = allyX(a), ay = allyGroundY() - gp.screenHeight / 5;
+        int ax = allyX(a), ay = allyHeadY();
         boolean hitsEnemy = false;
         switch (ab.type) {
             case "damage" -> {
@@ -139,7 +217,7 @@ public class Party {
                 Ally w = weakestAlly();
                 if (w != null && (double) w.life / w.maxLife < (double) p.life / p.maxLife) {
                     w.shield += ab.value;
-                    gp.popups.add(new DamagePopUp(allyX(w), allyGroundY() - gp.screenHeight / 5, "+" + ab.value + " BLOCK", Color.CYAN));
+                    gp.popups.add(new DamagePopUp(allyX(w), allyHeadY(), "+" + ab.value + " BLOCK", Color.CYAN));
                 } else {
                     p.addShield(ab.value);
                 }
@@ -148,7 +226,7 @@ public class Party {
                 Ally w = weakestAlly();
                 if (w != null && (double) w.life / w.maxLife < (double) p.life / p.maxLife) {
                     w.life = Math.min(w.maxLife, w.life + ab.value);
-                    gp.popups.add(new DamagePopUp(allyX(w), allyGroundY() - gp.screenHeight / 5, "+" + ab.value + " HP", Color.GREEN));
+                    gp.popups.add(new DamagePopUp(allyX(w), allyHeadY(), "+" + ab.value + " HP", Color.GREEN));
                 } else {
                     p.life = Math.min(p.maxLife, p.life + ab.value);
                     p.notifyObservers();
@@ -180,15 +258,20 @@ public class Party {
         return min;
     }
 
-    /** x-ul aliatului pe ecran
- (în dreapta lui Eron). */
+    /** x-ul (centrul) aliatului: puțin în stânga lui Eron, ca să stea în spatele lui. */
     public int allyX(Ally a) {
         int idx = Math.max(0, members.indexOf(a));
-        return (int) (gp.screenWidth * (0.30 + 0.13 * idx));
+        return (int) (gp.screenWidth * (0.075 + 0.14 * idx));
     }
 
-    /** Linia solului aliaților: mai sus decât a lui Eron, ca să nu se suprapună cu mâna de cărți. */
-    public int allyGroundY() { return (int) (gp.screenHeight * 0.64); }
+    /** Înălțimea aliatului: cam cât Eron (în luptă Eron are 20% din lățimea ecranului). */
+    public int allyHeight() { return (int) (gp.screenWidth * 0.20); }
+
+    /** Linia solului aliaților: puțin mai sus decât a lui Eron (stă "în spate"). */
+    public int allyGroundY() { return (int) (gp.screenHeight * 0.87) - (int) (gp.screenHeight * 0.05); }
+
+    /** Deasupra capului aliatului (pentru popup-uri și textul acțiunii). */
+    public int allyHeadY() { return allyGroundY() - allyHeight() - 8; }
 
     /**
      * O lovitură a inamicului (apelată din Player.damagePlayer, în luptă). Cu șansa din allies.json ajunge la un aliat
@@ -199,7 +282,7 @@ public class Party {
         for (Ally a : members) if (a.alive()) alive.add(a);
         if (alive.isEmpty() || rng.nextDouble() >= targetChance) return false;
         Ally a = alive.get(rng.nextInt(alive.size()));
-        int ax = allyX(a), ay = allyGroundY() - gp.screenHeight / 5;
+        int ax = allyX(a), ay = allyHeadY();
         if (a.shield >= amount) {
             a.shield -= amount;
             gp.popups.add(new DamagePopUp(ax, ay, "-" + amount + " BLOCK", Color.GRAY));

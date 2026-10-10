@@ -37,6 +37,8 @@ public class Ally {
     public final List<Line> scene = new ArrayList<>();
 
     public int life, shield;
+    public int sayTicks = 0;        // cât mai rămâne pe ecran textul de deasupra lui
+    public String say = "";         // ce tocmai a făcut (ex. "Te vindecă +4")
     public String lastAction = "";   // ce a făcut în ultima tură (se vede în interfața de luptă)
     private BufferedImage image;
     private final boolean spriteFacesLeft;   // sprite-urile din joc privesc spre stânga; aliații stau în stânga, deci se oglindesc

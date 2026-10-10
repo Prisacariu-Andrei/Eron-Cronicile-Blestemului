@@ -188,6 +188,7 @@ public class BattleUI {
             else if (cardDealAge[i] < GameFeel.CARD_DEAL_TICKS) cardDealAge[i]++;
         }
 
+        for (var a : gp.party.members) if (a.sayTicks > 0) a.sayTicks--;
         if (enemyHitTimer > 0) enemyHitTimer--;
         if (playerHitTimer > 0) playerHitTimer--;
     }
@@ -210,6 +211,8 @@ public class BattleUI {
         // 1. FUNDAL
         drawBackground(g2);
 
+        drawAllySprites(g2);   // aliații stau în spatele lui Eron: se desenează înaintea lui
+
         // 2. DESENARE ERON (PLAYER)
         // Scale width to 10% of screen width, height is double that
         int eronWidth = (int)(gp.screenWidth * 0.10);
@@ -231,7 +234,7 @@ public class BattleUI {
 
         }
 
-        drawAllies(g2, groundY);   // aliații lui Eron (sprite + bară de viață)
+        drawAllyTags(g2);          // numele aliaților și textul acțiunii lor, peste toate sprite-urile
         // 4. INTERFAȚĂ (Static methods converted to dynamic)
         drawPlayerStats(g2, groundY);
         drawEnemyStats(g2, groundY);
@@ -264,45 +267,43 @@ public class BattleUI {
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
     }
 
-    /** Aliații lui Eron (allies.json): sprite lângă Eron, bară de viață, scut și ultima abilitate folosită. */
-    private void drawAllies(Graphics2D g2, int groundY) {
+    /** Aliații lui Eron (allies.json): sprite cam cât Eron, în spatele lui (puțin în stânga și mai sus). Inamicii nu îi pot ținti, deci nu au bară de viață. */
+    private void drawAllySprites(Graphics2D g2) {
         for (var a : gp.party.members) {
-            int cx = gp.party.allyX(a);
-            int h = (int) (gp.screenWidth * 0.15), barW = (int) (gp.screenWidth * 0.10), barH = (int) (gp.screenHeight * 0.012);
-
             var img = a.image();
-            if (img != null) {
-                int w = h * img.getWidth() / Math.max(1, img.getHeight());
-                float bob = a.alive() ? (float) Math.sin(gp.fx.ticks * 0.08 + cx) * 3f : 0f;
-                Composite old = g2.getComposite();
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, a.alive() ? 1f : 0.35f));
-                g2.drawImage(img, cx - w / 2, gp.party.allyGroundY() - h - Math.round(bob), w, h, null);
-                g2.setComposite(old);
-            }
+            if (img == null) continue;
+            int cx = gp.party.allyX(a), h = gp.party.allyHeight();
+            int w = h * img.getWidth() / Math.max(1, img.getHeight());
+            float bob = (float) Math.sin(gp.fx.ticks * 0.08 + cx) * 3f;
+            g2.drawImage(img, cx - w / 2, gp.party.allyGroundY() - h - Math.round(bob), w, h, null);
+        }
+    }
 
-            int x = cx - barW / 2, y = gp.party.allyGroundY() + (int) (gp.screenHeight * 0.03);
-            g2.setColor(new Color(50, 50, 50, 200));
-            g2.fillRoundRect(x, y, barW, barH, 5, 5);
+    /** Numele aliatului și, câteva secunde, ce a făcut tura asta (text care urcă și se stinge deasupra lui). */
+    private void drawAllyTags(Graphics2D g2) {
+        Font old = g2.getFont();
+        for (var a : gp.party.members) {
+            int cx = gp.party.allyX(a), head = gp.party.allyHeadY();
+            g2.setFont(old.deriveFont(Font.BOLD, gp.screenWidth / 115f));
+            g2.setColor(new Color(0, 0, 0, 170));
+            g2.drawString(a.name, cx - g2.getFontMetrics().stringWidth(a.name) / 2 + 1, head + 1);
             g2.setColor(new Color(a.color));
-            g2.fillRoundRect(x, y, (int) (barW * Math.max(0, Math.min(1, (double) a.life / a.maxLife))), barH, 5, 5);
-            if (a.shield > 0) {
-                g2.setColor(new Color(52, 152, 219, 210));
-                g2.fillRoundRect(x, y, Math.min(barW, (int) (barW * (double) a.shield / a.maxLife)), barH, 5, 5);
-            }
-            g2.setColor(Color.WHITE);
-            g2.setStroke(new BasicStroke(1.5f));
-            g2.drawRoundRect(x, y, barW, barH, 5, 5);
-
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 115f));
-            g2.drawString(a.name, x, y - (int) (gp.screenHeight * 0.015));
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 130f));
-            String hp = a.life + " / " + a.maxLife + (a.shield > 0 ? "  (+" + a.shield + " scut)" : "");
-            g2.drawString(hp, x, y + barH + (int) (gp.screenHeight * 0.02));
-            if (!a.lastAction.isEmpty()) {
-                g2.setColor(a.alive() ? new Color(a.color) : new Color(220, 120, 120));
-                g2.drawString(a.lastAction, x, y + barH + (int) (gp.screenHeight * 0.04));
+            g2.drawString(a.name, cx - g2.getFontMetrics().stringWidth(a.name) / 2, head);
+            if (a.sayTicks > 0 && !a.say.isEmpty()) {
+                float life = a.sayTicks / 150f;
+                int rise = (int) ((1f - life) * 18);
+                g2.setFont(old.deriveFont(Font.BOLD, gp.screenWidth / 80f));
+                int tw = g2.getFontMetrics().stringWidth(a.say);
+                int tx = Math.max(8, cx - tw / 2), ty = head - 22 - rise;
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.min(1f, a.sayTicks / 30f)));
+                g2.setColor(new Color(0, 0, 0, 190));
+                g2.fillRoundRect(tx - 8, ty - g2.getFontMetrics().getAscent() - 2, tw + 16, g2.getFontMetrics().getHeight() + 6, 10, 10);
+                g2.setColor(new Color(a.color));
+                g2.drawString(a.say, tx, ty);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
             }
         }
+        g2.setFont(old);
     }
 
     private void drawPlayerStats(Graphics2D g2, int groundY) {
