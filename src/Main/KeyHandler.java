@@ -173,9 +173,9 @@ public class KeyHandler implements KeyListener {
 
         // 2. GESTIUNE BATTLE
         if (state instanceof BattleState) {
-            // Mai mulți inamici: W/S, săgeți sau TAB aleg ținta
-            if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) gp.player.cycleTarget(-1);
-            if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN || code == KeyEvent.VK_TAB) gp.player.cycleTarget(1);
+            // Mai mulți inamici: săgețile sus/jos sau TAB aleg ținta (Q/W/E/R sunt abilitățile)
+            if (code == KeyEvent.VK_UP) gp.player.cycleTarget(-1);
+            if (code == KeyEvent.VK_DOWN || code == KeyEvent.VK_TAB) gp.player.cycleTarget(1);
             if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
                 if (gp.battleUI.commandNum > 0) { gp.battleUI.commandNum--; SoundManager.getInstance().playSE("click"); }
             }
@@ -190,7 +190,7 @@ public class KeyHandler implements KeyListener {
                 gp.player.endTurn();
                 return;
             }
-            // Cifrele 1-8 aleg cartea din mână (ENTER o joacă); abilitățile (progression.json) sunt pe Q, E, R, Z (BattleUI.ABILITY_KEYS)
+            // Cifrele 1-8 aleg cartea din mână (ENTER o joacă); abilitățile (progression.json) sunt pe Q, W, E, R (progression.json -> key)
             if (code >= KeyEvent.VK_1 && code <= KeyEvent.VK_8) {
                 int idx = code - KeyEvent.VK_1;
                 if (idx < gp.player.inventory.hand.size() && idx != gp.battleUI.commandNum) {
@@ -199,9 +199,8 @@ public class KeyHandler implements KeyListener {
                 }
                 return;
             }
-            int abilitySlot = code == KeyEvent.VK_Q ? 0 : code == KeyEvent.VK_E ? 1 : code == KeyEvent.VK_R ? 2 : code == KeyEvent.VK_Z ? 3 : -1;
-            if (abilitySlot >= 0) {
-                gp.player.useAbility(abilitySlot);
+            if (code == KeyEvent.VK_Q || code == KeyEvent.VK_W || code == KeyEvent.VK_E || code == KeyEvent.VK_R) {
+                gp.player.useAbility(gp.progression.abilityForKey((char) code));
                 return;
             }
 

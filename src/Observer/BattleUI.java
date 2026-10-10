@@ -697,48 +697,52 @@ public class BattleUI {
     }
 
     /**
-     * Abilitățile (progression.json) în colțul de sus-stânga: tasta, nume, cost în esență.
-     * Cele nedeblocate arată nivelul necesar; cele pe care nu le poți plăti acum sunt estompate.
+     * Abilitățile (progression.json) în colțul de sus-stânga: tasta, numele și efectul (cu bonusurile din rune, live).
+     * Pe dreapta: nivelul necesar (blocate, estompate), turele rămase până se pot folosi din nou sau "1/luptă".
      */
-    /** Tastele abilităților în luptă (cifrele 1-8 aleg cărțile). */
-    public static final String ABILITY_KEYS = "QERZ";
-
     private void drawAbilities(Graphics2D g2) {
         var list = gp.progression.abilities;
-        int x = 16, y = 96, w = 232, h = 40;
+        int x = 16, y = 96, w = 250, h = 48;
         Font old = g2.getFont();
         for (int i = 0; i < list.size() && i < 9; i++) {
             var a = list.get(i);
             boolean unlocked = gp.progression.isUnlocked(a);
-            boolean affordable = unlocked && gp.player.isPlayerTurn && gp.player.currentMana >= a.cost;
+            int wait = unlocked ? gp.player.abilityWait(a) : 0;
+            boolean ready = unlocked && wait == 0 && gp.player.isPlayerTurn;
             int ry = y + i * (h + 6);
 
-            g2.setColor(affordable ? new Color(40, 38, 70, 235) : new Color(24, 24, 36, 215));
+            g2.setColor(ready ? new Color(40, 38, 70, 235) : new Color(24, 24, 36, 215));
             g2.fillRoundRect(x, ry, w, h, 12, 12);
-            g2.setColor(affordable ? a.color : new Color(90, 90, 105));
-            g2.setStroke(new BasicStroke(affordable ? 2.5f : 1.5f));
+            g2.setColor(ready ? a.color : new Color(90, 90, 105));
+            g2.setStroke(new BasicStroke(ready ? 2.5f : 1.5f));
             g2.drawRoundRect(x, ry, w, h, 12, 12);
 
-            // tasta
             g2.setFont(old.deriveFont(Font.BOLD, 16F));
             g2.setColor(unlocked ? Color.WHITE : new Color(110, 110, 125));
-            g2.drawString("[" + ABILITY_KEYS.charAt(i) + "]", x + 10, ry + 26);
-            // nume
+            g2.drawString("[" + a.key + "]", x + 10, ry + 20);
             g2.setFont(old.deriveFont(Font.BOLD, 15F));
-            g2.setColor(unlocked ? (affordable ? Color.WHITE : new Color(165, 165, 180)) : new Color(110, 110, 125));
-            g2.drawString(a.name, x + 44, ry + 26);
-            // cost sau nivelul necesar
-            if (unlocked) {
-                g2.setColor(new Color(41, 128, 185, affordable ? 255 : 130));
-                g2.fillOval(x + w - 36, ry + 7, 26, 26);
-                g2.setColor(Color.WHITE);
-                g2.setFont(old.deriveFont(Font.BOLD, 15F));
-                String cost = String.valueOf(a.cost);
-                g2.drawString(cost, x + w - 23 - g2.getFontMetrics().stringWidth(cost) / 2, ry + 26);
-            } else {
+            g2.setColor(unlocked ? (ready ? Color.WHITE : new Color(165, 165, 180)) : new Color(110, 110, 125));
+            g2.drawString(a.name, x + 44, ry + 20);
+            // efectul, calculat din runele echipate acum
+            g2.setFont(old.deriveFont(Font.PLAIN, 12F));
+            g2.setColor(unlocked ? new Color(200, 200, 215, ready ? 255 : 150) : new Color(110, 110, 125));
+            g2.drawString(gp.player.abilityText(a), x + 44, ry + 38);
+
+            if (!unlocked) {
                 g2.setFont(old.deriveFont(Font.PLAIN, 13F));
                 g2.setColor(new Color(150, 150, 165));
-                g2.drawString("Nv. " + a.unlockLevel, x + w - 52, ry + 25);
+                g2.drawString("Nv. " + a.unlockLevel, x + w - 52, ry + 20);
+            } else if (wait != 0) {
+                g2.setColor(new Color(90, 90, 110, 230));
+                g2.fillOval(x + w - 36, ry + 8, 26, 26);
+                g2.setColor(Color.WHITE);
+                g2.setFont(old.deriveFont(Font.BOLD, 15F));
+                String label = wait > 0 ? String.valueOf(wait) : "✓";
+                g2.drawString(label, x + w - 23 - g2.getFontMetrics().stringWidth(label) / 2, ry + 27);
+            } else if (a.oncePerBattle) {
+                g2.setFont(old.deriveFont(Font.PLAIN, 11F));
+                g2.setColor(new Color(150, 150, 165));
+                g2.drawString("1/luptă", x + w - 50, ry + 20);
             }
         }
         g2.setFont(old);
@@ -750,7 +754,7 @@ public class BattleUI {
         g2.drawString("[T] END TURN", (int)(gp.screenWidth * 0.88), gp.screenHeight - (int)(gp.screenHeight * 0.03));
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, gp.screenWidth / 125f));
         g2.setColor(new Color(200, 200, 215));
-        String keysHint = "[1-8] alege carte   [ENTER] joacă   [Q E R Z] abilități   [W/S] țintă   [T] termină tura";
+        String keysHint = "[1-8] alege carte   [ENTER] joacă   [Q W E R] abilități   [↑/↓/TAB] țintă   [T] termină tura";
         g2.drawString(keysHint, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(keysHint) / 2, (int)(gp.screenHeight * 0.115));
 
         Font baseFont = g2.getFont();

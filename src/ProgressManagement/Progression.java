@@ -17,7 +17,11 @@ public class Progression {
     /** O abilitate din JSON. Efectele sunt aplicate de Player.useAbility. */
     public static class Ability {
         public String id, name, description;
+        public char key = '?';              // tasta din luptă
         public int unlockLevel, cost;
+        public int cooldown = 0;            // ture între două folosiri
+        public boolean oncePerBattle = false;
+        public final List<String> tags = new ArrayList<>();   // elementele abilității (pentru runele de tip tagDamage)
         public Color color;
         public List<Map<String, Object>> effects = new ArrayList<>();
     }
@@ -40,7 +44,12 @@ public class Progression {
             a.name = Json.str(m.get("name"), a.id);
             a.description = Json.str(m.get("description"), "");
             a.unlockLevel = Json.integer(m.get("unlockLevel"), 1);
-            a.cost = Json.integer(m.get("cost"), 1);
+            a.cost = Json.integer(m.get("cost"), 0);
+            String k = Json.str(m.get("key"), "?");
+            a.key = k.isEmpty() ? '?' : Character.toUpperCase(k.charAt(0));
+            a.cooldown = Json.integer(m.get("cooldown"), 0);
+            a.oncePerBattle = Json.bool(m.get("oncePerBattle"), false);
+            for (Object t : Json.list(m.get("tags"))) a.tags.add(String.valueOf(t));
             a.color = parseColor(Json.str(m.get("color"), "#FFFFFF"));
             for (Object e : Json.list(m.get("effects"))) a.effects.add(Json.map(e));
             abilities.add(a);
@@ -58,6 +67,12 @@ public class Progression {
 
     public int enemyXp(String enemyName) {
         return Json.integer(Json.map(root.get("enemyXp")).get(enemyName), Json.integer(root.get("defaultEnemyXp"), 5));
+    }
+
+    /** Abilitatea de pe tasta dată (Q/W/E/R), sau null. */
+    public Ability abilityForKey(char key) {
+        for (Ability a : abilities) if (a.key == Character.toUpperCase(key)) return a;
+        return null;
     }
 
     public Ability abilityAt(int slot) {

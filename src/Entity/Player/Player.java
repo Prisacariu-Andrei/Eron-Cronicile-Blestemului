@@ -5,6 +5,7 @@ import Entity.StatusEffect;
 import Entity.Inamici.Enemy;
 import Entity.Inamici.EnemyFactory;
 import Entity.Inamici.Groups;
+import Entity.Cards.CardCatalog;
 import Entity.Items.Card;
 import Entity.NPC.NPC;
 import Entity.Cards.Combos;
@@ -61,10 +62,49 @@ public class Player extends Entity {
     }
 
     /** Paguba de bază a unei cărți: bonusul general + bonusul runelor pentru elementele ei (tagDamage.FULGER etc.). Descrierile cărților o folosesc, deci arată mereu valoarea reală. */
-    public int cardDamage(Card c) {
+    public int cardDamage(Card c) { return damageFor(c.tags); }
+
+    /** Bonusul general + bonusul runelor pentru elementele date (cărți și abilități). */
+    public int damageFor(java.util.Collection<String> tags) {
         int d = damage;
-        for (String t : c.tags) d += runeSum("tagDamage." + t);
+        for (String t : tags) d += runeSum("tagDamage." + t);
         return d;
+    }
+
+    // --- Abilitățile Q/W/E/R: fără esență, pe ture de așteptare (progression.json) ---
+    private final java.util.Map<String, Integer> abilityCooldowns = new java.util.HashMap<>();
+    private final java.util.Set<String> abilitiesUsedThisBattle = new java.util.HashSet<>();
+
+    /** Câte ture mai are de așteptat abilitatea (0 = gata); -1 dacă s-a folosit deja (o dată pe luptă). */
+    public int abilityWait(ProgressManagement.Progression.Ability a) {
+        if (a.oncePerBattle && abilitiesUsedThisBattle.contains(a.id)) return -1;
+        return abilityCooldowns.getOrDefault(a.id, 0);
+    }
+
+    /** Începutul turei lui Eron: toate cooldown-urile scad cu o tură. */
+    private void tickAbilityCooldowns() { abilityCooldowns.replaceAll((k, v) -> Math.max(0, v - 1)); }
+
+    /** Textul abilității, calculat din efecte și din runele echipate (se schimbă live, ca la cărți). */
+    public String abilityText(ProgressManagement.Progression.Ability a) {
+        StringBuilder sb = new StringBuilder();
+        for (var e : a.effects) {
+            int v = Main.Json.integer(e.get("value"), 0);
+            String part = switch (Main.Json.str(e.get("type"), "")) {
+                case "damage" -> "Paguba " + (v + damageFor(a.tags));
+                case "shield" -> "Armura " + (v + runeSum("cardShield"));
+                case "heal" -> "Vindecă " + v;
+                case "status" -> {
+                    String label = Main.Json.str(e.get("status"), "?");
+                    try { label = CardCatalog.statusLabel(StatusEffect.Type.valueOf(label)); } catch (IllegalArgumentException ignored) { }
+                    yield label + " " + Main.Json.integer(e.get("turns"), 1) + " ture";
+                }
+                default -> null;
+            };
+            if (part == null) continue;
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(part);
+        }
+        return sb.toString();
     }
 
     /** Cât de tare / cât de mult ține un status pus de o carte, după runele echipate (statusPower.BURN, statusTurns.FROZEN...). */
@@ -491,9 +531,8 @@ public class Player extends Entity {
      * Folosește abilitatea de pe slotul dat (tastele 1-4). Costă esență ca o carte; se deblochează la nivel
      * (progression.json). Efectele: damage, shield, heal, mana, status.
      */
-    public void useAbility(int slot) {
+    public void useAbility(ProgressManagement.Progression.Ability ability) {
         if (winDelay >= 0) return;
-        var ability = gp.progression.abilityAt(slot);
         if (ability == null || !isPlayerTurn || currentEnemy == null || !currentEnemy.alive || life <= 0) return;
 
         if (!inventory.canLearnAbilities()) { // fără Manuscrisul Străvechi nu poți învăța abilități
@@ -506,22 +545,23 @@ public class Player extends Entity {
             gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "Nivel " + ability.unlockLevel + " necesar", Color.ORANGE));
             return;
         }
-        if (currentMana < ability.cost) {
+        int wait = abilityWait(ability);
+        if (wait != 0) {
             gp.fx.denied();
-            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "Esență insuficientă", Color.ORANGE));
+            gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, wait < 0 ? "O dată pe luptă" : "Mai așteaptă " + wait + (wait == 1 ? " tură" : " ture"), Color.ORANGE));
             return;
         }
-
-        currentMana -= ability.cost;
+        if (ability.oncePerBattle) abilitiesUsedThisBattle.add(ability.id);
+        else if (ability.cooldown > 0) abilityCooldowns.put(ability.id, ability.cooldown);
         boolean hitsEnemy = false;
         for (var effect : ability.effects) {
             int value = Main.Json.integer(effect.get("value"), 0);
             switch (Main.Json.str(effect.get("type"), "")) {
                 case "damage" -> {
                     hitsEnemy = true;
-                    currentEnemy.takeDamage(this, value + (Main.Json.bool(effect.get("scalesWithDamage"), true) ? damage : 0));
+                    currentEnemy.takeDamage(this, value + damageFor(ability.tags));
                 }
-                case "shield" -> addShield(value);
+                case "shield" -> addShield(value + runeSum("cardShield"));
                 case "heal" -> {
                     int healed = Math.min(value, maxLife - life);
                     life += healed;
@@ -636,6 +676,7 @@ public class Player extends Entity {
 
         Timer t2 = new Timer(1500, e -> {
             isPlayerTurn = true;
+            tickAbilityCooldowns();
             for(int i = 0; i < 5; i++) inventory.drawCard();
             ((Timer)e.getSource()).stop();
         });
@@ -778,6 +819,8 @@ public class Player extends Entity {
         this.voltCount = 0;
         this.lastCardPlayed = null;
         activeStatuses.clear();
+        abilityCooldowns.clear();
+        abilitiesUsedThisBattle.clear();
         gp.party.startBattle();
         this.inventory.prepareForBattle();
         combo.reset();
