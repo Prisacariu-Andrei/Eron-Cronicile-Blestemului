@@ -21,14 +21,18 @@
   },
 
   "reactions": [
-    { "id": "topire", "name": "Topire", "element": "FOC", "requires": ["FROZEN"], "damage": 22, "color": "#FF9A4D" },
-    { "id": "soc_lant", "name": "Șoc în Lanț", "element": "FULGER", "requires": ["WET", "FROZEN"], "damage": 8, "aoeDamage": 12, "color": "#FFE36B" },
-    { "id": "soc_termic", "name": "Șoc Termic", "element": "GHEATA", "requires": ["BURN"], "damage": 16, "color": "#8FE0FF" },
-    { "id": "eclipsa", "name": "Eclipsă Încărcată", "element": "UMBRA", "requires": ["CHARGED"], "damage": 14,
-      "apply": { "status": "WEAK", "turns": 2, "value": 25 }, "color": "#C79CFF" }
+    { "id": "topire", "name": "Topire", "element": "FOC", "requires": ["FROZEN"], "damage": 28, "color": "#FF9A4D" },
+    { "id": "soc_lant", "name": "Șoc în Lanț", "element": "FULGER", "requires": ["WET", "FROZEN"], "damage": 10, "aoeDamage": 14, "color": "#FFE36B" },
+    { "id": "soc_termic", "name": "Șoc Termic", "element": "GHEATA", "requires": ["BURN"], "damage": 20, "color": "#8FE0FF" },
+    { "id": "eclipsa", "name": "Eclipsă Încărcată", "element": "UMBRA", "requires": ["CHARGED"], "damage": 18,
+      "apply": { "status": "WEAK", "turns": 2, "value": 25 }, "color": "#C79CFF" },
+    { "id": "abur", "name": "Abur", "element": "FOC", "requires": ["WET"], "damage": 12,
+      "apply": { "status": "WEAK", "turns": 2, "value": 25 }, "color": "#E8E8F0" },
+    { "id": "supraincarcare", "name": "Supraîncărcare", "element": "FULGER", "requires": ["CHARGED"], "damage": 20, "aoeDamage": 8, "color": "#FFF08A" }
   ],
 
-  "chain": { "perLevel": 5, "shieldPerLevel": 3, "maxLevel": 4 },
+
+  "chain": { "perLevel": 6, "shieldPerLevel": 3, "maxLevel": 4 },
 
   "rarityWeights": { "Comună": 10, "Rară": 5, "Epică": 2 },
   "baseCardWeight": 10,
@@ -108,6 +112,65 @@
       "effects": [ { "type": "damageAll", "value": 16 } ],
       "combo": { "when": { "ally": "jean" }, "text": "Cu Jean în echipă: Jean acționează din nou + 6 paguba tuturor",
                  "effects": [ { "type": "allyAction" }, { "type": "damageAll", "value": 6 } ] },
-      "drop": { "bosses": ["Glaciara", "Charon"], "zones": ["Castelul"] } }
+      "drop": { "bosses": ["Glaciara", "Charon"], "zones": ["Castelul"] } },
+
+    { "id": "Turtura", "name": "Țurțure", "cost": 0, "rarity": "Comună", "tags": ["GHEATA"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 2 }, { "type": "status", "status": "FROZEN", "turns": 2 } ],
+      "shop": true, "drop": { "zones": ["Barlogul", "Tundra", "Eldoria"] } },
+
+    { "id": "ValDeCeata", "name": "Văl de Ceață", "cost": 1, "rarity": "Comună", "tags": ["GHEATA"],
+      "effects": [ { "type": "shield", "value": 6 }, { "type": "status", "status": "WET", "turns": 3, "all": true } ],
+      "drop": { "zones": ["Eldoria", "Barlogul", "Abisul"] } },
+
+    { "id": "ArcElectric", "name": "Arc Electric", "cost": 1, "rarity": "Comună", "tags": ["FULGER"], "offensive": true,
+      "effects": [ { "type": "damageAll", "value": 4 }, { "type": "status", "status": "CHARGED", "turns": 2, "all": true } ],
+      "shop": true, "drop": { "zones": ["Abisul", "Citadela"] } },
+
+    { "id": "ClesteDeUmbra", "name": "Clește de Umbră", "cost": 1, "rarity": "Comună", "tags": ["UMBRA"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 6 }, { "type": "status", "status": "WEAK", "turns": 2, "value": 25 } ],
+      "drop": { "zones": ["Abisul", "Podul", "Castelul"] } },
+
+    { "id": "TortaVie", "name": "Torța Vie", "cost": 1, "rarity": "Comună", "tags": ["FOC"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 5 }, { "type": "status", "status": "BURN", "turns": 4, "value": 3 } ],
+      "shop": true, "drop": { "zones": ["Eldoria", "Barlogul"] } },
+
+    { "id": "SulitaDeFoc", "name": "Suliță de Foc", "cost": 1, "rarity": "Comună", "tags": ["FOC"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 8 } ],
+      "combo": { "when": { "ally": "jean" }, "text": "Cu Jean în echipă: Jean acționează din nou",
+                 "effects": [ { "type": "allyAction" } ] },
+      "drop": { "zones": ["Citadela", "Tundra"] } },
+
+    { "id": "InfernulMic", "name": "Infernul Mic", "cost": 2, "rarity": "Rară", "tags": ["FOC"], "offensive": true,
+      "effects": [ { "type": "damageAll", "value": 9 }, { "type": "status", "status": "BURN", "turns": 3, "value": 3, "all": true } ],
+      "drop": { "zones": ["Abisul", "Citadela", "Tundra"] } },
+
+    { "id": "PrabusireaGerului", "name": "Prăbușirea Gerului", "cost": 2, "rarity": "Rară", "tags": ["GHEATA"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 12 } ],
+      "combo": { "when": { "targetStatus": "FROZEN" }, "text": "Pe Înghețat: +14 paguba și ținta e amețită",
+                 "effects": [ { "type": "damage", "value": 14 }, { "type": "status", "status": "STUN", "turns": 1 } ] },
+      "drop": { "zones": ["Tundra", "Podul"], "bosses": ["Glaciara"] } },
+
+    { "id": "RitualulUmbrelor", "name": "Ritualul Umbrelor", "cost": 1, "rarity": "Rară", "tags": ["UMBRA"],
+      "effects": [ { "type": "shield", "value": 5 } ],
+      "combo": { "when": { "minTags": 3 }, "text": "După 3 elemente diferite în tură: +12 armură și vindecă 8",
+                 "effects": [ { "type": "shield", "value": 12 }, { "type": "heal", "value": 8 } ] },
+      "drop": { "zones": ["Citadela", "Podul", "Castelul"] } },
+
+    { "id": "TrasnetulVidului", "name": "Trăsnetul Vidului", "cost": 2, "rarity": "Rară", "tags": ["FULGER", "UMBRA"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 11 } ],
+      "drop": { "zones": ["Podul", "Castelul"], "bosses": ["Feldgug"] } },
+
+    { "id": "Rezonanta", "name": "Rezonanța", "cost": 0, "rarity": "Rară", "tags": [], "offensive": true,
+      "effects": [ { "type": "damage", "value": 4 } ],
+      "combo": { "when": { "minTags": 2 }, "text": "După 2 elemente diferite în tură: +10 paguba",
+                 "effects": [ { "type": "damage", "value": 10 } ] },
+      "drop": { "zones": ["Abisul", "Citadela", "Tundra", "Podul"] } },
+
+    { "id": "InimaFurtunii", "name": "Inima Furtunii", "cost": 2, "rarity": "Epică", "tags": ["FULGER"], "offensive": true,
+      "effects": [ { "type": "damage", "value": 14 }, { "type": "status", "status": "CHARGED", "turns": 3, "all": true } ],
+      "combo": { "when": { "targetStatus": "CHARGED" }, "text": "Pe Încărcat: +20 paguba și 8 tuturor",
+                 "effects": [ { "type": "damage", "value": 20 }, { "type": "damageAll", "value": 8 } ] },
+      "drop": { "bosses": ["Fenris cel Alb", "Jean Plesa"], "zones": ["Castelul"] } }
+
   ]
 }

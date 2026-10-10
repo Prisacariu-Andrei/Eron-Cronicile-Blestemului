@@ -203,14 +203,33 @@ public class Player extends Entity {
         SoundManager.getInstance().playSE("click");
     }
 
-    /** Fals cât timp mai e un inamic în viață; altfel câștigă lupta. */
+    /** Ticks rămase până la ecranul de recompensă (-1 = lupta nu s-a terminat). Cât timp rulează, inamicii cad cu animație. */
+    public int winDelay = -1;
+
+    /** Fals cât timp mai e un inamic în viață; altfel pornește pauza de victorie (animația de moarte), apoi winBattle(). */
     public boolean checkVictory() {
         if (currentEnemy == null) return false;
         retarget();
         if (!livingEnemies().isEmpty()) return false;
-        winBattle();
+        startWinDelay();
         return true;
     }
+
+    public void startWinDelay() {
+        if (winDelay < 0) {
+            winDelay = Main.GameFeel.WIN_DELAY_TICKS;
+            isPlayerTurn = false;   // nu se mai poate juca nimic cât cad inamicii
+        }
+    }
+
+    /** Apelat la fiecare tick din BattleState. */
+    public void tickWin() {
+        if (winDelay > 0 && --winDelay == 0) {
+            winDelay = -1;
+            winBattle();
+        }
+    }
+
 
     public Card lastCardPlayed = null;
     public int voltCount = 0;
@@ -420,6 +439,7 @@ public class Player extends Entity {
     }
 
     public void playSelectedCard() {
+        if (winDelay >= 0) return;
         try {
             if (inventory.hand.isEmpty()) return;
 
@@ -460,6 +480,7 @@ public class Player extends Entity {
      * (progression.json). Efectele: damage, shield, heal, mana, status.
      */
     public void useAbility(int slot) {
+        if (winDelay >= 0) return;
         var ability = gp.progression.abilityAt(slot);
         if (ability == null || !isPlayerTurn || currentEnemy == null || !currentEnemy.alive || life <= 0) return;
 
@@ -515,6 +536,7 @@ public class Player extends Entity {
     }
 
     public void endTurn() {
+        if (winDelay >= 0) return;
         isPlayerTurn = false;
         isInvulnerable = false;
 
@@ -556,9 +578,7 @@ public class Player extends Entity {
         if (currentEnemy == null) return false;
         retarget();
         if (!livingEnemies().isEmpty()) return false;
-        Timer deathTimer = new Timer(delayMs, ev -> { winBattle(); ((Timer)ev.getSource()).stop(); });
-        deathTimer.setRepeats(false);
-        deathTimer.start();
+        startWinDelay();
         return true;
     }
 
@@ -717,6 +737,7 @@ public class Player extends Entity {
     }
 
     public void startBattle() {
+        winDelay = -1;
         this.moveVelocity = 0f; // nu mai alunecă când revine pe hartă
         this.moveRemainder = 0f;
         gp.progression.leveledThisBattle = false;
@@ -927,7 +948,7 @@ public class Player extends Entity {
                     activeStatuses.clear();
                     long finalTime = gp.ui.getPlayTime();
                     gp.leaderboardUI.checkAndSaveNewScore(finalTime, this.name);
-                    gp.changeState(new CutsceneState(gp, CutsceneUI.Script.EPILOGUE));
+                    gp.changeState(new ZoneTransitionState(gp, "epilogue", () -> new CutsceneState(gp, CutsceneUI.Script.EPILOGUE)));
                     return false;
             }
 

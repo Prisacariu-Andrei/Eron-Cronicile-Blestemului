@@ -53,7 +53,7 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
   `kill` / `collect` / `talk`, recompense: monede, XP, o carte) și obiectele de cules din lume (`pickups`). Stări: nepornită →
   activă → îndeplinită → predată. NPC-ul cu o misiune de oferit are `!` deasupra capului, cel la care o predai `?` (galben);
   `?` gri = în desfășurare. Jurnalul (**J**, tasta **Q** schimbă fila) are fila „Misiuni”.
-- **`res/Data/progression.json`** — XP-ul necesar pe nivel, ce primești la fiecare nivel (viață maximă, +1 esență la nivelurile 5 și 9),
+- **`res/Data/progression.json`** — XP-ul necesar pe nivel, ce primești la fiecare nivel (viață maximă; esența rămâne 3, `manaBonusAtLevels` e gol),
   XP-ul fiecărui inamic și **abilitățile**. Abilitățile se deblochează automat la nivelul lor și se folosesc în luptă cu **1-4**
   (costă esență, ca cărțile).
 
@@ -134,6 +134,14 @@ necesar (boss-ii dinainte, artefactele, Jean, nivelul) și ești teleportat. Doa
 - Pe cărți se văd elementele și condiția de combo (aurie când e îndeplinită acum, cu contur auriu în mână); inamicii au chip-uri de status cu turele rămase; la combo apare numele + scuturat + particule.
 
 **Reacție nouă:** un obiect în `reactions` (element, statusuri cerute, damage, aoeDamage, apply). **Carte nouă:** un obiect în `cards` (apare automat în salvări, recompense și, dacă are `shop`, o treci în `npcs.json` și îi pui prețul în `economy.json`).
+
+## Note de joc (ultimele modificări)
+
+- **Esența** rămâne 3 la orice nivel (`manaBonusAtLevels` gol în `progression.json`), ca alegerea cărților să conteze.
+- **Geamătul Ecoului** rejoacă ultima carte prin motorul de combo (reacții, lanț, `Combo xN`), nu doar valorile de bază.
+- **Moartea inamicilor** are animație (pâlpâie, se scufundă, se stinge) și ecranul de recompensă apare după ~1,3 secunde (`GameFeel.WIN_DELAY_TICKS`).
+- **Ecranele de încărcare** folosesc imaginile din `res/Loading` (zone + prolog + epilog; definite în `zones.json`). `res/Background` conține capturi de ecran cu interfața
+  inclusă, deci nu se pot folosi ca fundal de luptă; când ai fundaluri curate, pune calea în `zones.json` (`"battle": "/Background/....png"`) și se vor folosi automat.
 
 ## Cum se simte jocul ("game feel")
 

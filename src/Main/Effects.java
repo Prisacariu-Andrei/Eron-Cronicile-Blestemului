@@ -120,7 +120,16 @@ public class Effects {
         sparks(ParticleSystem.FRONT, x, y, 8, 0xFFFFFF, 6f);
     }
 
+    /** Un inamic cade: scuturat scurt și un nor de particule care se ridică din locul lui. */
+    public void enemyDeath(int x, int y) {
+        shake(GameFeel.SHAKE_ENEMY_DEATH, 14);
+        burst(ParticleSystem.FRONT, x, y, GameFeel.DEATH_PARTICLES, 0xD8D0E8, 5f, 56, 7f, -0.04f);
+        sparks(ParticleSystem.FRONT, x, y, 10, 0xFFFFFF, 7f);
+        sound("block");
+    }
+
     /** Inamicul a oprit lovitura cu scutul. */
+
 
     public void enemyBlocked() {
         shake(1.8f, 7);

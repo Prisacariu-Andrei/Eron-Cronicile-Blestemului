@@ -11,7 +11,7 @@ public class GeamatulEcoului extends Card {
     @Override
     public void play(Player player, Enemy enemy) {
         if (player.lastCardPlayed != null && !(player.lastCardPlayed instanceof GeamatulEcoului)) {
-            player.lastCardPlayed.play(player, enemy);
+            Combos.play(player, player.lastCardPlayed, enemy);   // cu reactii, lant si combo, ca si cum ai juca din nou cartea
         }
     }
 }

@@ -38,6 +38,10 @@ public final class GameFeel {
     public static final float SHAKE_MAX = 14f;                 // plafon, ca să nu se dezmembreze ecranul
     public static final int SHAKE_HIT_TICKS = 16;
     public static final float SHAKE_ENEMY_HIT_BASE = 2f;       // la lovitura dată de Eron
+    public static final int DEATH_ANIM_TICKS = 55;             // cât ține animația de moarte a unui inamic
+    public static final int WIN_DELAY_TICKS = 80;              // pauza dintre ultima lovitură și ecranul de recompensă (60 = 1 secundă)
+    public static final int DEATH_PARTICLES = 34;
+    public static final float SHAKE_ENEMY_DEATH = 4f;
     public static final float SHAKE_REACTION = 4.5f;           // reacție între elemente / combo
     public static final int SHAKE_REACTION_TICKS = 12;
     public static final int REACTION_PARTICLES = 26;

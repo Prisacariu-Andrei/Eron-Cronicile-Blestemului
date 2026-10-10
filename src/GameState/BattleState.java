@@ -23,10 +23,9 @@ public class BattleState implements GameState {
         // Popup-urile se actualizează acum în GamePanel.update(), pentru toate stările
 
         gp.player.retarget();
-        if (gp.player.currentEnemy != null && gp.player.livingEnemies().isEmpty()) {
-            gp.player.winBattle();
-            if (gp.getCurrentState() == this) gp.changeState(new RewardState(gp));   // finalul jocului trece direct la epilog
-        }
+        if (gp.player.currentEnemy != null && gp.player.livingEnemies().isEmpty()) gp.player.startWinDelay();
+        gp.player.tickWin();   // după pauza de victorie: recompensele și ecranul de recompensă (sau epilogul)
+
     }
 
     @Override

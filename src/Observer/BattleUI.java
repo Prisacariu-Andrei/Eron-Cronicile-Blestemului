@@ -58,6 +58,7 @@ public class BattleUI {
 
     /** Apelată la începutul fiecărei lupte: cărțile vor intra în mână una câte una. */
     public void onBattleStart() {
+        dying.clear();
         dealtCards = 0;
         enemyHitTimer = 0;
         playerHitTimer = 0;
@@ -85,7 +86,7 @@ public class BattleUI {
         java.util.List<Slot> out = new ArrayList<>();
         var p = gp.player;
         java.util.List<Enemy> alive = new ArrayList<>();
-        for (Enemy e : p.team) if (e.alive) alive.add(e);
+        for (Enemy e : p.team) if (e.alive || (dying.containsKey(e) && dying.get(e) < GameFeel.DEATH_ANIM_TICKS)) alive.add(e);   // și cei care cad acum
         if (p.team.isEmpty() && p.currentEnemy != null) alive.add(p.currentEnemy);
         int n = alive.size();
         if (n == 0) return out;
@@ -114,6 +115,34 @@ public class BattleUI {
         return out;
     }
 
+    /** Inamicii care tocmai au căzut: vârsta animației (în ticks). Se desenează și după moarte până se termină. */
+    private final java.util.Map<Enemy, Integer> dying = new java.util.IdentityHashMap<>();
+
+    private void updateDying() {
+        for (Enemy e : gp.player.team) {
+            if (!e.alive && !dying.containsKey(e)) {
+                dying.put(e, 0);
+                Slot s = slotOf(e);
+                if (s != null) gp.fx.enemyDeath(s.cx(), groundY() - s.size / 2);
+            }
+        }
+        for (var en : dying.entrySet()) en.setValue(en.getValue() + 1);
+    }
+
+    /** Moartea unui inamic: pâlpâie, apoi se scufundă puțin, se micșorează și se stinge. */
+    private void drawDying(Graphics2D g2, Slot s, int groundY) {
+        int age = dying.getOrDefault(s.e, 0);
+        float t = Easing.clamp01(age / (float) GameFeel.DEATH_ANIM_TICKS);
+        float flicker = age < 14 ? (age % 4 < 2 ? 0.45f : 1f) : 1f;
+        float alpha = flicker * (1f - Easing.clamp01((t - 0.25f) / 0.75f));
+        int dw = Math.round(s.size * (1f - 0.22f * t)), dh = dw;
+        int shake = age < 14 ? Math.round((float) Math.sin(age * 2.2) * 5f) : 0;
+        Composite old = g2.getComposite();
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, alpha)));
+        g2.drawImage(s.e.fightStand, s.x + (s.size - dw) / 2 + shake, groundY - dh + Math.round(t * s.size * 0.12f), dw, dh, null);
+        g2.setComposite(old);
+    }
+
     private Slot slotOf(Enemy e) {
         for (Slot s : slots()) if (s.e == e) return s;
         return null;
@@ -135,6 +164,7 @@ public class BattleUI {
      */
     public void update() {
         gp.player.combo.tick();
+        updateDying();
         if (isTransitioning) {
             transitionTimer++;
             if (transitionTimer > transitionLength) { isTransitioning = false; transitionTimer = 0; transitionLength = 40; transitionSubtitle = ""; }
@@ -195,10 +225,13 @@ public class BattleUI {
         for (int i = 0; i < slots.size(); i++) {
             Slot s = slots.get(i);
             if (s.e.fightStand == null) continue;
+            if (!s.e.alive) { drawDying(g2, s, groundY); continue; }
             boolean target = s.e == gp.player.currentEnemy;
             drawFighter(g2, s.e.fightStand, s.x, groundY, s.size, s.size, target ? enemyHitTimer : 0, 40f + i * 17f);
+
         }
 
+        drawAllies(g2, groundY);   // aliații lui Eron (sprite + bară de viață)
         // 4. INTERFAȚĂ (Static methods converted to dynamic)
         drawPlayerStats(g2, groundY);
         drawEnemyStats(g2, groundY);
@@ -215,7 +248,10 @@ public class BattleUI {
     }
 
     private void drawBackground(Graphics2D g2) {
-        if (gp.player.currentEnemy != null && gp.player.currentEnemy.battleBackground != null) {
+        java.awt.image.BufferedImage zoneBg = Main.ZoneInfo.battleImage(gp.tileM.currentZone, gp.screenWidth, gp.screenHeight);   // res/Background, din zones.json
+        if (zoneBg != null) {
+            g2.drawImage(zoneBg, 0, 0, gp.screenWidth, gp.screenHeight, null);
+        } else if (gp.player.currentEnemy != null && gp.player.currentEnemy.battleBackground != null) {
             g2.drawImage(gp.player.currentEnemy.battleBackground, 0, 0, gp.screenWidth, gp.screenHeight, null);
         } else {
             g2.setColor(new Color(20, 20, 40));
@@ -319,6 +355,7 @@ public class BattleUI {
         boolean many = slots.size() > 1;
         for (Slot s : slots) {
             Enemy enemy = s.e;
+            if (!enemy.alive) continue;
             int barWidth = many ? Math.max((int) (gp.screenWidth * 0.07), Math.min((int) (gp.screenWidth * 0.10), s.size)) : (int) (gp.screenWidth * 0.10);
             int barHeight = (int) (gp.screenHeight * (many ? 0.013 : 0.015));
             int x = s.cx() - barWidth / 2;
@@ -379,7 +416,7 @@ public class BattleUI {
     }
 
     private void drawEnemyIntent(Graphics2D g2) {
-        for (Slot s : slots()) drawIntentFor(g2, s);
+        for (Slot s : slots()) if (s.e.alive) drawIntentFor(g2, s);
     }
 
     private void drawIntentFor(Graphics2D g2, Slot slot) {

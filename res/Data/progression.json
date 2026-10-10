@@ -1,7 +1,7 @@
 {
   "_help": [
     "Toată echilibrarea nivelurilor, XP-ului și abilităților. Monedele și prețurile sunt în economy.json, recompensele misiunilor în quests.json.",
-    "XP necesar pentru nivelul următor = round(xpBase * xpGrowth ^ (nivel - 1)). La fiecare nivel: +hpPerLevel viață maximă; la nivelurile din manaBonusAtLevels: +1 esență maximă.",
+    "XP necesar pentru nivelul următor = round(xpBase * xpGrowth ^ (nivel - 1)). La fiecare nivel: +hpPerLevel viață maximă; la nivelurile din manaBonusAtLevels: +1 esență maximă (acum gol: esența rămâne 3, ca strategia să conteze).",
     "Abilitățile se deblochează AUTOMAT la unlockLevel (nu există puncte de abilitate). Se folosesc în luptă cu tastele 1-4 și costă esență (mană), ca și cărțile.",
     "effects (se aplică în ordine): damage {value, scalesWithDamage}, shield {value}, heal {value}, mana {value}, status {status: BURN|POISON|WEAK|VULNERABLE, turns, value}."
   ],
@@ -12,7 +12,7 @@
   "hpPerLevel": 8,
   "healOnLevelUp": true,
   "baseMana": 3,
-  "manaBonusAtLevels": [5, 9],
+  "manaBonusAtLevels": [],
 
   "defaultEnemyXp": 8,
   "enemyXp": {

@@ -33,7 +33,19 @@
     "ArmoniaElementelor": 90,
     "ChemareaHaiducilor": 95,
     "SabieSiVraja": 110,
-    "FurtunaHaiducilor": 160
+    "FurtunaHaiducilor": 160,
+    "Turtura": 30,
+    "ValDeCeata": 45,
+    "ArcElectric": 55,
+    "ClesteDeUmbra": 50,
+    "TortaVie": 50,
+    "SulitaDeFoc": 55,
+    "InfernulMic": 105,
+    "PrabusireaGerului": 100,
+    "RitualulUmbrelor": 90,
+    "TrasnetulVidului": 110,
+    "Rezonanta": 85,
+    "InimaFurtunii": 170
   },
 
   "_comment_drops": "[min, max] monede la invingerea unui inamic (numele dinaintea virgulei).",
