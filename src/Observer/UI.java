@@ -17,6 +17,7 @@ public class UI {
 
     // --- ADAUGĂ LA VARIABILELE GLOBALE DIN UI.java ---
     public FogOfWar fogOfWar;
+    public Lighting lighting;
 
     // --- ADAUGĂ ÎN CONSTRUCTORUL UI(GamePanel gp) ---
 
@@ -33,6 +34,7 @@ public class UI {
         arial_40 = new Font("Arial", Font.PLAIN, 40);
         arial_80B = new Font("Arial", Font.BOLD, 80);
         this.fogOfWar = new FogOfWar(gp, gp.tileSize*8);
+        this.lighting = new Lighting(gp);
 
         // ★ OPTIMIZARE: Încărcăm imaginea o SINGURĂ dată la inițializarea UI-ului, nu în loop-ul de draw!
         try {
@@ -60,8 +62,8 @@ public class UI {
             drawMenuScreen();
         }
         if (state instanceof PlayState) {
-            if (Objects.equals(gp.tileM.currentZone, "Abisul")) {
-                fogOfWar.draw(g2,-5);
+            if (!Objects.equals(gp.tileM.currentZone, "Tundra")) {
+                lighting.draw(g2);   // întunericul și luminile zonei (zones.json); zonele fără "darkness"/"lights" nu costă nimic
             }
             if (Objects.equals(gp.tileM.currentZone, "Tundra")){
                 fogOfWar.draw(g2,235);

@@ -166,6 +166,7 @@ public class TileManager {
 
                 break;
         }
+        CaveTiles.install(tile, zoneName, gp.tileSize);   // decorul procedural al Abisului și al Bârlogului (torțe, tron, oase...)
     }
 
     public void setup(int index, String imageName, boolean collision) {

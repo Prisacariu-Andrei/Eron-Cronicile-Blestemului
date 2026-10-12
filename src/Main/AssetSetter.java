@@ -172,7 +172,7 @@ public class AssetSetter {
     }
 
     private void spawnBarlogul() {
-        if (!gp.story.has("fenris")) gp.enemy[0] = EnemyFactory.createEnemy("Fenris cel Alb", gp, gp.tileSize * 76 + 16, gp.tileSize * 36);
+        if (!gp.story.has("fenris")) gp.enemy[0] = EnemyFactory.createEnemy("Fenris cel Alb", gp, gp.tileSize * 78 + 16, gp.tileSize * 36);   // în fața grămezii de oase din bârlog
         gp.enemy[1] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 48, gp.tileSize * 26);
         gp.enemy[2] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 47, gp.tileSize * 27);
         gp.enemy[3] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 49, gp.tileSize * 25);
@@ -187,7 +187,7 @@ public class AssetSetter {
         // (toate pozițiile sunt pe dale accesibile de la intrare)
         gp.enemy[0] = EnemyFactory.createEnemy("Trol", gp, gp.tileSize * 26, gp.tileSize * 37);
         gp.enemy[1] = EnemyFactory.createEnemy("Trol", gp, gp.tileSize * 38, gp.tileSize * 22);
-        if (!gp.story.has("feldgug")) gp.enemy[2] = EnemyFactory.createEnemy("Feldgug", gp, gp.tileSize * 60, gp.tileSize * 51 + 32);
+        if (!gp.story.has("feldgug")) gp.enemy[2] = EnemyFactory.createEnemy("Feldgug", gp, gp.tileSize * 57, gp.tileSize * 53);   // pe covor, în fața tronului
         gp.enemy[3] = EnemyFactory.createEnemy("Trol", gp, gp.tileSize * 53, gp.tileSize * 9);
         gp.enemy[4] = EnemyFactory.createEnemy("Trol", gp, gp.tileSize * 67, gp.tileSize * 28);
         gp.enemy[5] = EnemyFactory.createEnemy("Trol", gp, gp.tileSize * 20, gp.tileSize * 63);

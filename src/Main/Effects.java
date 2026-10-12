@@ -374,6 +374,7 @@ public class Effects {
         lastCamY = camY;
 
         updateAmbient();
+        if (gp.ui != null && gp.ui.lighting != null) gp.ui.lighting.update();   // scântei de la torțe, picături
         particles.update(dx, dy);
     }
 
@@ -462,7 +463,7 @@ public class Effects {
         return switch (zone) {
             case "Eldoria" -> 46;
             case "Barlogul" -> 26;
-            case "Abisul" -> 44;
+            case "Abisul" -> 30;
             case "Citadela" -> 26;
             case "Tundra" -> 150;
             case "Podul" -> 34;
@@ -498,15 +499,11 @@ public class Effects {
                 p.setWobble(i, 0.45f, 0.07f);
                 p.setDepth(i, rand(0.6f, 1f));
             }
-            case "Abisul" -> { // praf în lumina torței, rar câte o scânteie
-                if (rng.nextInt(7) == 0) {
-                    i = p.spawn(ParticleSystem.AMBIENT, ParticleSystem.GLOW, rand(0, W), scatter ? rand(0, H) : H + 10,
-                            rand(-0.15f, 0.15f), rand(-0.7f, -0.25f), 0, 1f, 260 + rng.nextInt(200), 3.8f, 2.4f, 1f, 0xFF8A3D);
-                } else {
-                    i = p.spawn(ParticleSystem.AMBIENT, ParticleSystem.CIRCLE, rand(0, W), scatter ? rand(0, H) : H + 10,
-                            rand(-0.1f, 0.1f), rand(-0.35f, -0.08f), 0, 1f, 420 + rng.nextInt(400), 3.4f, 3f, 0.85f, 0xE6EAF0);
-                }
-                p.setWobble(i, 0.2f, 0.05f);
+            case "Abisul" -> { // praf care cade rar din tavan (scânteile vin acum de la torțe, vezi Lighting)
+                float size = rand(2.2f, 3.8f);
+                i = p.spawn(ParticleSystem.AMBIENT, ParticleSystem.CIRCLE, rand(0, W), rand(0, H),   // apare pe loc și se stinge înainte să ajungă departe
+                        rand(-0.12f, 0.12f), rand(0.12f, 0.42f) * (size / 3f), 0, 1f, 420 + rng.nextInt(400), size, size * 0.8f, 0.8f, pick(0xC9C2B4, 0xB4B9C4, 0xD8D2C4));
+                p.setWobble(i, 0.18f, 0.05f);
                 p.setDepth(i, rand(0.5f, 1f));
             }
             case "Citadela" -> { // scântei de la focurile hanului
