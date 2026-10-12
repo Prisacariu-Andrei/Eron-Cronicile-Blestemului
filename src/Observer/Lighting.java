@@ -124,7 +124,7 @@ public class Lighting {
         var tm = gp.tileM;
         Random r = new Random(zone.hashCode());
         int ts = gp.tileSize;
-        for (int tries = 0; tries < 4000 && fog.size() < 46; tries++) {
+        for (int tries = 0; tries < 4000 && fog.size() < 70; tries++) {
             int c = 2 + r.nextInt(Math.max(1, tm.actualMapCols - 4)), row = 2 + r.nextInt(Math.max(1, tm.actualMapRows - 4));
             int id = tm.mapTileNum[c][row];
             if (id < 0 || id >= tm.tile.length || tm.tile[id] == null || tm.tile[id].collision) continue;
