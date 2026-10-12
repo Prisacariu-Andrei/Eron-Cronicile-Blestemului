@@ -429,12 +429,17 @@ public class Player extends Entity {
         collisionOn = false;
         gp.cChecher.checkTile(this);
         direction = facing;
+        if (Main.DebugMode.noclip) collisionOn = false;   // panoul de admin: treci prin orice dală
         if (collisionOn) return false;
         switch (dir) {
             case "up" -> worldY -= step;
             case "down" -> worldY += step;
             case "left" -> worldX -= step;
             default -> worldX += step;
+        }
+        if (Main.DebugMode.noclip) {   // fără dale în cale, dar nu ieșim din matricea hărții
+            worldX = Math.max(0, Math.min(worldX, (gp.maxWorldCol - 2) * gp.tileSize));
+            worldY = Math.max(0, Math.min(worldY, (gp.maxWorldRow - 2) * gp.tileSize));
         }
         return true;
     }
@@ -732,6 +737,7 @@ public class Player extends Entity {
     }
 
     public void damagePlayer(int amount) {
+        if (Main.DebugMode.god) return;   // panoul de admin: nemurire
         if (isInvulnerable) {
             gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "IMUN", Color.WHITE));
             return;
@@ -797,6 +803,7 @@ public class Player extends Entity {
     }
 
     private void checkEnemyCollision() {
+        if (Main.DebugMode.noFights) return;
         Rectangle pRect = new Rectangle(worldX + hitBox.x, worldY + hitBox.y, hitBox.width, hitBox.height);
         for (int i = 0; i < gp.enemy.length; i++) {
             if (gp.enemy[i] != null && gp.enemy[i].alive) {

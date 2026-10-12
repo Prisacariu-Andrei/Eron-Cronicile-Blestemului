@@ -123,7 +123,7 @@ public class CollisionChecker {
         double distance = Math.sqrt(Math.pow(centerX - playerCenterX, 2) + Math.pow(centerY - playerCenterY, 2));
 
         // --- LOGICĂ DECLANȘARE LUPTĂ (Modificată pentru State Pattern) ---
-        if (distance <= activationRange && entity instanceof Enemy e) {
+        if (distance <= activationRange && entity instanceof Enemy e && !DebugMode.noFights) {
             if (e.alive && !(gp.getCurrentState() instanceof BattleState)) {
                 gp.player.beginBattle(e); // lupta cu inamicul și grupul lui
             }

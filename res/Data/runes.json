@@ -211,6 +211,20 @@
       "drops": {
         "Charon": 1.0
       }
+    },
+    {
+      "id": "admin",
+      "name": "Runa Adminului",
+      "glyph": "flame",
+      "color": "#FF2A6D",
+      "rarity": "Epică",
+      "price": 0,
+      "bound": true,
+      "description": "Doar pentru testare (panoul de admin, F9). Dă +1000 daune la toate loviturile. Nu ocupă slot.",
+      "buffs": {
+        "damage": 1000
+      },
+      "drops": {}
     }
   ]
 }

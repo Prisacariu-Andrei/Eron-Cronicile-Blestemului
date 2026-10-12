@@ -241,6 +241,22 @@ public class QuestLog {
         return rewardText(d);
     }
 
+    /** Admin (panoul F9): îndeplinește și predă misiunea cu tot cu recompense, oricare i-ar fi starea. */
+    public void adminSkip(Def d) {
+        if (state(d.id) == State.TURNED_IN) return;
+        if (state(d.id) == State.NOT_STARTED) states.put(d.id, State.ACTIVE);
+        int[] c = counts.get(d.id);
+        for (int i = 0; i < c.length; i++) c[i] = d.objectives.get(i).count;
+        states.put(d.id, State.COMPLETED);
+        turnIn(d);
+    }
+
+    /** Admin: următoarea misiune neterminată (în ordinea din quests.json), sau null dacă au fost toate predate. */
+    public Def adminNext() {
+        for (Def d : defs.values()) if (state(d.id) != State.TURNED_IN) return d;
+        return null;
+    }
+
     public String rewardText(Def d) {
         List<String> parts = new ArrayList<>();
         if (d.coins > 0) parts.add(d.coins + " monede");
