@@ -13,7 +13,7 @@ public final class ScreenMode {
 
     public static void apply(JFrame window, GamePanel panel, boolean fullscreen) {
         boolean wasVisible = window.isVisible();
-        if (wasVisible) window.dispose();   // decorațiile se pot schimba doar când fereastra nu e afișată
+        if (window.isDisplayable()) window.dispose();   // decorațiile se pot schimba doar când fereastra nu e "displayable" (după pack() e deja)
         window.setUndecorated(fullscreen);
         if (fullscreen) {
             Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().getBounds();
