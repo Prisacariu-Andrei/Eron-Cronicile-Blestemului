@@ -59,6 +59,9 @@ public final class CardCatalog {
 
     public static int baseCardWeight() { return Json.integer(root().get("baseCardWeight"), 10); }
 
+    /** Descrierea scurtă de pe carte (cards.json "flavor"), sau "" dacă lipsește. */
+    public static String flavor(String id) { return Json.str(Json.map(root().get("flavor")).get(id), ""); }
+
     public static String tagLabel(String tag) { return Json.str(Json.map(Json.map(root().get("tags")).get(tag)).get("label"), tag); }
 
     public static Color tagColor(String tag) { return color(Json.str(Json.map(Json.map(root().get("tags")).get(tag)).get("color"), "#FFFFFF")); }

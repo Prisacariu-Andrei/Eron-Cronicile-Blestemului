@@ -547,7 +547,7 @@ public class BattleUI {
 
         // Mărim dimensiunea cărții: 10% din lățimea ecranului le oferă destul spațiu pentru text
         int cardWidth = (int)(gp.screenWidth * 0.10);
-        int cardHeight = (int)(cardWidth * 1.5); // Raport 1.5 pentru un aspect standard de carte
+        int cardHeight = Math.round(cardWidth * CardFace.ASPECT); // raport 5:7, ca în schiță
 
         int maxCards = 8;
         int numCards = Math.min(currentHand.size(), maxCards);
@@ -567,111 +567,55 @@ public class BattleUI {
         // Astfel, când nu sunt selectate, nu ocupă ecranul de joc, dar textul devine vizibil la hover.
         int baseSlotY = gp.screenHeight - (int)(cardHeight * 0.20);
 
-        // --- 2. DRAWING LOOP ---
-        for (int i = 0; i < numCards; i++) {
+        // --- 2. DRAWING LOOP --- (cartea selectată/ridicată se desenează ultima, deasupra celorlalte)
+        Integer[] order = new Integer[numCards];
+        for (int i = 0; i < numCards; i++) order[i] = i;
+        java.util.Arrays.sort(order, java.util.Comparator.comparingDouble(i -> (i == commandNum ? 1000 : 0) + cardLift[i]));
+        for (int i : order) {
             if (i >= dealtCards || cardDealDelay[i] > 0) continue; // încă nu a fost trasă
             Card card = currentHand.get(i);
             int x = startX + (i * (cardWidth + spacing));
 
-            // Cartea selectată se ridică lin (easing), ca să poată fi citită perfect
+            // Cartea selectată se ridică lin (easing) și crește ~1.3x, ca să poată fi citită perfect
             int selectedY = gp.screenHeight - cardHeight - 20;
             int y = Math.round(baseSlotY + (selectedY - baseSlotY) * cardLift[i]);
             // O carte nou trasă intră de jos, cu un mic overshoot
             float deal = Easing.outBack(cardDealAge[i] / (float) GameFeel.CARD_DEAL_TICKS);
             y += Math.round((1f - deal) * cardHeight * 1.2f);
+            float scale = 1f + 0.3f * cardLift[i];
+            int w = Math.round(cardWidth * scale), h = Math.round(cardHeight * scale);
+            int dx = x - (w - cardWidth) / 2, dy = y - (h - cardHeight);
 
-            // Salvează stroke-ul inițial
-            Stroke originalStroke = g2.getStroke();
-
-            // Randare Shadow
             g2.setColor(new Color(0, 0, 0, 120));
-            g2.fillRoundRect(x + 4, y + 4, cardWidth, cardHeight, 18, 18);
+            g2.fillRoundRect(dx + 4, dy + 4, w, h, 18, 18);
 
-            // Card Background
-            g2.setColor(new Color(30, 30, 45, 255));
-            g2.fillRoundRect(x, y, cardWidth, cardHeight, 18, 18);
-
-            // Border (Evidențiere galbenă mai groasă pentru cartea selectată)
-            if (i == commandNum) {
-                g2.setColor(Color.YELLOW);
-                g2.setStroke(new BasicStroke(4));
-            } else {
-                g2.setColor(new Color(160, 160, 180));
-                g2.setStroke(new BasicStroke(1.5f));
-            }
-            g2.drawRoundRect(x, y, cardWidth, cardHeight, 18, 18);
             int comboReady = Combos.ready(gp.player, card, gp.player.currentEnemy);   // 2 = combo/reacție gata, 1 = continuă un lanț
+            boolean hot = comboReady == 2 && gp.player.isPlayerTurn;
+            CardFace.draw(g2, card, gp.player, dx, dy, w, h, hot);
+
+            Stroke originalStroke = g2.getStroke();
+            if (i == commandNum) {   // evidențiere galbenă pentru cartea selectată
+                g2.setColor(Color.YELLOW);
+                g2.setStroke(new BasicStroke(3));
+                g2.drawRoundRect(dx, dy, w, h, 18, 18);
+            }
             if (comboReady > 0 && gp.player.isPlayerTurn) {
                 float pulse = 0.5f + 0.5f * (float) Math.sin(gp.fx.ticks * 0.16 + i);
                 Color glow = comboReady == 2 ? new Color(255, 190, 60, 120 + Math.round(120 * pulse)) : new Color(110, 220, 255, 90 + Math.round(70 * pulse));
                 g2.setColor(glow);
                 g2.setStroke(new BasicStroke(comboReady == 2 ? 5f : 3f));
-                g2.drawRoundRect(x - 3, y - 3, cardWidth + 6, cardHeight + 6, 22, 22);
+                g2.drawRoundRect(dx - 3, dy - 3, w + 6, h + 6, 22, 22);
             }
-            g2.setStroke(originalStroke); // Resetare stroke
+            g2.setStroke(originalStroke);
 
-            // --- 3. DYNAMIC CONTENT RENDERING ---
-
-            // A. Card Name
-            float titleFontSize = cardWidth * 0.10f;
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, titleFontSize));
-            g2.setColor(Color.WHITE);
-            g2.drawString(card.name, x + (int)(cardWidth * 0.12), y + (int)(cardHeight * 0.18));
-
-            // B. Elemente (etichetele cărții, colorate) și descriere
-            float descFontSize = cardWidth * 0.075f; // Text puțin mai mic pentru a nu ieși din carte
-            int textX = x + (int)(cardWidth * 0.12);
-            int lineH = (int)(descFontSize * 1.35);
-            if (!card.tags.isEmpty()) {
-                g2.setFont(g2.getFont().deriveFont(Font.BOLD, descFontSize));
-                int tx = textX;
-                for (String tag : card.tags) {
-                    g2.setColor(CardCatalog.tagColor(tag));
-                    g2.drawString(CardCatalog.tagLabel(tag), tx, y + (int)(cardHeight * 0.285));
-                    tx += g2.getFontMetrics().stringWidth(CardCatalog.tagLabel(tag)) + (int)(cardWidth * 0.06);
-                }
-            }
-            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, descFontSize));
-            g2.setColor(new Color(210, 210, 215));
-
-            int lineY = y + (int)(cardHeight * 0.38);
-            String dynamicDesc = card.getDynamicDescription(gp.player);
-            if (dynamicDesc != null) {
-                for (String line : dynamicDesc.split("\n")) {
-                    if (lineY < y + cardHeight - 10) g2.drawString(line, textX, lineY);
-                    lineY += lineH;
-                }
-            }
-            // condiția de combo / reacțiile cărții (aurii când sunt îndeplinite acum)
-            boolean hot = comboReady == 2;
-            g2.setColor(hot ? new Color(255, 205, 90) : new Color(150, 170, 200));
-            for (String hint : new String[]{card.comboHint(), Combos.reactionHint(card)}) {
-                if (hint == null) continue;
-                for (String line : wrapText(g2, hint, (int)(cardWidth * 0.78))) {
-                    if (lineY < y + cardHeight - 6) g2.drawString(line, textX, lineY);
-                    lineY += lineH;
-                }
-            }
-
-            // numărul tastei care alege cartea (1-8)
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, titleFontSize * 0.95f));
-            g2.setColor(i == commandNum ? Color.YELLOW : new Color(190, 190, 210));
-            g2.drawString(String.valueOf(i + 1), x + cardWidth - (int)(cardWidth * 0.17), y + (int)(cardHeight * 0.14));
-
-            // C. Mana Crystal (Mutat pe colțul din stânga sus, ușor decalat în exterior)
-            int crystalSize = (int)(cardWidth * 0.28);
-            int crystalX = x - (crystalSize / 3);
-            int crystalY = y - (crystalSize / 3);
-
-            g2.setColor(new Color(41, 128, 185));
-            g2.fillOval(crystalX, crystalY, crystalSize, crystalSize);
-
-            g2.setColor(Color.WHITE);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, titleFontSize * 1.1f));
-
-            String cost = String.valueOf(card.manaCost);
-            int costWidth = g2.getFontMetrics().stringWidth(cost);
-            g2.drawString(cost, crystalX + (crystalSize / 2) - (costWidth / 2), crystalY + (int)(crystalSize * 0.7));
+            // numărul tastei care alege cartea (1-8), într-un mic marcaj sub elementul cărții
+            int bs = Math.max(18, (int) (w * 0.13));
+            g2.setColor(new Color(30, 20, 12, 220));
+            g2.fillRoundRect(dx + w - bs - 6, dy + h - bs - 6, bs, bs, 8, 8);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, bs * 0.75f));
+            g2.setColor(i == commandNum ? Color.YELLOW : new Color(225, 215, 190));
+            String num = String.valueOf(i + 1);
+            g2.drawString(num, dx + w - bs - 6 + (bs - g2.getFontMetrics().stringWidth(num)) / 2, dy + h - 6 - bs * 0.22f);
         }
     }
 

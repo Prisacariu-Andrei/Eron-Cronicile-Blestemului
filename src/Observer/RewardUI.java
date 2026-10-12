@@ -90,7 +90,7 @@ public class RewardUI {
             float appear = (openTicks - i * 5) / 16f;
             int cardY = (int)(gp.screenHeight*0.3) + Math.round((1f - Easing.outBack(appear)) * 140);
             int cardWidth = (int)(gp.screenWidth * 0.2);
-            int cardHeight = (int)(gp.screenHeight * 0.5);
+            int cardHeight = Math.round(cardWidth * CardFace.ASPECT);
             Composite cardComposite = g2.getComposite();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, Easing.clamp01(appear * 1.6f))));
 
@@ -108,44 +108,8 @@ public class RewardUI {
                 g2.fillRoundRect(cardX, cardY, cardWidth, cardHeight, 20, 20);
             }
 
-            // --- CORPUL CĂRȚII ---
-            g2.setColor(new Color(30, 30, 50)); // Fundal închis la culoare
-            g2.fillRoundRect(cardX, cardY, cardWidth, cardHeight, 20, 20);
-            g2.setColor(Color.WHITE);
-            g2.setStroke(new BasicStroke(2));
-            g2.drawRoundRect(cardX, cardY, cardWidth, cardHeight, 20, 20);
-
-            // --- MANA COST (Cerc sus-stânga) ---
-            g2.setColor(new Color(0, 191, 255)); // Deep Sky Blue
-            g2.fillOval(cardX - 15, cardY - 15, 40, 40);
-            g2.setColor(Color.WHITE);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
-            g2.drawString(String.valueOf(currentCard.manaCost), cardX - 3, cardY + 14);
-
-            // --- NUME CARTE ---
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-            int nameX = cardX + (cardWidth / 2) - (g2.getFontMetrics().stringWidth(currentCard.name) / 2);
-            g2.drawString(currentCard.name, nameX, cardY + 50);
-
-            // --- DESCRIERE (Folosim variabila 'descriere' din Card) ---
-            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 16F));
-            g2.setColor(Color.LIGHT_GRAY);
-
-            // Dacă descrierea e lungă, o putem "împacheta" sau afișa simplu
-            // Aici presupun că ai variabila 'descriere' în clasa Card
-            String description = currentCard.getDynamicDescription(gp.player);
-            int descY = cardY + 120;
-
-            // Logica simplă de split pentru descriere (dacă are \n)
-            for (String line : description.split("\n")) {
-                g2.drawString(line, cardX + 20, descY);
-                descY += 20;
-            }
-
-            // --- TIP CARTE (Dacă ai variabila 'type') ---
-            g2.setFont(g2.getFont().deriveFont(Font.ITALIC, 14F));
-            g2.setColor(Color.CYAN);
-            g2.drawString("[" + currentCard.type + "]", cardX + 20, cardY + cardHeight - 20);
+            // --- CARTEA (aceeași față ca în luptă) ---
+            CardFace.draw(g2, currentCard, gp.player, cardX, cardY, cardWidth, cardHeight, false);
             g2.setComposite(cardComposite);
         }
 

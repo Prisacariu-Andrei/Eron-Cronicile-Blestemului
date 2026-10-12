@@ -268,6 +268,13 @@ public class ShopUI {
         }
     }
 
+    /** Cartea aleasă, în fața completă, în dreapta listei (fără rune). */
+    private void previewCard(Graphics2D g2, Card c, int rightEdge, int y) {
+        if (c == null) return;
+        int w = 226, h = Math.round(w * CardFace.ASPECT);
+        CardFace.draw(g2, c, gp.player, rightEdge + 44, y - 4, w, h, false);
+    }
+
     private void drawBuyRows(Graphics2D g2, int x, int y, int w) {
         if (stock.isEmpty()) { emptyText(g2, x, y, "Negustorul nu are nimic de vânzare."); return; }
         int first = scrollStart(selected[0], stock.size());
@@ -285,6 +292,7 @@ public class ShopUI {
             drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[0], c.name, c.manaCost, firstLine(c.getDynamicDescription(gp.player)),
                     "Cumpără  " + price, gp.player.coins >= price, null);
         }
+        if (selected[0] >= 0 && selected[0] < stock.size()) previewCard(g2, preview.get(stock.get(selected[0])), x + w, y);
         drawScrollHint(g2, x + w + 10, y, first, stock.size());
     }
 
@@ -309,6 +317,10 @@ public class ShopUI {
             drawRow(g2, x, y + (i - first) * ROW_H, w, i == selected[1], count > 1 ? name + "  x" + count : name,
                     sample == null ? 0 : sample.manaCost, sample == null ? "" : firstLine(sample.getDynamicDescription(gp.player)),
                     "Vinde  +" + price, canSell, null);
+        }
+        if (selected[1] >= 0 && selected[1] < entries.size() && !entries.get(selected[1])[2].equals("rune")) {
+            String nm = entries.get(selected[1])[0];
+            for (Card c : gp.player.inventory.cards) if (c.name.equals(nm)) { previewCard(g2, c, x + w, y); break; }
         }
         drawScrollHint(g2, x + w + 10, y, first, entries.size());
     }

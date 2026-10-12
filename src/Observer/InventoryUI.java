@@ -66,10 +66,16 @@ public class InventoryUI {
                 int currentY = startY + (i * 30);
 
                 g2.setColor(new Color(100, 200, 255));
-                g2.drawString("[" + c.manaCost + "]", startX, currentY);
+                g2.drawString((cardIndex == slotRow ? "> " : "") + "[" + c.manaCost + "]", cardIndex == slotRow ? startX - 22 : startX, currentY);
                 g2.setColor(Color.WHITE);
                 g2.drawString(c.name, startX + 40, currentY);
             }
+        }
+
+        // Cartea de pe primul rând vizibil, în fața completă
+        if (slotRow < sortedCards.size()) {
+            int pw = Math.min(240, gp.screenWidth / 7), ph = Math.round(pw * CardFace.ASPECT);
+            CardFace.draw(g2, sortedCards.get(slotRow), gp.player, x + width - pw - gp.tileSize, y + height - ph - gp.tileSize * 2, pw, ph, false);
         }
 
         // 6. INDICATOR SCROLL
