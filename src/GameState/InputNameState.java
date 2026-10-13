@@ -33,8 +33,8 @@ public class InputNameState implements GameState {
             // Apelăm resetPlayer() pentru a curăța deck-ul, itemele și a reface viața inamicilor
             gp.player.resetPlayer();
 
-            // IMPORTANT: Setează numele DUPĂ resetPlayer(), deoarece setDefaultValues() resetează numele înapoi la "Eron"
-            gp.player.name = name.toString();
+            // Numele tastat e doar pentru clasament (eroul rămâne "Eron"); se setează după resetPlayer()
+            gp.player.playerProfileName = name.toString();
 
             // Ne asigurăm că pornim pe harta de început (Eldoria) cu inamicii și NPC-urile ei proaspete
             gp.tileM.loadZoneTiles("Eldoria");
@@ -70,11 +70,12 @@ public class InputNameState implements GameState {
 
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 40));
-        g2.drawString("INTRODU NUMELE EROULUI:", 450, 400);
+        g2.drawString("Numele tău pentru clasament:", 450, 400);
         g2.drawString(name.toString() + "_", 650, 500);
 
         g2.setFont(new Font("Arial", Font.PLAIN, 20));
-        g2.drawString("APASĂ ENTER PENTRU A ÎNCEPE AVENTURA", 550, 600);
+        g2.drawString("În joc, eroul se numește Eron. Numele tău apare doar în clasament.", 450, 560);
+        g2.drawString("APASĂ ENTER PENTRU A ÎNCEPE AVENTURA", 550, 610);
     }
 
     @Override

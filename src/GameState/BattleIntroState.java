@@ -35,7 +35,7 @@ public class BattleIntroState implements GameState {
         for (Object o : Json.list(boss.get("lines"))) {
             Map<String, Object> l = Json.map(o);
             boolean isBoss = !"eron".equals(Json.str(l.get("who"), "boss"));
-            lines.add(new Line(isBoss ? bossName : (gp.player.name == null || gp.player.name.isBlank() ? "Eron" : gp.player.name), isBoss, Json.str(l.get("text"), "")));
+            lines.add(new Line(isBoss ? bossName : "Eron", isBoss, Json.str(l.get("text"), "")));
         }
     }
 

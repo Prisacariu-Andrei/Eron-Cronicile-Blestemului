@@ -34,7 +34,8 @@ import java.util.Objects;
 
 public class Player extends Entity {
 
-    public String playerName ;
+    /** Numele tastat la început: apare DOAR în clasament. Eroul se numește mereu "Eron" (câmpul name). */
+    public String playerProfileName = "Eron";
 
     KeyHandler keyH;
     public Inventory inventory = new Inventory();
@@ -1073,7 +1074,7 @@ public class Player extends Entity {
                     this.inventory.resetDeckAfterBattle();
                     activeStatuses.clear();
                     long finalTime = gp.ui.getPlayTime();
-                    gp.leaderboardUI.checkAndSaveNewScore(finalTime, this.name);
+                    gp.leaderboardUI.checkAndSaveNewScore(finalTime, playerProfileName);
                     gp.changeState(new ZoneTransitionState(gp, "epilogue", () -> new CutsceneState(gp, CutsceneUI.Script.EPILOGUE)));
                     return false;
             }

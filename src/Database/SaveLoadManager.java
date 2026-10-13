@@ -38,7 +38,7 @@ public class SaveLoadManager {
             // Pentru securitatea tranzacției, putem dezactiva autocommit-ul opțional, dar o vom ține simplu
 
             pstmt.setInt(1, slot);
-            pstmt.setString(2, player.name); // Asigură-te că folosești player.name sau player.playerName
+            pstmt.setString(2, player.playerProfileName); // coloana păstrează numele din clasament (salvările vechi: numele vechi)
             pstmt.setString(3, currentZone);
             pstmt.setInt(4, player.worldX);
             pstmt.setInt(5, player.worldY);
@@ -139,7 +139,9 @@ public class SaveLoadManager {
             if (rs.next()) {
                 // 1. Restaurăm atributele de bază ale jucătorului
                 gp.player.clearRunes(); // scoate bonusurile runelor vechi înainte să punem valorile salvate
-                gp.player.name = rs.getString("player_name");
+                gp.player.name = "Eron"; // eroul se numește mereu Eron; numele salvat e doar pentru clasament
+                String savedProfile = rs.getString("player_name");
+                gp.player.playerProfileName = (savedProfile == null || savedProfile.isBlank()) ? "Eron" : savedProfile;
                 gp.player.worldX = rs.getInt("player_x");
                 gp.player.worldY = rs.getInt("player_y");
                 gp.player.life = rs.getInt("player_life");

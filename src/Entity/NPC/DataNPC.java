@@ -249,7 +249,7 @@ public class DataNPC extends NPC {
     }
 
     private String fill(String text) {
-        return text.replace("{name}", String.valueOf(gp.player.name)).replace("{coins}", String.valueOf(gp.player.coins));
+        return text.replace("{name}", "Eron").replace("{coins}", String.valueOf(gp.player.coins));
     }
 
     private void end() {
