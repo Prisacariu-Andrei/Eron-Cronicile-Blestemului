@@ -53,6 +53,35 @@ public class QuestManager {
 
         initMainQuests();
         initSideQuests();
+        loadMainTexts();
+    }
+
+    // Texte din res/Data/quests.json ("mainQuests"): au prioritate față de cele din cod
+    private final java.util.Map<Integer, java.util.Map<String, Object>> mainTexts = new java.util.HashMap<>();
+
+    private void loadMainTexts() {
+        try {
+            var all = Main.Json.map(Main.Json.map(Main.Json.parseResource("/Data/quests.json")).get("mainQuests"));
+            for (var e : all.entrySet()) {
+                if (e.getKey().startsWith("_")) continue;
+                int id = Integer.parseInt(e.getKey());
+                var d = Main.Json.map(e.getValue());
+                mainTexts.put(id, d);
+                Quest q = getQuestById(id, true);
+                if (q != null) {
+                    q.title = Main.Json.str(d.get("title"), q.title);
+                    q.description = Main.Json.str(d.get("description"), q.description);
+                }
+            }
+        } catch (RuntimeException ex) {
+            Main.Exception.GameExceptionHandler.getInstance().handleWarning("quests.json: secțiunea mainQuests nu a putut fi citită", ex);
+        }
+    }
+
+    /** Replica Cronicarului pentru misiunea principală: kind = start | progress | complete. Lipsă în JSON = textul din cod. */
+    public String mainText(int id, String kind, String fallback) {
+        var d = mainTexts.get(id);
+        return d == null ? fallback : Main.Json.str(d.get(kind), fallback);
     }
 
     private void initMainQuests() {

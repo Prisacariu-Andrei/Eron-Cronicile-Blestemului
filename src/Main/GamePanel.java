@@ -70,6 +70,7 @@ public class GamePanel extends JPanel implements Runnable {
     public ShopUI shopUI = new ShopUI(this);
     // Misiuni, niveluri/abilități și obiecte de cules (date în res/Data: quests.json, progression.json)
     public QuestLog questLog = new QuestLog(this);
+    public ProgressManagement.StoryScenes storyScenes = new ProgressManagement.StoryScenes(this); // scenele din story.json
     public ProgressManagement.StoryProgress story = new ProgressManagement.StoryProgress(this); // boss-i învinși, pasaje deschise (gates.json)
     public Entity.Allies.Party party = new Entity.Allies.Party(this); // aliații lui Eron (allies.json)
     public Progression progression = new Progression(this);

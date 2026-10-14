@@ -69,11 +69,16 @@ public class StoryProgress {
         for (Object o : Json.list(root.get("gates"))) gates.add(new Gate(Json.map(o)));
     }
 
-    public void reset() { flags.clear(); }
+    public void reset() { flags.clear(); gp.storyScenes.clearPending(); }
 
     public boolean has(String flag) { return flags.contains(flag); }
 
-    public void set(String flag) { if (flag != null && !flag.isEmpty()) flags.add(flag); }
+    private boolean loading = false;   // la încărcarea unei salvări flag-urile nu declanșează scene
+
+    public void set(String flag) {
+        if (flag == null || flag.isEmpty()) return;
+        if (flags.add(flag) && !loading && !flag.startsWith("scene:")) gp.storyScenes.queue("flag:" + flag);
+    }
 
     public List<Gate> gates() { return gates; }
 
@@ -104,6 +109,7 @@ public class StoryProgress {
         String flag = bosses.get(enemyName);
         if (flag == null || has(flag)) return null;
         set(flag);
+        gp.storyScenes.queue("after_boss:" + flag);
         for (Artifact a : artifacts) if (a.flag.equals(flag)) return a;
         return null;
     }
@@ -122,7 +128,11 @@ public class StoryProgress {
 
     public void deserialize(String s) {
         flags.clear();
-        if (s == null || s.isEmpty()) { deriveFromRelics(); return; }
-        for (String f : s.split(",")) if (!f.isBlank()) flags.add(f.trim());
+        loading = true;
+        try {
+            if (s == null || s.isEmpty()) { deriveFromRelics(); return; }
+            for (String f : s.split(",")) if (!f.isBlank()) flags.add(f.trim());
+        } finally { loading = false; }
+        gp.storyScenes.clearPending();
     }
 }

@@ -1,42 +1,62 @@
 package GameState;
 
 import Main.GamePanel;
+import ProgressManagement.StoryScenes;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.function.Supplier;
 
-/** Prologul: vezi CutsceneUI. Se termină singur în PlayState, la Eldoria. */
+/**
+ * O scenă a poveștii (prologul, strângerea de mână, ...) din story.json, sau epilogul de la sfârșitul jocului.
+ * Aspectul vine din CutsceneUI. ENTER sau SPACE trece la următoarea replică, SPACE ținut apăsat accelerează textul, ESC sare scena.
+ */
 public class CutsceneState implements GameState {
     private final GamePanel gp;
 
     private final Observer.CutsceneUI.Script script;
+    private final StoryScenes.Scene scene;          // null pentru epilog
+    private final Supplier<GameState> then;         // starea de după scenă (null = jocul)
+    private boolean prevDash;
 
-    public CutsceneState(GamePanel gp) {
-        this(gp, Observer.CutsceneUI.Script.PROLOGUE);
-    }
-
+    /** Epilogul. */
     public CutsceneState(GamePanel gp, Observer.CutsceneUI.Script script) {
         this.gp = gp;
         this.script = script;
+        this.scene = null;
+        this.then = null;
+    }
+
+    /** O scenă din story.json; după ea urmează "then" sau jocul (și acțiunile "onEnd" ale scenei). */
+    public CutsceneState(GamePanel gp, StoryScenes.Scene scene, Supplier<GameState> then) {
+        this.gp = gp;
+        this.script = Observer.CutsceneUI.Script.SCENE;
+        this.scene = scene;
+        this.then = then;
     }
 
     @Override
     public void enter() {
-        // ENTER-ul din InputNameState e încă apăsat; îl consumăm ca să nu sară prima pagină
+        // ENTER-ul/SPACE-ul care a pornit scena (ex. din InputNameState) nu trebuie să sară prima replică
         gp.keyH.enterPressed = false;
+        prevDash = true;
         if (script == Observer.CutsceneUI.Script.EPILOGUE) {   // epilogul se joacă peste Eldoria, cu Eron în sat
             gp.eHandler.applyMap("/Maps/Eldoria", "Eldoria", 15, 12);
         }
         gp.camera.beginCinematic();
-        gp.cutsceneUI.load(script);
+        if (scene != null) gp.cutsceneUI.loadScene(scene); else gp.cutsceneUI.load(script);
         gp.cutsceneUI.reset();
     }
 
     @Override
     public void update() {
-        // SPACE ținut apăsat (keyH.dashPressed) = text mai rapid
-        gp.cutsceneUI.update(gp.keyH.dashPressed);
+        // SPACE ținut apăsat (keyH.dashPressed) = text mai rapid; o apăsare nouă de SPACE sau ENTER = mai departe
+        boolean dash = gp.keyH.dashPressed;
+        boolean advance = gp.keyH.enterPressed || (dash && !prevDash);
+        prevDash = dash;
+        gp.cutsceneUI.update(dash);
 
-        if (gp.keyH.enterPressed) {
+        if (advance) {
             gp.keyH.enterPressed = false;
             if (gp.cutsceneUI.isWriting()) {
                 gp.cutsceneUI.skipTypewriter();
@@ -50,12 +70,13 @@ public class CutsceneState implements GameState {
                 gp.creditsUI.resetPosition();
                 gp.changeState(new CreditsState(gp));
             } else {
-                gp.changeState(new PlayState(gp));
+                gp.changeState(gp.storyScenes.after(then));
+                if (then == null) gp.storyScenes.runOnEnd(scene);   // ex. lupta de tutorial după prolog
             }
         }
     }
 
-    /** ESC: sare peste prolog, dar cu aceeași ieșire lină (benzile se retrag, ecranul se întunecă). */
+    /** ESC: sare peste scenă, dar cu aceeași ieșire lină (benzile se retrag, ecranul se întunecă). */
     public void skip() {
         gp.cutsceneUI.beginOutro();
     }

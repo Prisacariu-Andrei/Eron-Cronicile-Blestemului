@@ -51,7 +51,7 @@ public class InputNameState implements GameState {
 
             // 4. Forțăm tranziția către Cutscene
             System.out.println("DEBUG: Tranziție către CutsceneState...");
-            gp.changeState(new ZoneTransitionState(gp, "prologue", () -> new CutsceneState(gp)));   // ecranul de încărcare, apoi prologul
+            gp.changeState(new ZoneTransitionState(gp, "prologue", () -> gp.storyScenes.stateFor("game_start", () -> new PlayState(gp))));   // ecranul de încărcare, apoi prologul (story.json)
         }
     }
 

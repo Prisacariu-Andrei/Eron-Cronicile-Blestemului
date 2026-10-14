@@ -83,7 +83,11 @@ public abstract class NPC extends Entity {
     /** Ce semn să apară deasupra acestui NPC (DataNPC îl calculează din starea misiunilor). */
     public int markerKind() { return MARKER_NONE; }
 
+    /** CutsceneUI îl ridică cât desenează NPC-urile: în scene nu apar semnele de misiune. */
+    public static boolean markersHidden = false;
+
     private void drawMarker(Graphics2D g2, int cx, int bottomY) {
+        if (markersHidden) return;
         int kind = markerKind();
         if (kind == MARKER_NONE) return;
         String sign = (kind == MARKER_AVAILABLE || kind == MARKER_TALK) ? "!" : "?";

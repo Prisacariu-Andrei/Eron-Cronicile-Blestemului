@@ -162,7 +162,7 @@ public class AssetSetter {
         var q1 = gp.questManager.getQuestById(1, true);
 
         // Inamicii se vor încărca DOAR dacă jucătorul a vorbit cu Cronicarul și a primit quest-ul
-        if (q1 != null && q1.isReceived) {
+        if (q1 != null && q1.isReceived && !gp.story.has("fiara")) {
             gp.enemy[0] = EnemyFactory.createEnemy("Lup Slăbit", gp, gp.tileSize * 31, gp.tileSize * 37);
 
             System.out.println("DEBUG: Eldoria populate - Quest-ul 1 este activ!");

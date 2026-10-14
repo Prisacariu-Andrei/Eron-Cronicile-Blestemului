@@ -62,6 +62,44 @@
     }
   ],
 
+  "mainQuests": {
+    "_help": "Misiunile principale (Bătrânul Cronicar). Cheie = numărul misiunii (0 = ce spune Cronicarul când toate sunt gata). title/description: jurnalul; start/progress/complete: replicile Cronicarului. Ce lipsește rămâne cel din cod. Monarhul Amurgului e încă văzut ca răufăcătorul.",
+    "0": { "complete": "Eldoria este salvată! Blestemul s-a risipit.\nEști un erou de legendă, Eron. Pacea s-a întors acasă." },
+    "1": {
+      "title": "Fiara Blestemului",
+      "description": "O Fiară a Blestemului a sărit peste palisada nepăzită. Învinge-o cu vrăjile din Manuscris, înainte să ajungă în sat.",
+      "progress": "Fiara încă rătăcește prin hotarele satului, Eron.\nPârjolul Sferic ca s-o lovești, Pavăza Glaciară ca să te aperi.",
+      "complete": "Ai învins-o! Manuscrisul ți-a răspuns, iar satul te-a văzut.\nGarda de Fier îți va deschide trecătoarea spre munți."
+    },
+    "2": {
+      "description": "Garda de Fier ți-a deschis trecătoarea spre munți. Învinge 5 inamici în Bârlog.",
+      "start": "Garda de Fier a deschis trecătoarea spre munți. În Bârlog, fiarele sunt schimonosite de blestem.\nÎnvinge 5 dintre ele, Eron."
+    },
+    "3": {
+      "title": "Fenris cel Albit",
+      "description": "Învinge-l pe Fenris cel Albit, lupul legendar din inima Bârlogului, și ia Colțul de Chihlimbar.",
+      "start": "În inima muntelui stă Fenris cel Albit și ține una dintre bucățile Inelului.\nRegele zice că trebuie luată. Du-te și ia-o.",
+      "complete": "Fenris a căzut. Colțul de Chihlimbar e al tău.\nSă nu uiți ce ți-am spus: ține tot ce găsești aproape de inimă."
+    },
+    "4": {
+      "start": "Colțul e al tău. Căpitanul Vlaicu îl va cere pentru rege.\nNu uita vorbele mele. Apoi cere trecerea spre Abis."
+    },
+    "7": {
+      "title": "Diamantul Nopții",
+      "description": "Învinge-l pe Feldgug, Regele Trol, și ia Diamantul Nopții.",
+      "start": "Feldgug domnește în adâncuri. Doboară-l și Diamantul Nopții\nva fi al tău, laolaltă cu runa lui."
+    },
+    "9": {
+      "description": "Găsește-l pe Jean Pleșa în Citadela Haiducilor. Regele îi cere capul; hotărăști tu ce faci cu el.",
+      "start": "În Citadelă te așteaptă Jean Pleșa. Poporul îl știe trădător, iar regele îi cere capul.\nVezi tu, cu ochii tăi, cine este."
+    },
+    "14": {
+      "title": "Monarhul Amurgului",
+      "description": "Pătrunde în Sala Tronului, învinge-l pe Monarhul Amurgului și risipește Blestemul de pe Eldoria.",
+      "start": "Monarhul Amurgului te așteaptă în Sala Tronului.\nÎnvinge-l și risipește blestemul de pe Eldoria!"
+    }
+  },
+
   "pickups": [
     { "id": "floare1", "item": "Floarea Lunii", "zone": "Eldoria", "col": 40, "row": 7,  "color": "#BFE4FF" },
     { "id": "floare2", "item": "Floarea Lunii", "zone": "Eldoria", "col": 44, "row": 8,  "color": "#BFE4FF" },

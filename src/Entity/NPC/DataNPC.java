@@ -27,7 +27,7 @@ import java.util.Random;
  */
 public class DataNPC extends NPC {
     private record Choice(String text, String next, String action, int minLevel, String tooWeak) {}
-    private record Node(String text, List<Choice> choices, String next, String action) {}
+    private record Node(String text, List<Choice> choices, String next, String action, String speaker) {}
 
     private static final Random RNG = new Random();
 
@@ -45,6 +45,8 @@ public class DataNPC extends NPC {
     // dialogue / merchant / quest
     private final Map<String, Node> nodes = new LinkedHashMap<>();
     private final String startNode, afterFlag, afterStart;
+    private final List<String[]> stages = new ArrayList<>();   // [flag, nod]: ultimul al cărui flag e pus dă începutul conversației
+    private final List<String> letters = new ArrayList<>();    // crainicul: flag-urile boss-ilor pentru care aduce scrisori
     private String currentNode;
 
     // merchant
@@ -73,11 +75,16 @@ public class DataNPC extends NPC {
                 choices.add(new Choice(Json.str(cm.get("text"), "..."), Json.str(cm.get("next"), null), Json.str(cm.get("action"), null),
                         Json.integer(cm.get("minLevel"), 0), Json.str(cm.get("tooWeak"), null)));
             }
-            nodes.put(e.getKey(), new Node(Json.str(n.get("text"), "..."), choices, Json.str(n.get("next"), null), Json.str(n.get("action"), null)));
+            nodes.put(e.getKey(), new Node(Json.str(n.get("text"), "..."), choices, Json.str(n.get("next"), null), Json.str(n.get("action"), null), Json.str(n.get("speaker"), null)));
         }
         this.startNode = Json.str(def.get("start"), null);
         this.afterFlag = Json.str(def.get("afterFlag"), null);   // după ce boss-ul cu acest flag e învins, conversația începe în afterStart
         this.afterStart = Json.str(def.get("afterStart"), null);
+        for (Object o : Json.list(def.get("stages"))) {   // replici care se schimbă pe măsură ce boss-ii cad
+            Map<String, Object> st = Json.map(o);
+            stages.add(new String[]{Json.str(st.get("flag"), ""), Json.str(st.get("start"), "")});
+        }
+        for (Object o : Json.list(def.get("letters"))) letters.add(String.valueOf(o));
 
         for (Object o : Json.list(Json.map(def.get("shop")).get("stock"))) stock.add(String.valueOf(o));
 
@@ -91,6 +98,8 @@ public class DataNPC extends NPC {
         for (Object o : Json.list(Json.map(root).get("npcs"))) {
             Map<String, Object> def = Json.map(o);
             if (!zone.equals(Json.str(def.get("zone"), ""))) continue;
+            List<Object> due = Json.list(def.get("letters"));
+            if (!due.isEmpty() && pendingLetter(gp, due) == null) continue;   // crainicul apare doar când are o scrisoare
             while (slot < gp.npc.length && gp.npc[slot] != null) slot++;
             if (slot >= gp.npc.length) {
                 GameExceptionHandler.getInstance().handleWarning("Prea mulți NPC în zona " + zone + ": nu mai e loc în gp.npc", null);
@@ -115,6 +124,7 @@ public class DataNPC extends NPC {
     /** Ce semn apare deasupra capului (vezi NPC.draw): ! misiune de oferit, ? gata de predat / în desfășurare. */
     @Override
     public int markerKind() {
+        if (!letters.isEmpty() && pendingLetter(gp, letters) != null) return MARKER_AVAILABLE;
         QuestLog ql = gp.questLog;
         if (ql.readyFor(id) != null) return MARKER_READY;
         if (ql.availableFrom(id) != null) return MARKER_AVAILABLE;
@@ -169,7 +179,7 @@ public class DataNPC extends NPC {
             if ("simple".equals(type)) {
                 showText(nextLine(), null);
             } else {
-                String start = afterFlag != null && afterStart != null && gp.story.has(afterFlag) ? afterStart : startNode;
+                String start = pickStart();
                 if (start == null || !nodes.containsKey(start)) end(); else goTo(start);
             }
             return;
@@ -224,9 +234,28 @@ public class DataNPC extends NPC {
         else end();
     }
 
+    /** Nodul cu care începe conversația: scrisoarea următoare, etapa poveștii (stages) sau startul obișnuit. */
+    private String pickStart() {
+        String due = letters.isEmpty() ? null : pendingLetter(gp, letters);
+        if (due != null && nodes.containsKey("letter_" + due)) return "letter_" + due;
+        String start = afterFlag != null && afterStart != null && gp.story.has(afterFlag) ? afterStart : startNode;
+        for (String[] st : stages) if (gp.story.has(st[0]) && nodes.containsKey(st[1])) start = st[1];
+        return start;
+    }
+
+    /** Prima scrisoare neridicată: boss-ul e învins ("fenris") dar scrisoarea nu s-a citit încă ("got_fenris"). */
+    private static String pendingLetter(GamePanel gp, List<?> letters) {
+        for (Object o : letters) {
+            String f = String.valueOf(o);
+            if (gp.story.has(f) && !gp.story.has("got_" + f)) return f;
+        }
+        return null;
+    }
+
     private void goTo(String nodeId) {
         currentNode = nodeId;
         Node n = nodes.get(nodeId);
+        gp.dialogueUI.speaker = n.speaker() != null ? n.speaker() : name;   // un nod poate fi replica lui Eron
         List<String> labels = new ArrayList<>();
         for (Choice c : n.choices()) labels.add(c.text());
         showText(n.text(), labels);
@@ -260,6 +289,9 @@ public class DataNPC extends NPC {
         gp.dialogueUI.clearChoices();
         gp.dialogueUI.speaker = null;
         gp.activeNpcIndex = -1;
+        if (!letters.isEmpty() && pendingLetter(gp, letters) == null) {   // scrisorile au fost date: crainicul pleacă
+            for (int i = 0; i < gp.npc.length; i++) if (gp.npc[i] == this) gp.npc[i] = null;
+        }
         gp.changeState(new PlayState(gp));
     }
 
@@ -278,6 +310,15 @@ public class DataNPC extends NPC {
                 gp.fx.healSparkle();
             }
             case "coins" -> gp.player.addCoins(arg);
+            case "set" -> gp.story.set(p.length > 1 ? p[1] : "");
+            case "claim" -> {   // claim:<flag>:<monede>: scrisoarea boss-ului se ridică o singură dată
+                String f = p.length > 1 ? p[1] : "";
+                if (!gp.story.has("got_" + f)) {
+                    gp.story.set("got_" + f);
+                    int gold = p.length > 2 ? parseInt(p[2]) : 0;
+                    if (gold > 0) gp.player.addCoins(gold);
+                }
+            }
             default -> GameExceptionHandler.getInstance().handleWarning("Acțiune necunoscută în npcs.json: " + action, null);
         }
     }
@@ -290,13 +331,13 @@ public class DataNPC extends NPC {
         try { return Integer.parseInt(s.trim()); } catch (NumberFormatException e) { return 0; }
     }
 
-    private static Color parseColor(String hex) {
+    public static Color parseColor(String hex) {
         if (hex == null || !hex.startsWith("#") || hex.length() != 7) return null;
         try { return Color.decode(hex); } catch (NumberFormatException e) { return null; }
     }
 
     /** Copie a sprite-ului colorată cu "tint", păstrând luminile și umbrele desenului. */
-    private static BufferedImage tinted(BufferedImage src, Color tint) {
+    public static BufferedImage tinted(BufferedImage src, Color tint) {
         BufferedImage out = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {

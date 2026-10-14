@@ -208,6 +208,8 @@ public class Player extends Entity {
      */
     public void beginBattle(Enemy first) {
         if (gp.getCurrentState() instanceof BattleIntroState || gp.getCurrentState() instanceof BattleState) return;
+        String bossFlag = gp.story.flagOf(first.name.split(",")[0].trim());
+        if (!bossFlag.isEmpty() && gp.storyScenes.playNow("before_boss:" + bossFlag, () -> new BattleIntroState(gp, first))) return;   // scenă înainte de boss (story.json)
         gp.changeState(new BattleIntroState(gp, first));
     }
 

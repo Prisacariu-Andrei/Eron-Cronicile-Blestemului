@@ -50,7 +50,7 @@ public class NPC_BatranulCronicar extends NPC {
         // Dacă toate misiunile sunt terminate (Nu mai există nicio misiune activă)
         if (currentQuest == null) {
             gp.changeState(new DialogueState(gp));
-            gp.dialogueUI.currentDialogue = "Eldoria este salvată! Blestemul lui Malakor s-a risipit.\nEști un erou de legendă, Eron. Pacea s-a întors acasă.";
+            gp.dialogueUI.currentDialogue = gp.questManager.mainText(0, "complete", "Eldoria este salvată! Blestemul s-a risipit.\nEști un erou de legendă, Eron. Pacea s-a întors acasă.");
             gp.dialogueUI.resetCharIndex();
             return;
         }
@@ -133,6 +133,10 @@ public class NPC_BatranulCronicar extends NPC {
 
     // UTILS: Mutăm textele lungi în metode separate pentru lizibilitate curată
     private String getQuestStartDialogue(int id) {
+        return gp.questManager.mainText(id, "start", startDefault(id));
+    }
+
+    private String startDefault(int id) {
         return switch (id) {
             case 2 -> "Îți mulțumesc pentru purificarea zonei! Ai dovedit curaj.\nIată o nouă sarcină: Găsește Bârlogul și învinge 5 lupi!";
             case 3 -> "Extraordinar! Ai eliminat amenințarea haitei de lupi.\nBut conducătorul lor, Lupul cel Bătrân, s-a trezit. Vânează-l!";
@@ -152,6 +156,10 @@ public class NPC_BatranulCronicar extends NPC {
     }
 
     private String getQuestProgressDialogue(int id) {
+        return gp.questManager.mainText(id, "progress", progressDefault(id));
+    }
+
+    private String progressDefault(int id) {
         return switch (id) {
             case 1 -> "Încă nu ai învins primul inamic, tinere Eron.\nFii curajos și caută-l în pădure!";
             case 2 -> "Misiunea ta continuă în Bârlog. Mai ai de învins inamici!\nCurăță zona de cei 5 lupi sălbatici.";
@@ -164,6 +172,10 @@ public class NPC_BatranulCronicar extends NPC {
     }
 
     private String getQuestCompleteDialogue(int id) {
+        return gp.questManager.mainText(id, "complete", completeDefault(id));
+    }
+
+    private String completeDefault(int id) {
         return switch (id) {
             case 1 -> "Excelent! Ai învins primul inamic și ai înțeles elementele de bază.";
             case 2 -> "Ai curățat Bârlogul! Lupii nu mai reprezintă o amenințare directă.";

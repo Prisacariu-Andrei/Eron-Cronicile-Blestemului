@@ -14,6 +14,7 @@ public class PlayState implements GameState {
 
     @Override
     public void update() {
+        if (gp.storyScenes.playPending()) return;   // scenă din story.json declanșată de un boss învins, un flag sau o zonă
         gp.ui.update(); // expirarea mesajului din HUD
         gp.pickups.update(); // obiectele de misiune pe care le atinge Eron
         gp.gameTimer.update();

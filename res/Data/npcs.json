@@ -7,7 +7,10 @@
     "type = quest     -> ca dialogue; misiunile vin din quests.json (orice NPC cu id-ul din 'giver' / 'turnIn' le ofera si le primeste, indiferent de tip).",
         "O optiune: {'text': .., 'next': nod, 'action': ..}. Fara 'next' dialogul se incheie.",
     "Actiuni: 'shop', 'heal:N' (vindeca N viata), 'coins:N' (da N monede). Pe un nod ruleaza la afisare; pe o optiune la alegere.",
-    "In texte: {name} = numele jucatorului, {coins} = monedele lui."
+    "In texte: {name} = numele jucatorului, {coins} = monedele lui.",
+    "Poveste pe etape: 'stages': [{'flag': 'fenris', 'start': 'nod'}, ...] (in ordinea progresului): conversatia incepe la nodul ultimei etape al carei flag e pus.",
+    "Un nod poate avea 'speaker' (cine vorbeste, ex. 'Eron'). Actiuni noi: 'set:<flag>', 'claim:<flag>:<monede>' (o singura data).",
+    "Crainic: 'letters': ['fenris', ...] = apare doar dupa ce boss-ul e invins si scrisoarea nu a fost citita; nodul 'letter_<flag>' e scrisoarea."
   ],
 
   "npcs": [
@@ -95,6 +98,163 @@
       }
     },
     {
+      "id": "malakor", "name": "Malakor, Regele Eldoriei", "type": "dialogue", "zone": "Eldoria", "col": 49, "row": 12,
+      "sprite": "/Player/Eron_down1.png", "tint": "#C9CED8",
+      "start": "hello",
+      "stages": [
+        { "flag": "fenris", "start": "dinner" },
+        { "flag": "feldgug", "start": "warning" },
+        { "flag": "jean", "start": "cold" },
+        { "flag": "glaciara", "start": "colder" }
+      ],
+      "nodes": {
+        "hello": {
+          "text": "Eron! Intră, intră. Conacul e mic, dar focul arde mereu. Spune-mi, ce ți-a mai arătat satul?",
+          "choices": [
+            { "text": "De ce trăiești printre oameni?", "next": "why" },
+            { "text": "Povestește-mi despre castel.", "next": "castle" },
+            { "text": "Ce ar trebui să fac acum?", "next": "plan" },
+            { "text": "Mă întorc mai târziu.", "next": null }
+          ]
+        },
+        "why": {
+          "text": "Un rege din castel vede doar capete plecate. Eu vreau să le văd fețele. Și să le țin minte numele, pe toate.",
+          "next": "hello"
+        },
+        "castle": {
+          "text": "A fost casa mea. Acum e doar obsidian și tăcere. Nu mi-e dor de ziduri, Eron. Mi-e dor de oamenii care mai erau acolo.",
+          "next": "hello"
+        },
+        "plan": {
+          "text": "Urcă spre munți, unde Garda de Fier îți deschide trecătoarea. Ce găsești acolo, ține la tine. Eu am răbdare.",
+          "next": "hello"
+        },
+
+        "dinner": {
+          "text": "Ia loc, Eron. Îți torn eu vinul, deși un rege uită cum se face. Iar tu ai văzut lucruri pe care eu nu le-am mai văzut de ani.",
+          "next": "dinner2"
+        },
+        "dinner2": {
+          "text": "Tatăl meu a murit când eram doar un copil. La un an după înmormântare, nimeni din regat nu-i mai pomenea numele.",
+          "next": "dinner3"
+        },
+        "dinner3": {
+          "text": "Atunci am înțeles că oamenii nu mor o singură dată, Eron. Mor a doua oară când sunt uitați.",
+          "next": "dinner4"
+        },
+        "dinner4": {
+          "text": "Mănâncă. Adâncurile nu iartă pe cei flămânzi, iar Feldgug nu e o gazdă bună."
+        },
+
+        "warning": {
+          "text": "Diamantul Nopții... Ai adus lumină unde nu mai era. Vino, ia loc, drumul spre citadelă e lung.",
+          "next": "warning2"
+        },
+        "warning2": {
+          "text": "Pe drum vei auzi multe despre mine de la un anume Jean Pleșa. Monarhul vorbește prin gura celor frânți. Nu-l asculta.",
+          "next": "warning3"
+        },
+        "warning3": {
+          "text": "Și adu-mi Paloșul Legendar. E singura lamă care poate tăia porțile castelului."
+        },
+
+        "cold": {
+          "text": "Ai venit. Nu am timp acum, Eron. Vlaicu știe ce mai ai de făcut."
+        },
+        "colder": {
+          "text": "Inelul de Gheață. Bine. Atunci n-ai nevoie de vorbele mele."
+        }
+      }
+    },
+    {
+      "id": "vlaicu", "name": "Căpitanul Vlaicu", "type": "dialogue", "zone": "Eldoria", "col": 62, "row": 33,
+      "sprite": "/Player/Eron_down1.png", "tint": "#7A8CB8",
+      "start": "idle",
+      "stages": [
+        { "flag": "fenris", "start": "colt" },
+        { "flag": "feldgug", "start": "diamant" },
+        { "flag": "jean", "start": "palos" },
+        { "flag": "glaciara", "start": "inel" }
+      ],
+      "nodes": {
+        "idle": {
+          "text": "Garda de Fier păzește drumurile. Dovedește-ți valoarea, iar trecătorile se vor deschide una câte una."
+        },
+
+        "colt": {
+          "text": "Eron. Regele cere Colțul de Chihlimbar, ca să fie păstrat în siguranță la curte.\n(Vlaicu se uită în pământ.)",
+          "next": "colt2"
+        },
+        "colt2": {
+          "speaker": "Eron",
+          "text": "Îl țin eu. Cronicarul mi-a spus să țin aproape de inimă tot ce găsesc.",
+          "next": "colt3"
+        },
+        "colt3": {
+          "text": "Cum dorești. Garda îți deschide drumul spre adâncuri.\n(Nu te privește în ochi.)"
+        },
+
+        "diamant": {
+          "text": "Diamantul Nopții. Regele cere să-l păstrăm noi, la curte, în siguranță.\n(Vlaicu își ține privirea în jos.)",
+          "next": "diamant2"
+        },
+        "diamant2": {
+          "speaker": "Eron",
+          "text": "Rămâne la mine, căpitane. Nu e a mea să-l dau.",
+          "next": "diamant3"
+        },
+        "diamant3": {
+          "text": "Așa să fie. Drumul spre Citadela Haiducilor e liber.\n(Pare ușurat, și rușinat.)"
+        },
+
+        "palos": {
+          "text": "Paloșul Legendar trebuie dus la curte, Eron. Așa a poruncit regele.\n(Glasul îi tremură.)",
+          "next": "palos2"
+        },
+        "palos2": {
+          "speaker": "Eron",
+          "text": "Nu. Îl port eu, până la Castel.",
+          "next": "palos3"
+        },
+        "palos3": {
+          "text": "...Nu mă mai întreba de ce. Du-te spre nord, Eron.\n(Își întoarce fața.)"
+        },
+
+        "inel": {
+          "text": "Inelul de Gheață. Regele ar vrea să-l vadă păstrat la curte.\n(Nu mai încearcă să te convingă.)",
+          "next": "inel2"
+        },
+        "inel2": {
+          "speaker": "Eron",
+          "text": "Îl duc eu la Castel, căpitane.",
+          "next": "inel3"
+        },
+        "inel3": {
+          "text": "Știam că vei zice asta. Podul Umbrelor te așteaptă.\n(Își ascunde ochii.)"
+        }
+      }
+    },
+    {
+      "id": "crainic", "name": "Crainicul Regal", "type": "dialogue", "zone": "Eldoria", "col": 18, "row": 11,
+      "sprite": "/Player/Eron_down1.png", "tint": "#B03030",
+      "letters": ["fenris", "feldgug", "jean"],
+      "start": "letter_fenris",
+      "nodes": {
+        "letter_fenris": {
+          "text": "Scrisoare de la rege, pentru Eron: „Știam că vei reuși. Nimeni altcineva n-ar fi putut. Malakor.”\nÎți întinde și o pungă de aur.",
+          "action": "claim:fenris:80"
+        },
+        "letter_feldgug": {
+          "text": "Scrisoare de la rege: „Ai adus noaptea la lumină. Masa mea te așteaptă, în conacul de lemn. Malakor.”\nȘi o pungă grea.",
+          "action": "claim:feldgug:120"
+        },
+        "letter_jean": {
+          "text": "Scrisoare de la rege. Un singur rând: „Am cerut un cap, nu un tovarăș.”\nCrainicul pleacă fără nicio pungă.",
+          "action": "claim:jean:0"
+        }
+      }
+    },
+    {
       "id": "valerius", "name": "Valerius, Cavalerul Neinvins", "type": "dialogue", "zone": "Eldoria", "col": 39, "row": 5,
       "sprite": "/Enemy/Valerius.png",
       "start": "greet", "afterFlag": "valerius", "afterStart": "defeated",
@@ -116,7 +276,7 @@
           "next": "greet"
         },
         "defeated": {
-          "text": "M-ai învins cu cinste, {name}. Platoșa Amintirii e a ta: poartă-o bine. Eldoria are încă un apărător."
+          "text": "Du-te, băiete. Și ține minte ce ți-am spus: nu toate promisiunile se țin.\nPlatoșa Amintirii e a ta, poartă-o bine."
         }
       }
     }
