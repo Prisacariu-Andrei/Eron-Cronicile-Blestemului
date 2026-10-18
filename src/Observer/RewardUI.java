@@ -109,7 +109,7 @@ public class RewardUI {
             }
 
             // --- CARTEA (aceeași față ca în luptă) ---
-            CardFace.draw(g2, currentCard, gp.player, cardX, cardY, cardWidth, cardHeight, false);
+            CardFace.draw(g2, currentCard, gp.player, cardX, cardY, cardWidth, cardHeight, false, i == commandNum);
             g2.setComposite(cardComposite);
         }
 

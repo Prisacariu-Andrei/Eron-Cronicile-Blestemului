@@ -272,7 +272,7 @@ public class ShopUI {
     private void previewCard(Graphics2D g2, Card c, int rightEdge, int y) {
         if (c == null) return;
         int w = 226, h = Math.round(w * CardFace.ASPECT);
-        CardFace.draw(g2, c, gp.player, rightEdge + 44, y - 4, w, h, false);
+        CardFace.draw(g2, c, gp.player, rightEdge + 44, y - 4, w, h, false, true);
     }
 
     private void drawBuyRows(Graphics2D g2, int x, int y, int w) {

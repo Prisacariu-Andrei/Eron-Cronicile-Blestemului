@@ -129,6 +129,8 @@ public class GamePanel extends JPanel implements Runnable {
             System.out.println("⚠️ Eroare la inițializarea bazei de date: " + e.getMessage());
         }
 
+        CardFace.verifyArt();   // log: cărțile fără PNG în res/Cards
+
         // Setăm inamicii pentru harta Eldoria
         aSetter.setEnemyForMap("/Maps/Eldoria");
 

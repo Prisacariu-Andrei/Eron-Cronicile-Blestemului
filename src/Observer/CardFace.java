@@ -18,7 +18,9 @@ import java.util.Map;
  * Fața unei cărți, la fel peste tot (mână, recompensă, magazin, grimoar), după schița din proiect: cadru maro (accent după raritate),
  * cost în cerc albastru, element sus-dreapta, fereastră de artă, nume, "~ Descriere ~", descriere scurtă, rânduri de statistici cu
  * valorile reale (verde = bonus), combo (auriu când e îndeplinit). Se desenează o singură dată la 300x420 într-un cache și apoi se scalează.
- * Arta vine din res/Cards/&lt;id&gt;.png, iar dacă lipsește se desenează un înlocuitor procedural (și el ținut în cache).
+ * Arta vine din res/Cards/&lt;id&gt;.png (220x104, exact fereastra de artă) și se desenează separat, peste fața scalată, cu
+ * nearest-neighbor (pixel art ascuțit, fără estompare), iar dacă lipsește se desenează un înlocuitor procedural (în cache).
+ * Cartea aleasă/ridicată primește un luciu discret care trece peste artă.
  */
 public final class CardFace {
     public static final int W = 300, H = 420;
@@ -28,17 +30,78 @@ public final class CardFace {
     private static final int ART_X = 40, ART_Y = 76, ART_W = 220, ART_H = 104;
     private static final Color INK = new Color(48, 30, 16), BROWN = new Color(112, 64, 30);
     private static final Map<String, BufferedImage> faces = new HashMap<>();
-    private static final Map<String, BufferedImage> arts = new HashMap<>();
+    private static final Map<String, BufferedImage> arts = new HashMap<>();       // înlocuitoarele procedurale
+    private static final Map<String, BufferedImage> pngs = new HashMap<>();        // artele din res/Cards (null = lipsește)
     private static final java.util.regex.Pattern STAT = java.util.regex.Pattern.compile("^\\s*(Pagub|Arsur|Armur|Vindec|Aplic|Sc[aâ]ntei|Aliat|Status|Otrav|Cost)", java.util.regex.Pattern.CASE_INSENSITIVE);
 
     private CardFace() {}
 
     /** Desenează cartea în dreptunghiul dat. {@code hot} = combo-ul propriu e îndeplinit acum (rândul de combo se aprinde). */
     public static void draw(Graphics2D g2, Card c, Player p, int x, int y, int w, int h, boolean hot) {
+        draw(g2, c, p, x, y, w, h, hot, false);
+    }
+
+    /** Ca mai sus; {@code shimmer} = cartea e aleasă/ridicată: un luciu discret trece peste artă. */
+    public static void draw(Graphics2D g2, Card c, Player p, int x, int y, int w, int h, boolean hot, boolean shimmer) {
         Object old = g2.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g2.drawImage(face(c, p, hot), x, y, w, h, null);
+
+        // fereastra de artă, la scara cu care s-a desenat fața
+        double sx = w / (double) W, sy = h / (double) H;
+        int ax = x + (int) Math.round(ART_X * sx), ay = y + (int) Math.round(ART_Y * sy);
+        int aw = (int) Math.round(ART_W * sx), ah = (int) Math.round(ART_H * sy);
+        BufferedImage png = png(c);
+        if (png != null) {
+            // la scara 1:1 pixelii cad exact; altfel, tot nearest (marginile pixelilor rămân tăioase)
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g2.drawImage(png, ax, ay, aw, ah, null);
+            Stroke s = g2.getStroke();
+            g2.setStroke(new BasicStroke((float) Math.max(1.5, 3 * sx)));
+            g2.setColor(BROWN);
+            g2.drawRect(ax, ay, aw, ah);
+            g2.setStroke(s);
+        }
+        if (shimmer) sheen(g2, ax, ay, aw, ah);
         if (old != null) g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, old);
+    }
+
+    private static BufferedImage sheenImg;
+
+    /** Banda de lumină (o dată desenată, apoi doar mutată): trece în diagonală peste artă la ~2,6 secunde, cu pauză. */
+    private static void sheen(Graphics2D g2, int ax, int ay, int aw, int ah) {
+        if (sheenImg == null) {
+            sheenImg = new BufferedImage(64, 104, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = sheenImg.createGraphics();
+            g.setPaint(new LinearGradientPaint(0, 0, 64, 0, new float[]{0f, 0.5f, 1f},
+                    new Color[]{new Color(255, 255, 255, 0), new Color(255, 250, 230, 105), new Color(255, 255, 255, 0)}));
+            g.shear(-0.35, 0);   // bandă ușor înclinată
+            g.fillRect(24, 0, 64, 104);
+            g.dispose();
+        }
+        float phase = (System.currentTimeMillis() % 2600) / 2600f;
+        float travel = phase * 1.7f - 0.35f;
+        int bandW = Math.max(10, aw * 2 / 5);
+        int bx = ax + Math.round(travel * aw) - bandW / 2;
+        Shape oldClip = g2.getClip();
+        g2.clipRect(ax, ay, aw, ah);
+        Object hint = g2.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(sheenImg, bx, ay, bandW, ah, null);
+        if (hint != null) g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
+        g2.setClip(oldClip);
+    }
+
+    /** La pornire: spune în log ce cărți nu au PNG în res/Cards (pentru ele rămâne înlocuitorul procedural). */
+    public static void verifyArt() {
+        int missing = 0;
+        for (String id : Entity.Cards.CardFactory.allIds()) {
+            if (CardFace.class.getResource("/Cards/" + id + ".png") == null) {
+                missing++;
+                Main.Exception.GameExceptionHandler.getInstance().handleWarning("Cartea " + id + " nu are artă: lipsește res/Cards/" + id + ".png (se folosește înlocuitorul)", null);
+            }
+        }
+        if (missing == 0) System.out.println("Arta cărților: toate cărțile au PNG în res/Cards.");
     }
 
     /** Fața din cache; se redesenează doar dacă s-a schimbat ceva din ce se vede (valori cu bonusuri, combo, raritate). */
@@ -100,7 +163,12 @@ public final class CardFace {
         g.draw(new RoundRectangle2D.Float(16.5f, 16.5f, W - 33, H - 33, 18, 18));
 
         // artă
-        g.drawImage(art(c, stats), ART_X, ART_Y, null);
+        if (png(c) != null) {
+            g.setColor(new Color(30, 22, 16));   // arta PNG se desenează deasupra, în draw()
+            g.fillRect(ART_X, ART_Y, ART_W, ART_H);
+        } else {
+            g.drawImage(art(c, stats), ART_X, ART_Y, null);
+        }
         g.setColor(BROWN);
         g.setStroke(new BasicStroke(3));
         g.drawRect(ART_X, ART_Y, ART_W, ART_H);
@@ -261,32 +329,27 @@ public final class CardFace {
 
     // ---------------------------------------------------------------- artă
 
+    /** Înlocuitorul procedural (doar pentru cărțile fără PNG), ținut în cache. */
     private static BufferedImage art(Card c, List<String> stats) {
         String key = c.id == null ? c.name : c.id;
         BufferedImage a = arts.get(key);
-        if (a != null) return a;
-        a = loadPng(key);
-        if (a == null) a = placeholder(c, stats);
-        arts.put(key, a);
+        if (a == null) {
+            a = placeholder(c, stats);
+            arts.put(key, a);
+        }
         return a;
     }
 
-    /** res/Cards/&lt;id&gt;.png, scalat să umple fereastra (păstrând proporțiile, cu tăiere), sau null dacă nu există. */
-    private static BufferedImage loadPng(String id) {
+    /** res/Cards/&lt;id&gt;.png așa cum e (fără scalare), sau null dacă nu există. */
+    private static BufferedImage png(Card c) {
+        String id = c.id == null ? c.name : c.id;
+        if (pngs.containsKey(id)) return pngs.get(id);
+        BufferedImage out = null;
         try (var in = CardFace.class.getResourceAsStream("/Cards/" + id + ".png")) {
-            if (in == null) return null;
-            BufferedImage src = ImageIO.read(in);
-            double s = Math.max(ART_W / (double) src.getWidth(), ART_H / (double) src.getHeight());
-            int w = (int) Math.ceil(src.getWidth() * s), h = (int) Math.ceil(src.getHeight() * s);
-            BufferedImage out = new BufferedImage(ART_W, ART_H, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g = out.createGraphics();
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g.drawImage(src, (ART_W - w) / 2, (ART_H - h) / 2, w, h, null);
-            g.dispose();
-            return out;
-        } catch (Exception e) {
-            return null;
-        }
+            if (in != null) out = ImageIO.read(in);
+        } catch (Exception ignored) { }
+        pngs.put(id, out);
+        return out;
     }
 
     private static BufferedImage placeholder(Card c, List<String> stats) {

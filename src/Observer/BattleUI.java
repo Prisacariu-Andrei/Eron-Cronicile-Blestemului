@@ -591,7 +591,7 @@ public class BattleUI {
 
             int comboReady = Combos.ready(gp.player, card, gp.player.currentEnemy);   // 2 = combo/reacție gata, 1 = continuă un lanț
             boolean hot = comboReady == 2 && gp.player.isPlayerTurn;
-            CardFace.draw(g2, card, gp.player, dx, dy, w, h, hot);
+            CardFace.draw(g2, card, gp.player, dx, dy, w, h, hot, i == commandNum && gp.player.isPlayerTurn);
 
             Stroke originalStroke = g2.getStroke();
             if (i == commandNum) {   // evidențiere galbenă pentru cartea selectată

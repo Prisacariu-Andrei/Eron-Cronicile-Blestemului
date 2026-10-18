@@ -75,7 +75,7 @@ public class InventoryUI {
         // Cartea de pe primul rând vizibil, în fața completă
         if (slotRow < sortedCards.size()) {
             int pw = Math.min(240, gp.screenWidth / 7), ph = Math.round(pw * CardFace.ASPECT);
-            CardFace.draw(g2, sortedCards.get(slotRow), gp.player, x + width - pw - gp.tileSize, y + height - ph - gp.tileSize * 2, pw, ph, false);
+            CardFace.draw(g2, sortedCards.get(slotRow), gp.player, x + width - pw - gp.tileSize, y + height - ph - gp.tileSize * 2, pw, ph, false, true);
         }
 
         // 6. INDICATOR SCROLL
