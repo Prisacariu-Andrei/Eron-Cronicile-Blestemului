@@ -73,6 +73,7 @@ public class UI {
             drawManaText(g2);
             drawCoins(g2);
             drawInteractionPrompt();
+            gp.objectiveUI.draw(g2);   // obiectivul curent și săgeata spre țintă
             drawMessage();
 
         }
@@ -93,6 +94,7 @@ public class UI {
         }
         if (state instanceof BattleState) {
             gp.battleUI.draw(g2);
+            gp.tutorial.draw(g2);   // indiciile primei lupte
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
             g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
@@ -102,6 +104,7 @@ public class UI {
         }
         if (state instanceof RewardState) {
             gp.rewardUI.draw(g2);
+            gp.tutorial.draw(g2);   // indiciul primei recompense
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
             g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
@@ -137,7 +140,7 @@ public class UI {
 
         if (npcIndex != 999) {
             String npcName = gp.npc[npcIndex].name;
-            String text = "[E] – talk" + (npcName != null ? "  (" + npcName + ")" : "");
+            String text = "[E] – vorbește" + (npcName != null ? "  (" + npcName + ")" : "");
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
 
             // Deasupra lui Eron, oriunde este el pe ecran (lângă marginile hărții nu mai e în centru)
@@ -258,7 +261,10 @@ public class UI {
             int slide = Math.round((1f - Easing.outCubic(in)) * -28);
             Composite old = g2.getComposite();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.01f, alpha)));
-            g2.setFont(g2.getFont().deriveFont(20F));
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+            g2.setColor(Color.BLACK);   // culoare proprie (nu cea rămasă de la alt element) și umbră, ca textul să se citească pe orice fundal
+            g2.drawString(message, gp.tileSize / 2 + slide + 2, gp.tileSize * 5 + 2);
+            g2.setColor(Color.WHITE);
             g2.drawString(message, gp.tileSize / 2 + slide, gp.tileSize * 5);
             g2.setComposite(old);
         }

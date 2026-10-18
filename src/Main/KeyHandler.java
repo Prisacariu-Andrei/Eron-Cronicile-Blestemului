@@ -43,6 +43,9 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
+        // Indiciile din prima luptă / prima recompensă pot cere o anumită acțiune sau pot consuma tasta
+        if ((state instanceof BattleState || state instanceof RewardState) && gp.tutorial.onKey(code)) return;
+
         // Dialogul dinaintea luptei cu un boss: ENTER sau E trece la replica următoare
         if (state instanceof BattleIntroState intro) {
             if (code == KeyEvent.VK_ENTER || code == KeyEvent.VK_E) intro.advance();

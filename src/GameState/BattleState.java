@@ -25,6 +25,7 @@ public class BattleState implements GameState {
     @Override
     public void update() {
         gp.battleUI.update(); // timerele și animațiile din luptă merg pe ticks, nu pe cadre desenate
+        gp.tutorial.update(); // indiciile primei lupte
         if (gp.player.life <= 0) return;
 
         gp.gameTimer.update();

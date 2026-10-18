@@ -58,6 +58,7 @@ public class BattleUI {
 
     /** Apelată la începutul fiecărei lupte: cărțile vor intra în mână una câte una. */
     public void onBattleStart() {
+        gp.tutorial.onBattleStart();
         dying.clear();
         dealtCards = 0;
         enemyHitTimer = 0;
@@ -654,6 +655,30 @@ public class BattleUI {
         }
     }
 
+    // Dreptunghiurile elementelor din ecran la care trimit indiciile (TutorialUI)
+    public Rectangle handBounds() {
+        return new Rectangle((int) (gp.screenWidth / 4.5) - 14, (int) (gp.screenHeight * 0.715), gp.screenWidth / 2 + 28, (int) (gp.screenHeight * 0.28));
+    }
+
+    public Rectangle manaBounds() {
+        int size = (int) (gp.screenWidth * 0.03);
+        int y = (int) (gp.screenHeight * 0.87) + (int) (gp.screenWidth * 0.002);
+        return new Rectangle((int) (gp.screenWidth * 0.1675) - 8, y - 8, size + 16, size + 16);
+    }
+
+    /** Semnul de intenție al inamicului ales (sau al primului în viață). */
+    public Rectangle intentBounds() {
+        Slot s = gp.player.currentEnemy == null ? null : slotOf(gp.player.currentEnemy);
+        if (s == null) for (Slot t : slots()) if (t.e.alive) { s = t; break; }
+        if (s == null) return null;
+        int y = (int) (gp.screenHeight * 0.87) - s.size - 30;
+        return new Rectangle(s.cx() - 80, y - 52, 160, 70);
+    }
+
+    public Rectangle endTurnBounds() {
+        return new Rectangle((int) (gp.screenWidth * 0.88) - 14, gp.screenHeight - (int) (gp.screenHeight * 0.03) - 30, (int) (gp.screenWidth * 0.12), 44);
+    }
+
     private void drawManaPool(Graphics2D g2, int groundY) {
         int size = (int)(gp.screenWidth * 0.03);
         int x = (int)(gp.screenWidth * 0.1675); // Near the start of the card zone
@@ -725,7 +750,7 @@ public class BattleUI {
     private void drawControlsAndPopups(Graphics2D g2) {
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, gp.screenWidth / 110f));
         g2.setColor(Color.WHITE);
-        g2.drawString("[T] END TURN", (int)(gp.screenWidth * 0.88), gp.screenHeight - (int)(gp.screenHeight * 0.03));
+        g2.drawString("[T] TERMINĂ TURA", (int)(gp.screenWidth * 0.88), gp.screenHeight - (int)(gp.screenHeight * 0.03));
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, gp.screenWidth / 125f));
         g2.setColor(new Color(200, 200, 215));
         String keysHint = "[1-8] alege carte   [ENTER] joacă   [Q W E R] abilități   [↑/↓/TAB] țintă   [T] termină tura";

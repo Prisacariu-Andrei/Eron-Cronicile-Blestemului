@@ -58,13 +58,6 @@ public class RewardUI {
             g2.setColor(RuneIcon.rarityColor(dr.rarity));
             g2.drawString("Rună nouă: " + dr.name, gp.screenWidth / 2 - 106, 245);
         }
-        if (gp.player.lastRuneDrop != null) {
-            Entity.Items.Rune dr = gp.player.lastRuneDrop;
-            RuneIcon.draw(g2, dr, gp.screenWidth / 2 - 150, 218, 36, true);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
-            g2.setColor(RuneIcon.rarityColor(dr.rarity));
-            g2.drawString("Rună nouă: " + dr.name, gp.screenWidth / 2 - 106, 245);
-        }
         if (gp.player.lastKeyItem != null) {
             var ki = gp.player.lastKeyItem;
             int kx = gp.screenWidth / 2 - 150, ky = 262;

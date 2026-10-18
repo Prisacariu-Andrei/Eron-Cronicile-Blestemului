@@ -78,6 +78,14 @@ public class QuestManager {
         }
     }
 
+    /** Pașii obiectivului din HUD pentru o misiune principală (quests.json -> mainQuests -> steps). */
+    public java.util.List<java.util.Map<String, Object>> mainSteps(int id) {
+        var d = mainTexts.get(id);
+        java.util.List<java.util.Map<String, Object>> out = new java.util.ArrayList<>();
+        if (d != null) for (Object o : Main.Json.list(d.get("steps"))) out.add(Main.Json.map(o));
+        return out;
+    }
+
     /** Replica Cronicarului pentru misiunea principală: kind = start | progress | complete. Lipsă în JSON = textul din cod. */
     public String mainText(int id, String kind, String fallback) {
         var d = mainTexts.get(id);

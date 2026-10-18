@@ -67,6 +67,8 @@ public class GamePanel extends JPanel implements Runnable {
     public LeaderboardUI leaderboardUI = new LeaderboardUI(this);
     public CreditsUI creditsUI = new CreditsUI(this);
     public CutsceneUI cutsceneUI = new CutsceneUI(this);
+    public ObjectiveUI objectiveUI = new ObjectiveUI(this);   // obiectivul din HUD
+    public TutorialUI tutorial = new TutorialUI(this);        // indiciile primei lupte și ale primei recompense
     public ShopUI shopUI = new ShopUI(this);
     // Misiuni, niveluri/abilități și obiecte de cules (date în res/Data: quests.json, progression.json)
     public QuestLog questLog = new QuestLog(this);

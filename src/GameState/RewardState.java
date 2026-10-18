@@ -11,11 +11,12 @@ public class RewardState implements GameState {
         this.gp = gp;
     }
 
-    @Override public void enter() { gp.rewardUI.onOpen(); }
+    @Override public void enter() { gp.rewardUI.onOpen(); gp.tutorial.onRewardOpen(); }
 
     @Override
     public void update() {
         gp.rewardUI.update();
+        gp.tutorial.tick();
         if (gp.keyH.leftPressed) {
             gp.keyH.leftPressed = false;
             gp.rewardUI.commandNum--;

@@ -9,7 +9,6 @@
     "Texte: offerText (oferta), acceptText (după acceptare), activeText (cât e în desfășurare), completeText (la predare). {name} = numele jucătorului.",
     "pickups: obiecte de cules în lume. Apar doar cât timp o misiune activă le cere. id unic, item = numele obiectului, zone, col, row, color (#RRGGBB)."
   ],
-
   "quests": [
     {
       "id": "lupii",
@@ -22,9 +21,18 @@
       "activeText": "Lupii încă dau târcoale. Mai ai de lucru.",
       "completeText": "Ai reușit! Drumurile sunt mai sigure acum. Ia asta, ți-ai meritat-o.",
       "objectives": [
-        { "type": "kill", "target": "Lup", "count": 3, "label": "Învinge lupi în Bârlog" }
+        {
+          "type": "kill",
+          "target": "Lup",
+          "count": 3,
+          "label": "Învinge lupi în Bârlog"
+        }
       ],
-      "rewards": { "coins": 60, "xp": 80, "card": "FulgerDeSange" }
+      "rewards": {
+        "coins": 60,
+        "xp": 80,
+        "card": "FulgerDeSange"
+      }
     },
     {
       "id": "floarea",
@@ -37,9 +45,17 @@
       "activeText": "Încă nu ai toate florile? Caută cu răbdare, strălucesc slab.",
       "completeText": "Ce frumoase sunt! Mulțumesc, {name}. Iată câteva monede pentru osteneală.",
       "objectives": [
-        { "type": "collect", "target": "Floarea Lunii", "count": 3, "label": "Culege Floarea Lunii" }
+        {
+          "type": "collect",
+          "target": "Floarea Lunii",
+          "count": 3,
+          "label": "Culege Floarea Lunii"
+        }
       ],
-      "rewards": { "coins": 35, "xp": 45 }
+      "rewards": {
+        "coins": 35,
+        "xp": 45
+      }
     },
     {
       "id": "mesaj",
@@ -53,56 +69,301 @@
       "completeText": "A zis că se ocupă? Ce ușurare! Uite, ia asta ca mulțumire.",
       "objectives": [
         {
-          "type": "talk", "target": "radu", "count": 1,
+          "type": "talk",
+          "target": "radu",
+          "count": 1,
           "label": "Vorbește cu Paznicul Radu",
           "response": "O amprentă uriașă lângă gard? Mulțumesc că mi-ai spus. Voi pune o santinelă acolo. Spune-i Mirei că e în siguranță."
         }
       ],
-      "rewards": { "coins": 20, "xp": 30, "card": "PavazaGlaciara" }
+      "rewards": {
+        "coins": 20,
+        "xp": 30,
+        "card": "PavazaGlaciara"
+      }
     }
   ],
-
   "mainQuests": {
-    "_help": "Misiunile principale (Bătrânul Cronicar). Cheie = numărul misiunii (0 = ce spune Cronicarul când toate sunt gata). title/description: jurnalul; start/progress/complete: replicile Cronicarului. Ce lipsește rămâne cel din cod. Monarhul Amurgului e încă văzut ca răufăcătorul.",
-    "0": { "complete": "Eldoria este salvată! Blestemul s-a risipit.\nEști un erou de legendă, Eron. Pacea s-a întors acasă." },
+    "_help": "Misiunile principale (Bătrânul Cronicar). Cheie = numărul misiunii (0 = ce spune Cronicarul când toate sunt gata). title/description: jurnalul; start/progress/complete: replicile Cronicarului. Ce lipsește rămâne cel din cod. Monarhul Amurgului e încă văzut ca răufăcătorul. steps = obiectivul din HUD: primul pas cu 'zone' = zona curentă, altfel cel fără 'zone'; col,row = unde e ținta în acea zonă (săgeata de la marginea ecranului).",
+    "0": {
+      "complete": "Eldoria este salvată! Blestemul s-a risipit.\nEști un erou de legendă, Eron. Pacea s-a întors acasă."
+    },
     "1": {
       "title": "Fiara Blestemului",
       "description": "O Fiară a Blestemului a sărit peste palisada nepăzită. Învinge-o cu vrăjile din Manuscris, înainte să ajungă în sat.",
       "progress": "Fiara încă rătăcește prin hotarele satului, Eron.\nPârjolul Sferic ca s-o lovești, Pavăza Glaciară ca să te aperi.",
-      "complete": "Ai învins-o! Manuscrisul ți-a răspuns, iar satul te-a văzut.\nGarda de Fier îți va deschide trecătoarea spre munți."
+      "complete": "Ai învins-o! Manuscrisul ți-a răspuns, iar satul te-a văzut.\nGarda de Fier îți va deschide trecătoarea spre munți.",
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Învinge Fiara Blestemului",
+          "col": 31,
+          "row": 37
+        },
+        {
+          "text": "Întoarce-te în Eldoria și învinge Fiara"
+        }
+      ]
     },
     "2": {
       "description": "Garda de Fier ți-a deschis trecătoarea spre munți. Învinge 5 inamici în Bârlog.",
-      "start": "Garda de Fier a deschis trecătoarea spre munți. În Bârlog, fiarele sunt schimonosite de blestem.\nÎnvinge 5 dintre ele, Eron."
+      "start": "Garda de Fier a deschis trecătoarea spre munți. În Bârlog, fiarele sunt schimonosite de blestem.\nÎnvinge 5 dintre ele, Eron.",
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Mergi spre sud, la poarta Bârlogului",
+          "col": 34,
+          "row": 38
+        },
+        {
+          "zone": "Barlogul",
+          "text": "Învinge inamici în Bârlog"
+        },
+        {
+          "text": "Mergi în Bârlog și învinge inamici"
+        }
+      ]
     },
     "3": {
       "title": "Fenris cel Albit",
       "description": "Învinge-l pe Fenris cel Albit, lupul legendar din inima Bârlogului, și ia Colțul de Chihlimbar.",
       "start": "În inima muntelui stă Fenris cel Albit și ține una dintre bucățile Inelului.\nRegele zice că trebuie luată. Du-te și ia-o.",
-      "complete": "Fenris a căzut. Colțul de Chihlimbar e al tău.\nSă nu uiți ce ți-am spus: ține tot ce găsești aproape de inimă."
+      "complete": "Fenris a căzut. Colțul de Chihlimbar e al tău.\nSă nu uiți ce ți-am spus: ține tot ce găsești aproape de inimă.",
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Urcă în Bârlog: Fenris te așteaptă",
+          "col": 34,
+          "row": 38
+        },
+        {
+          "zone": "Barlogul",
+          "text": "Învinge-l pe Fenris cel Albit",
+          "col": 78,
+          "row": 36
+        },
+        {
+          "text": "Mergi în Bârlog și învinge-l pe Fenris"
+        }
+      ]
     },
     "4": {
-      "start": "Colțul e al tău. Căpitanul Vlaicu îl va cere pentru rege.\nNu uita vorbele mele. Apoi cere trecerea spre Abis."
+      "start": "Colțul e al tău. Căpitanul Vlaicu îl va cere pentru rege.\nNu uita vorbele mele. Apoi cere trecerea spre Abis.",
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Vorbește cu Garda de la poarta Abisului",
+          "col": 65,
+          "row": 34
+        },
+        {
+          "text": "Întoarce-te în Eldoria, la poarta Abisului"
+        }
+      ]
     },
     "7": {
       "title": "Diamantul Nopții",
       "description": "Învinge-l pe Feldgug, Regele Trol, și ia Diamantul Nopții.",
-      "start": "Feldgug domnește în adâncuri. Doboară-l și Diamantul Nopții\nva fi al tău, laolaltă cu runa lui."
+      "start": "Feldgug domnește în adâncuri. Doboară-l și Diamantul Nopții\nva fi al tău, laolaltă cu runa lui.",
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Intră în Abisul de Piatră, pe poarta din est",
+          "col": 65,
+          "row": 34
+        },
+        {
+          "zone": "Abisul",
+          "text": "Învinge-l pe Feldgug, Regele Trol",
+          "col": 57,
+          "row": 53
+        },
+        {
+          "text": "Coboară în Abisul de Piatră"
+        }
+      ]
     },
     "9": {
       "description": "Găsește-l pe Jean Pleșa în Citadela Haiducilor. Regele îi cere capul; hotărăști tu ce faci cu el.",
-      "start": "În Citadelă te așteaptă Jean Pleșa. Poporul îl știe trădător, iar regele îi cere capul.\nVezi tu, cu ochii tăi, cine este."
+      "start": "În Citadelă te așteaptă Jean Pleșa. Poporul îl știe trădător, iar regele îi cere capul.\nVezi tu, cu ochii tăi, cine este.",
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Mergi la Citadela Haiducilor, pe drumul din vest",
+          "col": 11,
+          "row": 12
+        },
+        {
+          "zone": "Citadela",
+          "text": "Găsește-l pe Jean Pleșa",
+          "col": 15,
+          "row": 16
+        },
+        {
+          "text": "Mergi la Citadela Haiducilor"
+        }
+      ]
     },
     "14": {
       "title": "Monarhul Amurgului",
       "description": "Pătrunde în Sala Tronului, învinge-l pe Monarhul Amurgului și risipește Blestemul de pe Eldoria.",
-      "start": "Monarhul Amurgului te așteaptă în Sala Tronului.\nÎnvinge-l și risipește blestemul de pe Eldoria!"
+      "start": "Monarhul Amurgului te așteaptă în Sala Tronului.\nÎnvinge-l și risipește blestemul de pe Eldoria!",
+      "steps": [
+        {
+          "zone": "Castelul",
+          "text": "Învinge-l pe Monarhul Amurgului",
+          "col": 27,
+          "row": 12
+        },
+        {
+          "text": "Mergi în Castelul de Obsidian"
+        }
+      ]
+    },
+    "5": {
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Intră în Abisul de Piatră, pe poarta din est",
+          "col": 65,
+          "row": 34
+        },
+        {
+          "zone": "Abisul",
+          "text": "Învinge inamici în Abis"
+        },
+        {
+          "text": "Coboară în Abisul de Piatră"
+        }
+      ]
+    },
+    "6": {
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Intră în Abisul de Piatră, pe poarta din est",
+          "col": 65,
+          "row": 34
+        },
+        {
+          "zone": "Abisul",
+          "text": "Învinge Trolul de Elită",
+          "col": 76,
+          "row": 62
+        },
+        {
+          "text": "Coboară în Abisul de Piatră"
+        }
+      ]
+    },
+    "8": {
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Vorbește cu Garda de la drumul spre Citadelă",
+          "col": 11,
+          "row": 12
+        },
+        {
+          "text": "Întoarce-te în Eldoria, la drumul spre Citadelă"
+        }
+      ]
+    },
+    "10": {
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Treci pe poarta Tundrei, în sud-vest",
+          "col": 12,
+          "row": 39
+        },
+        {
+          "zone": "Tundra",
+          "text": "Trage manivela și aliniază oglinzile",
+          "col": 31,
+          "row": 24
+        },
+        {
+          "text": "Mergi în Tundra Tăcerii"
+        }
+      ]
+    },
+    "11": {
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Treci pe poarta Tundrei, în sud-vest",
+          "col": 12,
+          "row": 39
+        },
+        {
+          "zone": "Tundra",
+          "text": "Învinge-o pe Glaciara, în vârful turnului",
+          "col": 51,
+          "row": 11
+        },
+        {
+          "text": "Mergi în Tundra Tăcerii"
+        }
+      ]
+    },
+    "12": {
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Mergi la Podul Umbrelor, la răsărit de sat",
+          "col": 62,
+          "row": 14
+        },
+        {
+          "zone": "Podul",
+          "text": "Învinge-l pe Charon",
+          "col": 130,
+          "row": 24
+        },
+        {
+          "text": "Mergi la Podul Umbrelor"
+        }
+      ]
+    },
+    "13": {
+      "steps": [
+        {
+          "zone": "Eldoria",
+          "text": "Mergi la Podul Umbrelor, spre Castel",
+          "col": 62,
+          "row": 14
+        },
+        {
+          "text": "Intră în Castelul de Obsidian"
+        }
+      ]
     }
   },
-
   "pickups": [
-    { "id": "floare1", "item": "Floarea Lunii", "zone": "Eldoria", "col": 40, "row": 7,  "color": "#BFE4FF" },
-    { "id": "floare2", "item": "Floarea Lunii", "zone": "Eldoria", "col": 44, "row": 8,  "color": "#BFE4FF" },
-    { "id": "floare3", "item": "Floarea Lunii", "zone": "Eldoria", "col": 52, "row": 11, "color": "#BFE4FF" }
+    {
+      "id": "floare1",
+      "item": "Floarea Lunii",
+      "zone": "Eldoria",
+      "col": 40,
+      "row": 7,
+      "color": "#BFE4FF"
+    },
+    {
+      "id": "floare2",
+      "item": "Floarea Lunii",
+      "zone": "Eldoria",
+      "col": 44,
+      "row": 8,
+      "color": "#BFE4FF"
+    },
+    {
+      "id": "floare3",
+      "item": "Floarea Lunii",
+      "zone": "Eldoria",
+      "col": 52,
+      "row": 11,
+      "color": "#BFE4FF"
+    }
   ]
 }
