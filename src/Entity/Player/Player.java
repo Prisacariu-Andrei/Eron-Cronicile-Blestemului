@@ -838,6 +838,7 @@ public class Player extends Entity {
 
         if (npcIndex != 999) {
             gp.activeNpcIndex = npcIndex;
+            gp.dialogueUI.speaker = gp.npc[npcIndex].name;   // numele și portretul celui care vorbește
             gp.npc[npcIndex].faceTowards(this);
             gp.changeState(new DialogueState(gp));
             gp.npc[npcIndex].speak();
@@ -1078,7 +1079,7 @@ public class Player extends Entity {
                     activeStatuses.clear();
                     long finalTime = gp.ui.getPlayTime();
                     gp.leaderboardUI.checkAndSaveNewScore(finalTime, playerProfileName);
-                    gp.changeState(new ZoneTransitionState(gp, "epilogue", () -> new CutsceneState(gp, CutsceneUI.Script.EPILOGUE)));
+                    gp.changeState(new ZoneTransitionState(gp, "epilogue", () -> gp.storyScenes.stateFor("epilogue", () -> new CreditsState(gp))));
                     return false;
             }
 

@@ -22,30 +22,19 @@ import java.util.List;
 public class CutsceneUI {
     GamePanel gp;
 
-    /** Un cadru: ce text apare și cum se mișcă camera (centrul vederii, în coordonate de tile-uri). */
+    /** Un cadru = o replică a scenei: titlu (cine vorbește), text, camera și ce se întâmplă cu personajele. */
     private record Shot(String title, String text, double fromX, double fromY, double toX, double toY,
-                        float zoomFrom, float zoomTo, int moveTicks, StoryScenes.Line line) {
-        Shot(String title, String text, double fromX, double fromY, double toX, double toY, float zoomFrom, float zoomTo, int moveTicks) {
-            this(title, text, fromX, fromY, toX, toY, zoomFrom, zoomTo, moveTicks, null);
-        }
-    }
+                        float zoomFrom, float zoomTo, int moveTicks, StoryScenes.Line line) {}
 
-    /** Ce se joacă: epilogul (după Malakor, cadre fixe în cod) sau o scenă din story.json (prologul și celelalte). */
-    public enum Script { SCENE, EPILOGUE }
-
-    private Script script = Script.EPILOGUE;
-    private Shot[] shots = EPILOGUE_SHOTS;
+    private Shot[] shots = new Shot[0];
     private StoryScenes.Scene scene;
 
-    public void load(Script s) {
-        script = s;
-        scene = null;
-        shots = EPILOGUE_SHOTS;
-    }
+    public int shotIndex() { return shotIndex; }
+
+    public StoryScenes.Scene scene() { return scene; }
 
     /** O scenă din story.json: fiecare replică devine un cadru (titlu = cine vorbește, text, cameră, mutări, efecte). */
     public void loadScene(StoryScenes.Scene sc) {
-        script = Script.SCENE;
         scene = sc;
         actors.clear();
         for (StoryScenes.Actor a : sc.actors) actors.add(new ActorState(a));
@@ -79,18 +68,58 @@ public class CutsceneUI {
         toneTarget = new Color(0, 0, 0, 0);
         flash = 0f;
         shakeTicks = 0;
+        eronMover = null;
+        eronDirOverride = null;
     }
 
-    public StoryScenes.Scene scene() { return scene; }
+    /** Un drum pe care se mută un personaj: poziția de acum, punctele "via" și destinația, parcurse în `ticks`. */
+    private static class Mover {
+        final double[][] pts;
+        final double[] cum;      // lungimea cumulată până la fiecare punct
+        final int start, ticks;
+        final float hopPx;       // înălțimea săriturii (pixeli); 0 = merge normal
+        final boolean free;      // true = scena poate continua fără să aștepte să se termine mișcarea
+
+        Mover(double fromCol, double fromRow, StoryScenes.Move m, int now) {
+            pts = new double[m.via().size() + 2][];
+            pts[0] = new double[]{fromCol, fromRow};
+            for (int k = 0; k < m.via().size(); k++) pts[k + 1] = m.via().get(k);
+            pts[pts.length - 1] = new double[]{m.col(), m.row()};
+            cum = new double[pts.length];
+            for (int k = 1; k < pts.length; k++) cum[k] = cum[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);
+            start = now;
+            ticks = m.ticks();
+            hopPx = (float) m.hop();
+            free = m.free();
+        }
+
+        float progress(int now) { return Math.min(1f, (now - start) / (float) ticks); }
+
+        boolean done(int now) { return now - start >= ticks; }
+
+        double[] at(int now) {
+            double d = cum[cum.length - 1] * progress(now);
+            for (int k = 1; k < pts.length; k++) {
+                if (d <= cum[k] || k == pts.length - 1) {
+                    double seg = cum[k] - cum[k - 1];
+                    double u = seg < 1e-9 ? 1 : Math.min(1, (d - cum[k - 1]) / seg);
+                    return new double[]{pts[k - 1][0] + (pts[k][0] - pts[k - 1][0]) * u, pts[k - 1][1] + (pts[k][1] - pts[k - 1][1]) * u};
+                }
+            }
+            return pts[pts.length - 1];
+        }
+    }
 
     /** Personaj care apare doar în scenă. "eron" nu e aici: acela mută jucătorul real. */
     private static class ActorState {
         final String id;
         final BufferedImage img;
         final Entity.SpriteSet set;       // cele 8 cadre (res/NPC); dacă lipsește, sprite-ul simplu cu tentă
-        double col, row, fromCol, fromRow, toCol, toRow;
+        double col, row;
         boolean visible;
-        int startTick, moveTicks;
+        Mover mover;
+        float hop;                         // cât e ridicat de la sol în sărituri (pixeli)
+        int kneelStart = -1000;
         String dir = "down", dirOverride;   // direcția urmează mersul; "dir" din story.json o forțează
 
         ActorState(StoryScenes.Actor a) {
@@ -107,18 +136,20 @@ public class CutsceneUI {
                 Main.Exception.GameExceptionHandler.getInstance().handleWarning("Nu s-a putut încărca sprite-ul actorului " + a.id() + ": " + a.sprite(), e);
             }
             img = im;
-            col = fromCol = toCol = a.col();
-            row = fromRow = toRow = a.row();
+            col = a.col();
+            row = a.row();
             visible = a.visible();
         }
     }
 
     private final List<ActorState> actors = new ArrayList<>();
+    private Mover eronMover;
+    private String eronDirOverride;
     private int tone;                      // cât din tonul de culoare (zi/amurg/noapte/zori) e aplicat, 0..TONE_TICKS
     private Color toneTarget = new Color(0, 0, 0, 0);
     private float flash;                   // 1 = ecran alb, scade singur
     private int shakeTicks;
-    private static final int TONE_TICKS = 90;
+    private static final int TONE_TICKS = 90, KNEEL_TICKS = 150;
 
     private ActorState actor(String id) {
         for (ActorState a : actors) if (a.id.equals(id)) return a;
@@ -139,11 +170,13 @@ public class CutsceneUI {
                         case "dusk" -> new Color(255, 120, 50, 70);
                         case "night" -> new Color(8, 14, 60, 120);
                         case "dawn" -> new Color(255, 190, 120, 60);
+                        case "sunrise" -> new Color(255, 196, 120, 80);
                         default -> new Color(0, 0, 0, 0);
                     };
                     tone = 0;
                 }
                 case "sound" -> { if (p.length > 1 && GameFeel.SOUND_FEEDBACK) SoundManager.getInstance().playSE(p[1]); }
+                case "kneel" -> { ActorState a = p.length > 1 ? actor(p[1]) : null; if (a != null) a.kneelStart = totalTicks; }
                 case "burst" -> {
                     if (p.length >= 4) {
                         try {
@@ -158,77 +191,45 @@ public class CutsceneUI {
             if ("eron".equals(m.actor())) {
                 eronDirOverride = m.dir();
                 if (m.dir() != null) gp.player.direction = m.dir();
-                eronFromCol = gp.player.worldX / (double) gp.tileSize;
-                eronFromRow = gp.player.worldY / (double) gp.tileSize;
-                eronToCol = m.col();
-                eronToRow = m.row();
-                eronStart = totalTicks;
-                eronTicks = m.ticks();
+                eronMover = new Mover(gp.player.worldX / (double) gp.tileSize, gp.player.worldY / (double) gp.tileSize, m, totalTicks);
                 continue;
             }
             ActorState a = actor(m.actor());
             if (a == null) continue;
             if (m.show() != null) a.visible = m.show();
-            a.fromCol = a.col;
-            a.fromRow = a.row;
-            a.toCol = m.col();
-            a.toRow = m.row();
-            a.startTick = totalTicks;
-            a.moveTicks = m.ticks();
+            a.mover = new Mover(a.col, a.row, m, totalTicks);
             a.dirOverride = m.dir();
             if (m.dir() != null) a.dir = m.dir();
         }
     }
 
-    private String eronDirOverride;
-
-    private double eronFromCol, eronFromRow, eronToCol, eronToRow;
-    private int eronStart, eronTicks;
-
     private void moveActors() {
         for (ActorState a : actors) {
-            if (a.moveTicks <= 0) continue;
-            float u = Math.min(1f, (totalTicks - a.startTick) / (float) a.moveTicks);
-            double oc = a.col, orow = a.row;
-            a.col = a.fromCol + (a.toCol - a.fromCol) * u;
-            a.row = a.fromRow + (a.toRow - a.fromRow) * u;
+            if (a.mover == null) { a.hop = 0; continue; }
+            double[] p = a.mover.at(totalTicks);
             if (a.dirOverride == null) {   // privește încotro merge
-                String d = Entity.SpriteSet.directionOf(a.col - oc, a.row - orow);
+                String d = Entity.SpriteSet.directionOf(p[0] - a.col, p[1] - a.row);
                 if (d != null) a.dir = d;
             }
-            if (u >= 1f) a.moveTicks = 0;
+            a.col = p[0];
+            a.row = p[1];
+            a.hop = a.mover.hopPx > 0 ? (float) Math.sin(Math.PI * a.mover.progress(totalTicks)) * a.mover.hopPx : 0;
+            if (a.mover.done(totalTicks)) { a.mover = null; a.hop = 0; }
         }
-        if (eronTicks > 0) {
-            float u = Math.min(1f, (totalTicks - eronStart) / (float) eronTicks);
+        if (eronMover != null) {
             int ox = gp.player.worldX, oy = gp.player.worldY;
-            gp.player.worldX = (int) Math.round((eronFromCol + (eronToCol - eronFromCol) * u) * gp.tileSize);
-            gp.player.worldY = (int) Math.round((eronFromRow + (eronToRow - eronFromRow) * u) * gp.tileSize);
+            double[] p = eronMover.at(totalTicks);
+            gp.player.worldX = (int) Math.round(p[0] * gp.tileSize);
+            gp.player.worldY = (int) Math.round(p[1] * gp.tileSize);
             if (eronDirOverride == null) {
                 String d = Entity.SpriteSet.directionOf(gp.player.worldX - ox, gp.player.worldY - oy);
                 if (d != null) gp.player.direction = d;
             }
             gp.player.moveVelocity = 1f;   // pașii lui Eron: cadrele alternează cât merge
             if (++gp.player.spriteCounter > 12) { gp.player.spriteNum = gp.player.spriteNum == 1 ? 2 : 1; gp.player.spriteCounter = 0; }
-            if (u >= 1f) { eronTicks = 0; gp.player.moveVelocity = 0f; gp.player.spriteNum = 1; }
+            if (eronMover.done(totalTicks)) { eronMover = null; gp.player.moveVelocity = 0f; gp.player.spriteNum = 1; }
         }
     }
-
-    public int shotIndex() { return shotIndex; }
-
-    private static final Shot[] EPILOGUE_SHOTS = {
-            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
-                    "Odată cu căderea tiranului, moartea se topește ca zăpada sub soarele de primăvară. Inelul Eternității, purificat de Diamantul Nopții și de Inelul de Gheață, se frânge într-o lumină care nu mai arde.",
-                    47.0, 22.0, 41.0, 14.0, 1.00f, 1.10f, 560),
-            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
-                    "Te întorci în Eldoria sub un cer care, pentru prima dată după eoni, se pregătește să lase locul nopții naturale. Ceața s-a risipit de pe acoperișuri, iar satul respiră.",
-                    34.0, 37.0, 22.0, 28.0, 1.10f, 1.18f, 620),
-            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
-                    "Lumea a primit înapoi darul nemuririi și al odihnei. Blestemul se frânge pe veci, iar timpul începe, în sfârșit, să curgă din nou peste lume.",
-                    20.0, 13.0, 15.5, 10.5, 1.20f, 1.12f, 560),
-            new Shot("EPILOGUL - RĂSĂRITUL DUPĂ VEȘNICIE",
-                    "Legenda lui Eron rămâne scrisă în cronicile tărâmului, ca fiind cel care a redat vieții din veșnicia de mult pierdută.",
-                    14.4, 11.4, 13.8, 11.0, 1.30f, 1.24f, 520),
-    };
 
     private enum Mode { INTRO, SHOT, CUT_OUT, CUT_IN, OUTRO, DONE }
 
@@ -264,7 +265,7 @@ public class CutsceneUI {
         modeTicks = 0;
         totalTicks = 0;
         shotIndex = 0;
-        eronTicks = 0;
+        eronMover = null;
         resetShot();
         beginLine();
     }
@@ -284,9 +285,16 @@ public class CutsceneUI {
         charIndex = shots[shotIndex].text().length();
     }
 
+    /** Cât timp cineva încă merge (și mișcarea nu e "free"), replica nu poate fi închisă: gesturile se văd până la capăt. */
+    public boolean blockedByMovement() {
+        if (eronMover != null && !eronMover.free && !eronMover.done(totalTicks)) return true;
+        for (ActorState a : actors) if (a.mover != null && !a.mover.free && !a.mover.done(totalTicks)) return true;
+        return false;
+    }
+
     /** ENTER după ce textul e afișat: trece la cadrul următor sau încheie prologul. */
     public void next() {
-        if (mode != Mode.SHOT) return;
+        if (mode != Mode.SHOT || blockedByMovement()) return;
         if (shotIndex >= shots.length - 1) {
             beginOutro();
         } else {
@@ -356,8 +364,7 @@ public class CutsceneUI {
 
         // --- personajele: Eron respiră (din Player.draw) și își întoarce capul din când în când ---
         gp.player.moveVelocity = 0f;
-        if (script == Script.SCENE) moveActors();   // direcția lui Eron o stabilesc mutările din scenă
-        else gp.player.direction = "down";
+        moveActors();   // direcția lui Eron o stabilesc mutările din scenă
 
         // --- textul apare literă cu literă; SPACE ținut îl accelerează ---
         boolean typing = mode == Mode.SHOT || (mode == Mode.INTRO && modeTicks > 36) || (mode == Mode.CUT_IN && modeTicks > 6);
@@ -443,14 +450,22 @@ public class CutsceneUI {
             if (!a.visible || (a.img == null && a.set == null)) continue;
             int x = gp.camera.screenX((int) Math.round(a.col * gp.tileSize));
             int y = gp.camera.screenY((int) Math.round(a.row * gp.tileSize));
-            y += a.moveTicks > 0 ? Math.round((float) Math.abs(Math.sin(totalTicks * 0.3)) * -5f)
-                                 : Math.round((float) Math.sin((totalTicks + Math.abs(a.id.hashCode()) % 90) * 0.045) * Main.GameFeel.IDLE_BOB_PX);
+            boolean walking = a.mover != null;
+            y += walking ? Math.round((float) Math.abs(Math.sin(totalTicks * 0.3)) * -3f)
+                         : Math.round((float) Math.sin((totalTicks + Math.abs(a.id.hashCode()) % 90) * 0.045) * Main.GameFeel.IDLE_BOB_PX);
+            y -= Math.round(a.hop);
+            // îngenuncheat: corpul coboară și se turtește puțin, apoi se ridică
+            int kneelAge = totalTicks - a.kneelStart;
+            float k = kneelAge >= 0 && kneelAge < KNEEL_TICKS ? (float) Math.sin(Math.PI * Math.min(1f, kneelAge / (float) KNEEL_TICKS)) : 0f;
+            k = Math.min(1f, k * 1.6f);
+            int h = Math.round(gp.tileSize * (1f - 0.22f * k));
+            y += gp.tileSize - h;
             if (x + gp.tileSize < 0 || x > gp.screenWidth || y + gp.tileSize < 0 || y > gp.screenHeight) continue;
-            BufferedImage img = a.set != null ? a.set.frame(a.dir, a.moveTicks > 0, totalTicks) : a.img;
+            BufferedImage img = a.set != null ? a.set.frame(a.dir, walking, totalTicks) : a.img;
             if (img == null) continue;
             Object oldHint = g2.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
             if (a.set != null) g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            g2.drawImage(img, x, y, gp.tileSize, gp.tileSize, null);   // copilul e deja desenat mic în setul lui
+            g2.drawImage(img, x, y, gp.tileSize, h, null);
             if (oldHint != null) g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldHint);
         }
     }
@@ -497,6 +512,10 @@ public class CutsceneUI {
         g2.setColor(new Color(212, 175, 55));
         String title = shot.title();
         g2.drawString(title, W / 2 - g2.getFontMetrics().stringWidth(title) / 2, bottom - lines.size() * 42 - 18);
+        // Portretul celui care vorbește (nu și al naratorului), în stânga blocului de text
+        String speaker = shot.line() == null ? "" : shot.line().speaker();
+        java.awt.image.BufferedImage portrait = Portraits.of(gp, speaker);
+        if (portrait != null) Portraits.draw(g2, portrait, W / 2 - 560 - Portraits.SIZE - 28, bottom - lines.size() * 42 - 18 - 34);
 
         // Textul, afișat până la litera curentă
         g2.setFont(body);
@@ -522,16 +541,16 @@ public class CutsceneUI {
 
         // în banda de sus: cum se sare peste prolog și la ce pagină ești
         g2.setColor(new Color(150, 150, 150));
-        g2.drawString(script == Script.EPILOGUE ? "ESC - sari peste epilog      SPACE (ține apăsat) - mai repede" : "ESC - sari peste scenă      ENTER / SPACE - continuă, SPACE ținut - mai repede", 40, bar / 2 + 5);
+        g2.drawString("ESC (ține apăsat) - sari peste scenă      ENTER / SPACE - continuă, SPACE ținut - mai repede", 40, bar / 2 + 5);
         String page = (shotIndex + 1) + " / " + shots.length;
         g2.drawString(page, W - 40 - g2.getFontMetrics().stringWidth(page), bar / 2 + 5);
 
         // în banda de jos: indicația de continuare pulsează când tot textul e afișat
-        if (mode == Mode.SHOT && !isWriting()) {
+        if (mode == Mode.SHOT && !isWriting() && !blockedByMovement()) {
             float pulse = 0.5f + 0.5f * (float) Math.sin(totalTicks * 0.14);
             g2.setColor(new Color(230, 230, 230, 120 + Math.round(110 * pulse)));
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 18F));
-            String hint = shotIndex >= shots.length - 1 ? (script == Script.EPILOGUE ? "ENTER - sfârșit  ▸" : "ENTER - închide  ▸") : "ENTER - continuă  ▸";
+            String hint = shotIndex >= shots.length - 1 ? "ENTER - închide  ▸" : "ENTER - continuă  ▸";
             g2.drawString(hint, W - 60 - g2.getFontMetrics().stringWidth(hint), H - bar / 2 + 6);
         }
     }

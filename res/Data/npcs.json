@@ -5,47 +5,90 @@
     "type = dialogue  -> 'start' + 'nodes'. Un nod are 'text' si fie 'choices' (2-3 optiuni), fie 'next' (continua la apasarea lui E).",
     "type = merchant  -> ca dialogue, plus 'shop': {'stock': [numele cartilor din CardFactory]}. Optiunea cu 'action': 'shop' deschide magazinul.",
     "type = quest     -> ca dialogue; misiunile vin din quests.json (orice NPC cu id-ul din 'giver' / 'turnIn' le ofera si le primeste, indiferent de tip).",
-        "O optiune: {'text': .., 'next': nod, 'action': ..}. Fara 'next' dialogul se incheie.",
+    "O optiune: {'text': .., 'next': nod, 'action': ..}. Fara 'next' dialogul se incheie.",
     "Actiuni: 'shop', 'heal:N' (vindeca N viata), 'coins:N' (da N monede). Pe un nod ruleaza la afisare; pe o optiune la alegere.",
     "In texte: {name} = numele jucatorului, {coins} = monedele lui.",
     "Poveste pe etape: 'stages': [{'flag': 'fenris', 'start': 'nod'}, ...] (in ordinea progresului): conversatia incepe la nodul ultimei etape al carei flag e pus.",
     "Un nod poate avea 'speaker' (cine vorbeste, ex. 'Eron'). Actiuni noi: 'set:<flag>', 'claim:<flag>:<monede>' (o singura data).",
     "Crainic: 'letters': ['fenris', ...] = apare doar dupa ce boss-ul e invins si scrisoarea nu a fost citita; nodul 'letter_<flag>' e scrisoarea."
   ],
-
   "npcs": [
     {
-      "id": "mira", "spriteSet": "/NPC/Mira", "wander": 2,  "name": "Mira", "type": "simple", "zone": "Eldoria", "col": 20, "row": 10,
-      "sprite": "/Player/Eron_down1.png", "tint": "#F0A0B0",
+      "id": "mira",
+      "spriteSet": "/NPC/Mira",
+      "wander": 2,
+      "name": "Mira",
+      "type": "simple",
+      "zone": "Eldoria",
+      "col": 29,
+      "row": 19,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#F0A0B0",
       "lineMode": "random",
       "lines": [
         "Am văzut un lup mare lângă pădure. Eu nu mă duc acolo!",
         "Bunica zice că ceața nu s-a ridicat de când a dispărut Inelul.",
         "Ai o mantie frumoasă. Ești vrăjitor adevărat?",
         "Luminițele astea mici... sunt singurele care n-au uitat să strălucească."
+      ],
+      "afterFlag": "fenris",
+      "afterLines": [
+        "Dacă urci în munți, ia ceva cald. Zice lumea că vântul de acolo taie ca un cuțit.",
+        "Ai fost la lupul alb și te-ai întors! Eu abia am curaj să ies din sat.",
+        "Regele ți-a scris, am auzit. Ți-a scris primul."
       ]
     },
     {
-      "id": "elda", "spriteSet": "/NPC/Elda", "wander": 2,  "name": "Bătrâna Elda", "type": "simple", "zone": "Eldoria", "col": 24, "row": 10,
-      "sprite": "/Player/Eron_down1.png", "tint": "#C8C8E0",
+      "id": "elda",
+      "spriteSet": "/NPC/Elda",
+      "wander": 2,
+      "name": "Bătrâna Elda",
+      "type": "simple",
+      "zone": "Eldoria",
+      "col": 21,
+      "row": 12,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#C8C8E0",
       "lineMode": "cycle",
       "lines": [
         "Pe vremuri, moartea era doar un cuvânt din cărți.",
         "Cronicarul ține minte tot. Eu am uitat chiar și gustul pâinii.",
         "Dacă pleci spre munți, ia-ți răbdare. Și pelerină."
+      ],
+      "afterFlag": "fenris",
+      "afterLines": [
+        "Ai urcat în munți și ai coborât întreg. La vârsta mea, asta e tot ce contează.",
+        "Cronicarul a rămas treaz toată noaptea cât ai fost plecat. Se uita mereu spre conac.",
+        "Ia o gură de ceai înainte să pleci iar. Nu se știe când te mai întorci."
       ]
     },
     {
-      "id": "radu", "spriteSet": "/NPC/Radu",  "name": "Paznicul Radu", "type": "dialogue", "zone": "Eldoria", "col": 28, "row": 10,
-      "sprite": "/Player/Eron_down1.png", "tint": "#98B8F0",
+      "id": "radu",
+      "spriteSet": "/NPC/Radu",
+      "name": "Paznicul Radu",
+      "type": "dialogue",
+      "zone": "Eldoria",
+      "col": 21,
+      "row": 38,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#98B8F0",
       "start": "hello",
       "nodes": {
         "hello": {
           "text": "Bună, {name}. Garda de Fier veghează, dar suntem tot mai puțini. Cu ce te pot ajuta?",
           "choices": [
-            { "text": "Cum stau lucrurile în sat?", "next": "village" },
-            { "text": "Ai nevoie de ajutor?", "next": "help" },
-            { "text": "Sunt rănit. Pot să mă odihnesc?", "next": "rest" }
+            {
+              "text": "Cum stau lucrurile în sat?",
+              "next": "village"
+            },
+            {
+              "text": "Ai nevoie de ajutor?",
+              "next": "help"
+            },
+            {
+              "text": "Sunt rănit. Pot să mă odihnesc?",
+              "next": "rest"
+            }
           ]
         },
         "village": {
@@ -55,8 +98,14 @@
         "help": {
           "text": "Nu încă. Dar dacă întâlnești Fiare ale Blestemului, nu le înfrunta flămând de cărți. Cumpără ceva de la Vasile.",
           "choices": [
-            { "text": "Mulțumesc, voi trece pe la el.", "next": null },
-            { "text": "Am înțeles. Mai întreb ceva.", "next": "hello" }
+            {
+              "text": "Mulțumesc, voi trece pe la el.",
+              "next": null
+            },
+            {
+              "text": "Am înțeles. Mai întreb ceva.",
+              "next": "hello"
+            }
           ]
         },
         "rest": {
@@ -66,16 +115,32 @@
       }
     },
     {
-      "id": "vasile", "spriteSet": "/NPC/Vasile",  "name": "Negustorul Vasile", "type": "merchant", "zone": "Eldoria", "col": 32, "row": 10,
-      "sprite": "/Player/Eron_down1.png", "tint": "#F4D060",
+      "id": "vasile",
+      "spriteSet": "/NPC/Vasile",
+      "name": "Negustorul Vasile",
+      "type": "merchant",
+      "zone": "Eldoria",
+      "col": 39,
+      "row": 12,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#F4D060",
       "start": "greet",
       "nodes": {
         "greet": {
           "text": "Ia te uită, un client! Am vrăji de toate felurile, {name}. Ai {coins} monede, văd.",
           "choices": [
-            { "text": "Arată-mi marfa.", "action": "shop" },
-            { "text": "Ce știi despre blestem?", "next": "curse" },
-            { "text": "Altă dată.", "next": null }
+            {
+              "text": "Arată-mi marfa.",
+              "action": "shop"
+            },
+            {
+              "text": "Ce știi despre blestem?",
+              "next": "curse"
+            },
+            {
+              "text": "Altă dată.",
+              "next": null
+            }
           ]
         },
         "curse": {
@@ -84,12 +149,42 @@
         }
       },
       "shop": {
-        "stock": ["ParjolulSferic", "FulgerDeSange", "PavazaGlaciara", "PavazaAmurgului", "Dezolare", "SuflulVietii", "GeamatulEcoului", "UraganDeAzur", "RafalaDeBruma", "PloaieRece", "ScanteiaStrabuna", "ScanteiaDeJar", "LanceDeFoc", "SocTermic", "Turtura", "ArcElectric", "TortaVie", "rune:viata", "rune:izvor", "rune:strajer", "rune:scanteii", "rune:jar"]
+        "stock": [
+          "ParjolulSferic",
+          "FulgerDeSange",
+          "PavazaGlaciara",
+          "PavazaAmurgului",
+          "Dezolare",
+          "SuflulVietii",
+          "GeamatulEcoului",
+          "UraganDeAzur",
+          "RafalaDeBruma",
+          "PloaieRece",
+          "ScanteiaStrabuna",
+          "ScanteiaDeJar",
+          "LanceDeFoc",
+          "SocTermic",
+          "Turtura",
+          "ArcElectric",
+          "TortaVie",
+          "rune:viata",
+          "rune:izvor",
+          "rune:strajer",
+          "rune:scanteii",
+          "rune:jar"
+        ]
       }
     },
     {
-      "id": "ilinca", "spriteSet": "/NPC/Ilinca",  "name": "Vânătoarea Ilinca", "type": "quest", "zone": "Eldoria", "col": 36, "row": 10,
-      "sprite": "/Player/Eron_down1.png", "tint": "#90D890",
+      "id": "ilinca",
+      "spriteSet": "/NPC/Ilinca",
+      "name": "Vânătoarea Ilinca",
+      "type": "quest",
+      "zone": "Eldoria",
+      "col": 37,
+      "row": 37,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#90D890",
       "start": "idle",
       "nodes": {
         "idle": {
@@ -98,23 +193,54 @@
       }
     },
     {
-      "id": "malakor", "spriteSet": "/NPC/Malakor",  "name": "Malakor, Regele Eldoriei", "type": "dialogue", "zone": "Eldoria", "col": 49, "row": 12,
-      "sprite": "/Player/Eron_down1.png", "tint": "#C9CED8",
+      "id": "malakor",
+      "spriteSet": "/NPC/Malakor",
+      "name": "Malakor, Regele Eldoriei",
+      "type": "dialogue",
+      "zone": "Eldoria",
+      "col": 51,
+      "row": 17,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#C9CED8",
       "start": "hello",
       "stages": [
-        { "flag": "fenris", "start": "dinner" },
-        { "flag": "feldgug", "start": "warning" },
-        { "flag": "jean", "start": "cold" },
-        { "flag": "glaciara", "start": "colder" }
+        {
+          "flag": "fenris",
+          "start": "dinner"
+        },
+        {
+          "flag": "feldgug",
+          "start": "warning"
+        },
+        {
+          "flag": "jean",
+          "start": "cold"
+        },
+        {
+          "flag": "glaciara",
+          "start": "colder"
+        }
       ],
       "nodes": {
         "hello": {
           "text": "Eron! Intră, intră. Conacul e mic, dar focul arde mereu. Spune-mi, ce ți-a mai arătat satul?",
           "choices": [
-            { "text": "De ce trăiești printre oameni?", "next": "why" },
-            { "text": "Povestește-mi despre castel.", "next": "castle" },
-            { "text": "Ce ar trebui să fac acum?", "next": "plan" },
-            { "text": "Mă întorc mai târziu.", "next": null }
+            {
+              "text": "De ce trăiești printre oameni?",
+              "next": "why"
+            },
+            {
+              "text": "Povestește-mi despre castel.",
+              "next": "castle"
+            },
+            {
+              "text": "Ce ar trebui să fac acum?",
+              "next": "plan"
+            },
+            {
+              "text": "Mă întorc mai târziu.",
+              "next": null
+            }
           ]
         },
         "why": {
@@ -129,7 +255,6 @@
           "text": "Urcă spre munți, unde Garda de Fier îți deschide trecătoarea. Ce găsești acolo, ține la tine. Eu am răbdare.",
           "next": "hello"
         },
-
         "dinner": {
           "text": "Ia loc, Eron. Îți torn eu vinul, deși un rege uită cum se face. Iar tu ai văzut lucruri pe care eu nu le-am mai văzut de ani.",
           "next": "dinner2"
@@ -145,7 +270,6 @@
         "dinner4": {
           "text": "Mănâncă. Adâncurile nu iartă pe cei flămânzi, iar Feldgug nu e o gazdă bună."
         },
-
         "warning": {
           "text": "Diamantul Nopții... Ai adus lumină unde nu mai era. Vino, ia loc, drumul spre citadelă e lung.",
           "next": "warning2"
@@ -157,7 +281,6 @@
         "warning3": {
           "text": "Și adu-mi Paloșul Legendar. E singura lamă care poate tăia porțile castelului."
         },
-
         "cold": {
           "text": "Ai venit. Nu am timp acum, Eron. Vlaicu știe ce mai ai de făcut."
         },
@@ -167,20 +290,38 @@
       }
     },
     {
-      "id": "vlaicu", "spriteSet": "/NPC/Vlaicu",  "name": "Căpitanul Vlaicu", "type": "dialogue", "zone": "Eldoria", "col": 62, "row": 33,
-      "sprite": "/Player/Eron_down1.png", "tint": "#7A8CB8",
+      "id": "vlaicu",
+      "spriteSet": "/NPC/Vlaicu",
+      "name": "Căpitanul Vlaicu",
+      "type": "dialogue",
+      "zone": "Eldoria",
+      "col": 62,
+      "row": 33,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#7A8CB8",
       "start": "idle",
       "stages": [
-        { "flag": "fenris", "start": "colt" },
-        { "flag": "feldgug", "start": "diamant" },
-        { "flag": "jean", "start": "palos" },
-        { "flag": "glaciara", "start": "inel" }
+        {
+          "flag": "fenris",
+          "start": "colt"
+        },
+        {
+          "flag": "feldgug",
+          "start": "diamant"
+        },
+        {
+          "flag": "jean",
+          "start": "palos"
+        },
+        {
+          "flag": "glaciara",
+          "start": "inel"
+        }
       ],
       "nodes": {
         "idle": {
           "text": "Garda de Fier păzește drumurile. Dovedește-ți valoarea, iar trecătorile se vor deschide una câte una."
         },
-
         "colt": {
           "text": "Eron. Regele cere Colțul de Chihlimbar, ca să fie păstrat în siguranță la curte.\n(Vlaicu se uită în pământ.)",
           "next": "colt2"
@@ -193,7 +334,6 @@
         "colt3": {
           "text": "Cum dorești. Garda îți deschide drumul spre adâncuri.\n(Nu te privește în ochi.)"
         },
-
         "diamant": {
           "text": "Diamantul Nopții. Regele cere să-l păstrăm noi, la curte, în siguranță.\n(Vlaicu își ține privirea în jos.)",
           "next": "diamant2"
@@ -206,7 +346,6 @@
         "diamant3": {
           "text": "Așa să fie. Drumul spre Citadela Haiducilor e liber.\n(Pare ușurat, și rușinat.)"
         },
-
         "palos": {
           "text": "Paloșul Legendar trebuie dus la curte, Eron. Așa a poruncit regele.\n(Glasul îi tremură.)",
           "next": "palos2"
@@ -219,7 +358,6 @@
         "palos3": {
           "text": "...Nu mă mai întreba de ce. Du-te spre nord, Eron.\n(Își întoarce fața.)"
         },
-
         "inel": {
           "text": "Inelul de Gheață. Regele ar vrea să-l vadă păstrat la curte.\n(Nu mai încearcă să te convingă.)",
           "next": "inel2"
@@ -235,9 +373,20 @@
       }
     },
     {
-      "id": "crainic", "spriteSet": "/NPC/Crainic",  "name": "Crainicul Regal", "type": "dialogue", "zone": "Eldoria", "col": 18, "row": 11,
-      "sprite": "/Player/Eron_down1.png", "tint": "#B03030",
-      "letters": ["fenris", "feldgug", "jean"],
+      "id": "crainic",
+      "spriteSet": "/NPC/Crainic",
+      "name": "Crainicul Regal",
+      "type": "dialogue",
+      "zone": "Eldoria",
+      "col": 33,
+      "row": 11,
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#B03030",
+      "letters": [
+        "fenris",
+        "feldgug",
+        "jean"
+      ],
       "start": "letter_fenris",
       "nodes": {
         "letter_fenris": {
@@ -255,16 +404,119 @@
       }
     },
     {
-      "id": "valerius", "name": "Valerius, Cavalerul Neinvins", "type": "dialogue", "zone": "Eldoria", "col": 39, "row": 5,
+      "id": "dorin",
+      "name": "Dorin",
+      "type": "simple",
+      "zone": "Eldoria",
+      "col": 30,
+      "row": 11,
+      "spriteSet": "/NPC/Satean",
+      "sprite": "/Player/Eron_down1.png",
+      "wander": 2,
+      "lineMode": "cycle",
+      "lines": [
+        "Clopotele au bătut azi dimineață. Nu le mai auzisem de ani.",
+        "Regele mi-a spus pe nume, ca și cum nimic nu s-ar fi schimbat de atunci."
+      ],
+      "afterFlag": "fenris",
+      "afterLines": [
+        "Se zice că ai urcat în munți și te-ai întors. Eu abia mai urc dealul.",
+        "Bunicul pomenea de lupul alb. Credeam că-i poveste de adormit copiii.",
+        "Dacă regele te-a scris, să-i spui că piața lui e tot plină."
+      ]
+    },
+    {
+      "id": "ana",
+      "name": "Ana",
+      "type": "simple",
+      "zone": "Eldoria",
+      "col": 41,
+      "row": 10,
+      "spriteSet": "/NPC/Sateanca",
+      "sprite": "/Player/Eron_down1.png",
+      "wander": 2,
+      "lineMode": "cycle",
+      "lines": [
+        "Regele ne-a adus pâine. Doar pâine, fără nicio povară.",
+        "Copilul meu are aceeași vârstă de treizeci de ani. Măcar zâmbește."
+      ],
+      "afterFlag": "fenris",
+      "afterLines": [
+        "Satul se uită la tine altfel acum. Ca la o lumânare într-o noapte lungă.",
+        "Zice lumea că regele ți-a scris. Cu ce-ai făcut, își merită bucuria."
+      ]
+    },
+    {
+      "id": "toma",
+      "name": "Toma",
+      "type": "simple",
+      "zone": "Eldoria",
+      "col": 36,
+      "row": 12,
+      "spriteSet": "/NPC/Copil",
+      "sprite": "/Player/Eron_down1.png",
+      "wander": 3,
+      "lineMode": "cycle",
+      "lines": [
+        "Eu nu mai cresc de multă vreme, dar regele a zis că mă ține minte.",
+        "Tu chiar zbori cu focul? Aprinde și pentru mine unul mic!"
+      ],
+      "afterFlag": "fenris",
+      "afterLines": [
+        "Ai bătut lupul alb? Eu mă joc de-a Eron și lupul.",
+        "Când nu mai are nimeni nevoie de blestem, o să cresc și eu?"
+      ]
+    },
+    {
+      "id": "gheorghe",
+      "name": "Gheorghe",
+      "type": "simple",
+      "zone": "Eldoria",
+      "col": 26,
+      "row": 37,
+      "spriteSet": "/NPC/Satean",
+      "sprite": "/Player/Eron_down1.png",
+      "wander": 2,
+      "lineMode": "cycle",
+      "lines": [
+        "Am văzut un lup cu ochi de jăratec. De-atunci nu mă mai apropii de palisadă.",
+        "Bine că ești aici. Garda a plecat de la poartă și nimeni nu zice de ce."
+      ],
+      "afterFlag": "fenris",
+      "afterLines": [
+        "Poarta spre munți e deschisă, dar eu tot nu mă duc. Mi-ajung oasele din Bârlog.",
+        "Dacă mai dai de lupul alb, spune-i că l-am iertat pentru mieii mei."
+      ]
+    },
+    {
+      "id": "valerius",
+      "name": "Valerius, Cavalerul Neinvins",
+      "type": "dialogue",
+      "zone": "Eldoria",
+      "col": 39,
+      "row": 5,
       "sprite": "/Enemy/Valerius.png",
-      "start": "greet", "afterFlag": "valerius", "afterStart": "defeated",
+      "start": "greet",
+      "afterFlag": "valerius",
+      "afterStart": "defeated",
       "nodes": {
         "greet": {
           "text": "Stai, străine. Sunt Valerius, cavalerul pe care nu l-a înfrânt nimeni. Nu sunt un monstru al Regelui: sunt un om care și-a păstrat mintea. Dar un cavaler își măsoară sabia doar cu cei pe măsura lui.",
           "choices": [
-            { "text": "Vreau să mă lupt cu tine, Valerius.", "action": "fight:Valerius", "minLevel": 7, "tooWeak": "weak" },
-            { "text": "Spune-mi mai multe despre tine.", "next": "story" },
-            { "text": "Altă dată.", "next": null }
+            {
+              "text": "Vreau să mă lupt cu tine, Valerius.",
+              "action": "fight:Valerius",
+              "minLevel": 7,
+              "tooWeak": "weak"
+            },
+            {
+              "text": "Spune-mi mai multe despre tine.",
+              "next": "story"
+            },
+            {
+              "text": "Altă dată.",
+              "next": null
+            }
           ]
         },
         "story": {
@@ -282,4 +534,3 @@
     }
   ]
 }
-

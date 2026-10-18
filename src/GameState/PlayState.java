@@ -10,7 +10,7 @@ public class PlayState implements GameState {
         this.gp = gp;
     }
 
-    @Override public void enter() {}
+    @Override public void enter() { gp.dialogueUI.speaker = null; }
 
     @Override
     public void update() {

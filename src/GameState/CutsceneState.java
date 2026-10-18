@@ -3,34 +3,29 @@ package GameState;
 import Main.GamePanel;
 import ProgressManagement.StoryScenes;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.function.Supplier;
 
 /**
- * O scenă a poveștii (prologul, strângerea de mână, ...) din story.json, sau epilogul de la sfârșitul jocului.
- * Aspectul vine din CutsceneUI. ENTER sau SPACE trece la următoarea replică, SPACE ținut apăsat accelerează textul, ESC sare scena.
+ * O scenă a poveștii (prologul, strângerea de mână, epilogul...) din story.json. Aspectul vine din CutsceneUI.
+ * ENTER sau SPACE trece la următoarea replică, SPACE ținut apăsat accelerează textul,
+ * iar ESC ținut apăsat o secundă (cu un inel de progres) sare peste toată scena, aplicându-i "onEnd".
  */
 public class CutsceneState implements GameState {
-    private final GamePanel gp;
+    private static final int SKIP_HOLD_TICKS = 60;
 
-    private final Observer.CutsceneUI.Script script;
-    private final StoryScenes.Scene scene;          // null pentru epilog
+    private final GamePanel gp;
+    private final StoryScenes.Scene scene;
     private final Supplier<GameState> then;         // starea de după scenă (null = jocul)
     private boolean prevDash;
-
-    /** Epilogul. */
-    public CutsceneState(GamePanel gp, Observer.CutsceneUI.Script script) {
-        this.gp = gp;
-        this.script = script;
-        this.scene = null;
-        this.then = null;
-    }
+    private int escTicks = 0;
 
     /** O scenă din story.json; după ea urmează "then" sau jocul (și acțiunile "onEnd" ale scenei). */
     public CutsceneState(GamePanel gp, StoryScenes.Scene scene, Supplier<GameState> then) {
         this.gp = gp;
-        this.script = Observer.CutsceneUI.Script.SCENE;
         this.scene = scene;
         this.then = then;
     }
@@ -40,11 +35,10 @@ public class CutsceneState implements GameState {
         // ENTER-ul/SPACE-ul care a pornit scena (ex. din InputNameState) nu trebuie să sară prima replică
         gp.keyH.enterPressed = false;
         prevDash = true;
-        if (script == Observer.CutsceneUI.Script.EPILOGUE) {   // epilogul se joacă peste Eldoria, cu Eron în sat
-            gp.eHandler.applyMap("/Maps/Eldoria", "Eldoria", 15, 12);
-        }
+        escTicks = 0;
+        if (scene.mapZone != null) gp.eHandler.applyMap("/Maps/" + scene.mapZone, scene.mapZone, scene.mapCol, scene.mapRow);   // ex. epilogul: în sat
         gp.camera.beginCinematic();
-        if (scene != null) gp.cutsceneUI.loadScene(scene); else gp.cutsceneUI.load(script);
+        gp.cutsceneUI.loadScene(scene);
         gp.cutsceneUI.reset();
     }
 
@@ -65,8 +59,15 @@ public class CutsceneState implements GameState {
             }
         }
 
+        // ESC ținut o secundă: sare toată scena
+        if (gp.keyH.escHeld) {
+            if (escTicks >= 0 && ++escTicks >= SKIP_HOLD_TICKS) { skip(); escTicks = -1; }
+        } else if (escTicks > 0) {
+            escTicks = Math.max(0, escTicks - 4);   // inelul se golește singur dacă dai drumul tastei
+        }
+
         if (gp.cutsceneUI.isFinished()) {
-            if (script == Observer.CutsceneUI.Script.EPILOGUE) {   // după epilog: genericul
+            if (scene.onEnd.contains("credits")) {   // după epilog: genericul
                 gp.creditsUI.resetPosition();
                 gp.changeState(new CreditsState(gp));
             } else {
@@ -76,7 +77,7 @@ public class CutsceneState implements GameState {
         }
     }
 
-    /** ESC: sare peste scenă, dar cu aceeași ieșire lină (benzile se retrag, ecranul se întunecă). */
+    /** Sare peste scenă, dar cu aceeași ieșire lină (benzile se retrag, ecranul se întunecă). */
     public void skip() {
         gp.cutsceneUI.beginOutro();
     }
@@ -84,11 +85,25 @@ public class CutsceneState implements GameState {
     @Override
     public void draw(Graphics2D g2) {
         gp.cutsceneUI.draw(g2);
-        if (script == Observer.CutsceneUI.Script.EPILOGUE) {   // lumina răsăritului crește de la un cadru la altul
-            int a = Math.min(70, 18 + gp.cutsceneUI.shotIndex() * 16);
-            g2.setColor(new Color(255, 196, 120, a));
-            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-        }
+        if (escTicks > 0) drawSkipRing(g2);
+    }
+
+    /** Inelul de progres din colțul de sus: se umple cât ții ESC apăsat. */
+    private void drawSkipRing(Graphics2D g2) {
+        int r = 20, cx = gp.screenWidth - 130, cy = 56;
+        float p = Math.min(1f, escTicks / (float) SKIP_HOLD_TICKS);
+        g2.setColor(new Color(0, 0, 0, 160));
+        g2.fillOval(cx - r - 6, cy - r - 6, 2 * r + 12, 2 * r + 12);
+        g2.setStroke(new BasicStroke(5f));
+        g2.setColor(new Color(90, 90, 100));
+        g2.drawOval(cx - r, cy - r, 2 * r, 2 * r);
+        g2.setColor(new Color(212, 175, 55));
+        g2.drawArc(cx - r, cy - r, 2 * r, 2 * r, 90, -Math.round(360 * p));
+        g2.setStroke(new BasicStroke(1f));
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 13F));
+        String t = "ESC";
+        g2.setColor(Color.WHITE);
+        g2.drawString(t, cx - g2.getFontMetrics().stringWidth(t) / 2, cy + 5);
     }
 
     @Override

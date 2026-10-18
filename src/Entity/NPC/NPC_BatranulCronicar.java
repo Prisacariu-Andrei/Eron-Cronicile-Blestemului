@@ -13,7 +13,7 @@ public class NPC_BatranulCronicar extends NPC {
 
     public NPC_BatranulCronicar(GamePanel gp, int x, int y) {
         super(gp, x, y);
-        this.name = "Bătrânul Înțelept";
+        this.name = "Bătrânul Cronicar";
         getImage();
         setDialogue();
     }

@@ -39,6 +39,7 @@ public class DataNPC extends NPC {
 
     // simple
     private final List<String> lines = new ArrayList<>();
+    private final List<String> afterLines = new ArrayList<>();   // replicile de după afterFlag (primul boss), pentru NPC-urile simple
     private final boolean randomLines;
     private int lineIndex = 0;
 
@@ -69,6 +70,7 @@ public class DataNPC extends NPC {
         this.direction = homeDirection;
 
         for (Object o : Json.list(def.get("lines"))) lines.add(String.valueOf(o));
+        for (Object o : Json.list(def.get("afterLines"))) afterLines.add(String.valueOf(o));
         this.randomLines = "random".equals(Json.str(def.get("lineMode"), "cycle"));
 
         for (Map.Entry<String, Object> e : Json.map(def.get("nodes")).entrySet()) {
@@ -275,9 +277,10 @@ public class DataNPC extends NPC {
     }
 
     private String nextLine() {
-        if (lines.isEmpty()) return "...";
-        if (randomLines) return lines.get(RNG.nextInt(lines.size()));
-        String l = lines.get(lineIndex % lines.size());
+        List<String> src = !afterLines.isEmpty() && afterFlag != null && gp.story.has(afterFlag) ? afterLines : lines;
+        if (src.isEmpty()) return "...";
+        if (randomLines) return src.get(RNG.nextInt(src.size()));
+        String l = src.get(lineIndex % src.size());
         lineIndex++;
         return l;
     }

@@ -9,7 +9,7 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
     public boolean upPressed, downPressed, rightPressed, leftPressed,
             dashPressed, interactPressed,
-            enterPressed, escPressed,
+            enterPressed, escPressed, escHeld,
             tPressed, iPressed;
     GamePanel gp;
 
@@ -104,7 +104,7 @@ public class KeyHandler implements KeyListener {
                 gp.changeState(new MenuState(gp));
                 return;
             } else if (state instanceof CutsceneState) {
-                ((CutsceneState) state).skip();
+                escHeld = true;   // scena se sare doar dacă ții ESC o secundă (CutsceneState)
                 return;
             } else if (state instanceof ShopState) {
                 SoundManager.getInstance().playSE("click");
@@ -346,6 +346,7 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyReleased(KeyEvent keyE) {
         int code = keyE.getKeyCode();
+        if (code == KeyEvent.VK_ESCAPE) escHeld = false;
 
         if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             upPressed = false;

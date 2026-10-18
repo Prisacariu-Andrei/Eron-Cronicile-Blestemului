@@ -67,7 +67,12 @@ public class DialogueUI {
         int x = gp.tileSize * 3;
         int y = gp.tileSize ;
         int width = gp.screenWidth - (gp.tileSize * 6);
-        int height = gp.tileSize * 4;
+        java.awt.image.BufferedImage portrait = Portraits.of(gp, speaker);
+        int textX = x + gp.tileSize / 2 + (portrait != null ? Portraits.SIZE + 28 : 0);   // textul se mută la dreapta portretului
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 24F));
+        String wrapped = wrap(currentDialogue, g2.getFontMetrics(), x + width - gp.tileSize / 2 - textX);   // rânduri noi doar în locul spațiilor: lungimea rămâne aceeași
+        int lineCount = wrapped.split("\n", -1).length;
+        int height = Math.max(gp.tileSize * 4, gp.tileSize + lineCount * 40 + 70);
         if (hasChoices()) height += choices.length * 40 + 10; // fereastra crește ca să încapă opțiunile
 
         // Intrare: fereastra coboară puțin și se face vizibilă (easing), nu apare brusc
@@ -83,9 +88,10 @@ public class DialogueUI {
         g2.setColor(Color.WHITE);
 
         int Y=y;
-        String textToDisplay = currentDialogue.substring(0, Math.min(charIndex, currentDialogue.length()));
+        if (portrait != null) Portraits.draw(g2, portrait, x + 16, y + 16);
+        String textToDisplay = wrapped.substring(0, Math.min(charIndex, wrapped.length()));
         for (String line : textToDisplay.split("\n")) {
-            g2.drawString(line, x +gp.tileSize/2, Y+gp.tileSize);
+            g2.drawString(line, textX, Y+gp.tileSize);
             Y += 40;
         }
 
@@ -93,7 +99,7 @@ public class DialogueUI {
         if (speaker != null) {
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 22F));
             g2.setColor(new Color(212, 175, 55));
-            g2.drawString(speaker, x + gp.tileSize / 2, y + 34);
+            g2.drawString(speaker, textX, y + 34);
             g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 24F));
             g2.setColor(Color.WHITE);
         }
@@ -106,7 +112,7 @@ public class DialogueUI {
                 boolean sel = i == choice;
                 int sway = sel ? Math.round((float) Math.sin(gp.fx.ticks * 0.2) * 3) : 0;
                 g2.setColor(sel ? Color.YELLOW : new Color(200, 200, 210));
-                g2.drawString((sel ? ">  " : "    ") + choices[i], x + gp.tileSize / 2 + sway, cy + i * 40 + 24);
+                g2.drawString((sel ? ">  " : "    ") + choices[i], textX + sway, cy + i * 40 + 24);
             }
         }
 
@@ -120,6 +126,28 @@ public class DialogueUI {
         String hint = hasChoices() ? "[W/S] alege   [E] confirmă" : "Apasă [E] pentru a continua...";
         g2.drawString(hint, x + width - g2.getFontMetrics().stringWidth(hint) - gp.tileSize / 2, y + height - gp.tileSize/2 + 10);
         g2.setComposite(oldComposite);
+    }
+
+    /** Împarte textul în rânduri de cel mult maxWidth pixeli; înlocuiește doar spații cu \n, deci lungimea nu se schimbă. */
+    private static String wrap(String text, FontMetrics fm, int maxWidth) {
+        StringBuilder out = new StringBuilder();
+        boolean first = true;
+        for (String para : text.split("\n", -1)) {
+            if (!first) out.append('\n');
+            first = false;
+            StringBuilder line = new StringBuilder();
+            for (String word : para.split(" ", -1)) {
+                if (line.length() > 0 && fm.stringWidth(line + " " + word) > maxWidth) {
+                    out.append(line).append('\n');
+                    line = new StringBuilder(word);
+                } else {
+                    if (line.length() > 0) line.append(' ');
+                    line.append(word);
+                }
+            }
+            out.append(line);
+        }
+        return out.toString();
     }
 
     private void drawSubWindow(int x, int y, int width, int height, Graphics2D g2) {

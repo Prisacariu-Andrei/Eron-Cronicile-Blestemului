@@ -20,6 +20,9 @@ public final class SpriteSet {
 
     private final BufferedImage[][] frames = new BufferedImage[4][2];   // [direcție][pas]
 
+    /** Calea cu care a fost încărcat (ex. "/NPC/Malakor"). */
+    public String base;
+
     private SpriteSet() { }
 
     /** Setul de la calea dată (ex. "/NPC/Malakor") sau null dacă nu există nici măcar cadrul "jos". */
@@ -27,6 +30,7 @@ public final class SpriteSet {
         if (base == null || base.isBlank()) return null;
         if (CACHE.containsKey(base)) return CACHE.get(base);
         SpriteSet set = new SpriteSet();
+        set.base = base;
         for (int d = 0; d < 4; d++) {
             for (int n = 0; n < 2; n++) set.frames[d][n] = read(base + "_" + DIRS[d] + (n + 1) + ".png");
         }

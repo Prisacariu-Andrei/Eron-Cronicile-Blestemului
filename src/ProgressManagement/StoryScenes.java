@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * Scenele de dinaintea unui boss se joacă direct, cu {@link #playNow}.
  */
 public class StoryScenes {
-    public record Move(String actor, double col, double row, int ticks, String dir, Boolean show) {}
+    public record Move(String actor, double col, double row, int ticks, String dir, Boolean show, List<double[]> via, double hop, boolean free) {}
     public record Line(String speaker, String text, List<String> effects, double[] cam, List<Move> moves) {}
     public record Actor(String id, String sprite, String spriteSet, String tint, double col, double row, boolean visible) {}
 
@@ -31,6 +31,8 @@ public class StoryScenes {
         public final List<Actor> actors = new ArrayList<>();
         public final List<Line> lines = new ArrayList<>();
         public final double[] eron, cam;   // null = nu se schimbă
+        public final String mapZone;       // zona în care se joacă scena (null = cea curentă)
+        public final int mapCol, mapRow;
 
         Scene(Map<String, Object> d) {
             id = Json.str(d.get("id"), "scena");
@@ -38,6 +40,10 @@ public class StoryScenes {
             title = Json.str(d.get("title"), "");
             for (Object o : Json.list(d.get("hideNpcs"))) hideNpcs.add(String.valueOf(o));
             for (Object o : Json.list(d.get("onEnd"))) onEnd.add(String.valueOf(o));
+            Map<String, Object> map = Json.map(d.get("map"));
+            mapZone = Json.str(map.get("zone"), null);
+            mapCol = Json.integer(map.get("col"), 0);
+            mapRow = Json.integer(map.get("row"), 0);
             eron = numbers(d.get("eron"));
             cam = numbers(d.get("cam"));
             for (Object o : Json.list(d.get("actors"))) {
@@ -56,10 +62,16 @@ public class StoryScenes {
                     Map<String, Object> m = Json.map(mo);
                     moves.add(new Move(Json.str(m.get("actor"), "eron"), Json.number(m.get("col"), 0), Json.number(m.get("row"), 0),
                             Math.max(1, Json.integer(m.get("ticks"), 1)), Json.str(m.get("dir"), null),
-                            m.get("show") instanceof Boolean ? (Boolean) m.get("show") : null));
+                            m.get("show") instanceof Boolean ? (Boolean) m.get("show") : null, points(m.get("via")), Json.number(m.get("hop"), 0), Json.bool(m.get("free"), false)));
                 }
                 lines.add(new Line(Json.str(l.get("speaker"), ""), Json.str(l.get("text"), ""), fx, numbers(l.get("cam")), moves));
             }
+        }
+
+        private static List<double[]> points(Object o) {
+            List<double[]> out = new ArrayList<>();
+            for (Object pt : Json.list(o)) { double[] d = numbers(pt); if (d != null && d.length >= 2) out.add(d); }
+            return out;
         }
 
         private static double[] numbers(Object o) {
@@ -136,6 +148,7 @@ public class StoryScenes {
                 case "quest" -> {
                     try { gp.questManager.receiveQuest(Integer.parseInt(arg.trim()), true); } catch (NumberFormatException ignored) { }
                 }
+                case "credits" -> { /* îl tratează CutsceneState: după scenă urmează genericul */ }
                 case "set" -> gp.story.set(arg);
                 case "coins" -> {
                     try { gp.player.addCoins(Integer.parseInt(arg.trim())); } catch (NumberFormatException ignored) { }
