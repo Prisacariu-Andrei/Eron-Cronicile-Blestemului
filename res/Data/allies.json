@@ -5,7 +5,7 @@
 
   "allies": [
     {
-      "id": "jean", "name": "Jean Pleșa", "sprite": "/Enemy/JeanPlesa.png", "color": "#E0B050",
+      "id": "jean", "name": "Jean Pleșa", "sprite": "/Enemy/JeanPlesa.png", "mapSet": "/NPC/Jean", "color": "#E0B050",
       "maxLife": 90, "recruitFrom": "Jean Plesa",
       "scene": [
         { "speaker": "Jean Pleșa", "text": "Destul... Sulița mea n-a întâlnit în viața ei o magie ca a ta. Ai învins un spadasin în duel cinstit, vrăjitorule." },

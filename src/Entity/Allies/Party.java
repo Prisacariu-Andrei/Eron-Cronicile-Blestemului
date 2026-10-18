@@ -49,7 +49,49 @@ public class Party {
         }
     }
 
-    public void reset() { members.clear(); pendingRecruit = null; }
+    public void reset() { members.clear(); pendingRecruit = null; trail.clear(); }
+
+    // --- Aliații merg după Eron pe hartă: urmează aceleași poziții, cu întârziere ---
+    private final java.util.ArrayDeque<int[]> trail = new java.util.ArrayDeque<>();   // poziții recente ale lui Eron, cele mai noi la sfârșit
+    private static final int TRAIL_MAX = 160, FOLLOW_DELAY = 26;
+
+    /** Un tick pe hartă: reține unde a fost Eron. La un salt mare (alt loc, altă zonă) pista se șterge. */
+    public void updateTrail() {
+        int[] last = trail.peekLast();
+        int x = gp.player.worldX, y = gp.player.worldY;
+        if (last != null && (Math.abs(last[0] - x) > gp.tileSize * 2 || Math.abs(last[1] - y) > gp.tileSize * 2)) trail.clear();
+        if (last == null || last[0] != x || last[1] != y || trail.size() < 2) trail.addLast(new int[]{x, y});
+        else trail.addLast(last);   // sta pe loc: aceeași poziție, ca întârzierea să rămână constantă
+        while (trail.size() > TRAIL_MAX) trail.removeFirst();
+    }
+
+    /** Aliații care au set de cadre pe hartă (ex. Jean), desenați înaintea lui Eron. */
+    public void drawFollowers(java.awt.Graphics2D g2) {
+        if (members.isEmpty() || trail.size() < 3) return;
+        int[][] pts = trail.toArray(new int[0][]);
+        int slot = 0;
+        for (Ally a : members) {
+            Entity.SpriteSet set = a.mapSet == null ? null : Entity.SpriteSet.load(a.mapSet);
+            if (set == null || !a.alive()) continue;
+            int idx = pts.length - 1 - FOLLOW_DELAY * (++slot);
+            if (idx < 1) continue;
+            int[] cur = pts[idx], prev = pts[idx - 1];
+            int[] ahead = pts[Math.min(pts.length - 1, idx + 6)];
+            boolean moving = ahead[0] != cur[0] || ahead[1] != cur[1] || cur[0] != prev[0] || cur[1] != prev[1];
+            String dir = Entity.SpriteSet.directionOf(ahead[0] - cur[0], ahead[1] - cur[1]);
+            if (dir == null) dir = Entity.SpriteSet.directionOf(cur[0] - prev[0], cur[1] - prev[1]);
+            if (dir != null) followDir.put(a.id, dir);
+            var img = set.frame(followDir.getOrDefault(a.id, "down"), moving, gp.fx.ticks);
+            int sx = gp.camera.screenX(cur[0]), sy = gp.camera.screenY(cur[1]);
+            if (sx + gp.tileSize < 0 || sx > gp.screenWidth || sy + gp.tileSize < 0 || sy > gp.screenHeight) continue;
+            Object old = g2.getRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION);
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g2.drawImage(img, sx, sy, gp.tileSize, gp.tileSize, null);
+            if (old != null) g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, old);
+        }
+    }
+
+    private final Map<String, String> followDir = new java.util.HashMap<>();
 
     public boolean has(String id) { return get(id) != null; }
 

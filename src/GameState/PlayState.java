@@ -20,6 +20,8 @@ public class PlayState implements GameState {
         gp.gameTimer.update();
         gp.player.update();
         gp.eHandler.checkEvent();
+        for (var n : gp.npc) if (n != null) n.update();   // se întorc spre Eron, rătăcesc
+        gp.party.updateTrail();                            // aliații merg după Eron
 
         for (int i = 0; i < gp.enemy.length; i++) {
             if (gp.enemy[i] != null) {
@@ -39,6 +41,7 @@ public class PlayState implements GameState {
         gp.tileM.draw(g2);
         for (var n : gp.npc) if (n != null) n.draw(g2);
         for (var e : gp.enemy) if (e != null) e.draw(g2);
+        gp.party.drawFollowers(g2);
         gp.player.draw(g2);
         gp.fx.drawWorld(g2);   // praf, scântei de vindecare
         if (!gp.fx.ambientAboveFog()) gp.fx.drawAmbient(g2); // ambianța zonei (licurici, scântei...), sub interfață

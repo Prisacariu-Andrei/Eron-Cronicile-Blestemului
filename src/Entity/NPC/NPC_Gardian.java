@@ -26,6 +26,8 @@ public class NPC_Gardian extends NPC {
 
     @Override
     public void getImage() {
+        spriteSet = Entity.SpriteSet.load("/NPC/GardaDeFier");
+        if (spriteSet != null) { down1 = spriteSet.frame("down", false, 0); return; }
         try {
             // Poți folosi textura ta de NPC sau una specifică de gardian dacă ai (/NPC/guard.png)
             down1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/GardaDeFierStaticFata.png")));

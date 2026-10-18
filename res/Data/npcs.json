@@ -15,7 +15,7 @@
 
   "npcs": [
     {
-      "id": "mira", "name": "Mira", "type": "simple", "zone": "Eldoria", "col": 20, "row": 10,
+      "id": "mira", "spriteSet": "/NPC/Mira", "wander": 2,  "name": "Mira", "type": "simple", "zone": "Eldoria", "col": 20, "row": 10,
       "sprite": "/Player/Eron_down1.png", "tint": "#F0A0B0",
       "lineMode": "random",
       "lines": [
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "id": "elda", "name": "Bătrâna Elda", "type": "simple", "zone": "Eldoria", "col": 24, "row": 10,
+      "id": "elda", "spriteSet": "/NPC/Elda", "wander": 2,  "name": "Bătrâna Elda", "type": "simple", "zone": "Eldoria", "col": 24, "row": 10,
       "sprite": "/Player/Eron_down1.png", "tint": "#C8C8E0",
       "lineMode": "cycle",
       "lines": [
@@ -36,7 +36,7 @@
       ]
     },
     {
-      "id": "radu", "name": "Paznicul Radu", "type": "dialogue", "zone": "Eldoria", "col": 28, "row": 10,
+      "id": "radu", "spriteSet": "/NPC/Radu",  "name": "Paznicul Radu", "type": "dialogue", "zone": "Eldoria", "col": 28, "row": 10,
       "sprite": "/Player/Eron_down1.png", "tint": "#98B8F0",
       "start": "hello",
       "nodes": {
@@ -66,7 +66,7 @@
       }
     },
     {
-      "id": "vasile", "name": "Negustorul Vasile", "type": "merchant", "zone": "Eldoria", "col": 32, "row": 10,
+      "id": "vasile", "spriteSet": "/NPC/Vasile",  "name": "Negustorul Vasile", "type": "merchant", "zone": "Eldoria", "col": 32, "row": 10,
       "sprite": "/Player/Eron_down1.png", "tint": "#F4D060",
       "start": "greet",
       "nodes": {
@@ -88,7 +88,7 @@
       }
     },
     {
-      "id": "ilinca", "name": "Vânătoarea Ilinca", "type": "quest", "zone": "Eldoria", "col": 36, "row": 10,
+      "id": "ilinca", "spriteSet": "/NPC/Ilinca",  "name": "Vânătoarea Ilinca", "type": "quest", "zone": "Eldoria", "col": 36, "row": 10,
       "sprite": "/Player/Eron_down1.png", "tint": "#90D890",
       "start": "idle",
       "nodes": {
@@ -98,7 +98,7 @@
       }
     },
     {
-      "id": "malakor", "name": "Malakor, Regele Eldoriei", "type": "dialogue", "zone": "Eldoria", "col": 49, "row": 12,
+      "id": "malakor", "spriteSet": "/NPC/Malakor",  "name": "Malakor, Regele Eldoriei", "type": "dialogue", "zone": "Eldoria", "col": 49, "row": 12,
       "sprite": "/Player/Eron_down1.png", "tint": "#C9CED8",
       "start": "hello",
       "stages": [
@@ -167,7 +167,7 @@
       }
     },
     {
-      "id": "vlaicu", "name": "Căpitanul Vlaicu", "type": "dialogue", "zone": "Eldoria", "col": 62, "row": 33,
+      "id": "vlaicu", "spriteSet": "/NPC/Vlaicu",  "name": "Căpitanul Vlaicu", "type": "dialogue", "zone": "Eldoria", "col": 62, "row": 33,
       "sprite": "/Player/Eron_down1.png", "tint": "#7A8CB8",
       "start": "idle",
       "stages": [
@@ -235,7 +235,7 @@
       }
     },
     {
-      "id": "crainic", "name": "Crainicul Regal", "type": "dialogue", "zone": "Eldoria", "col": 18, "row": 11,
+      "id": "crainic", "spriteSet": "/NPC/Crainic",  "name": "Crainicul Regal", "type": "dialogue", "zone": "Eldoria", "col": 18, "row": 11,
       "sprite": "/Player/Eron_down1.png", "tint": "#B03030",
       "letters": ["fenris", "feldgug", "jean"],
       "start": "letter_fenris",

@@ -87,14 +87,17 @@ public class CutsceneUI {
     private static class ActorState {
         final String id;
         final BufferedImage img;
+        final Entity.SpriteSet set;       // cele 8 cadre (res/NPC); dacă lipsește, sprite-ul simplu cu tentă
         double col, row, fromCol, fromRow, toCol, toRow;
         boolean visible;
         int startTick, moveTicks;
+        String dir = "down", dirOverride;   // direcția urmează mersul; "dir" din story.json o forțează
 
         ActorState(StoryScenes.Actor a) {
             id = a.id();
+            set = Entity.SpriteSet.load(a.spriteSet());
             BufferedImage im = null;
-            try (var in = CutsceneUI.class.getResourceAsStream(a.sprite())) {
+            try (var in = set != null ? null : CutsceneUI.class.getResourceAsStream(a.sprite())) {
                 if (in != null) {
                     im = javax.imageio.ImageIO.read(in);
                     Color t = Entity.NPC.DataNPC.parseColor(a.tint());
@@ -153,6 +156,7 @@ public class CutsceneUI {
         }
         for (StoryScenes.Move m : line.moves()) {
             if ("eron".equals(m.actor())) {
+                eronDirOverride = m.dir();
                 if (m.dir() != null) gp.player.direction = m.dir();
                 eronFromCol = gp.player.worldX / (double) gp.tileSize;
                 eronFromRow = gp.player.worldY / (double) gp.tileSize;
@@ -171,8 +175,12 @@ public class CutsceneUI {
             a.toRow = m.row();
             a.startTick = totalTicks;
             a.moveTicks = m.ticks();
+            a.dirOverride = m.dir();
+            if (m.dir() != null) a.dir = m.dir();
         }
     }
+
+    private String eronDirOverride;
 
     private double eronFromCol, eronFromRow, eronToCol, eronToRow;
     private int eronStart, eronTicks;
@@ -181,15 +189,27 @@ public class CutsceneUI {
         for (ActorState a : actors) {
             if (a.moveTicks <= 0) continue;
             float u = Math.min(1f, (totalTicks - a.startTick) / (float) a.moveTicks);
+            double oc = a.col, orow = a.row;
             a.col = a.fromCol + (a.toCol - a.fromCol) * u;
             a.row = a.fromRow + (a.toRow - a.fromRow) * u;
+            if (a.dirOverride == null) {   // privește încotro merge
+                String d = Entity.SpriteSet.directionOf(a.col - oc, a.row - orow);
+                if (d != null) a.dir = d;
+            }
             if (u >= 1f) a.moveTicks = 0;
         }
         if (eronTicks > 0) {
             float u = Math.min(1f, (totalTicks - eronStart) / (float) eronTicks);
+            int ox = gp.player.worldX, oy = gp.player.worldY;
             gp.player.worldX = (int) Math.round((eronFromCol + (eronToCol - eronFromCol) * u) * gp.tileSize);
             gp.player.worldY = (int) Math.round((eronFromRow + (eronToRow - eronFromRow) * u) * gp.tileSize);
-            if (u >= 1f) eronTicks = 0;
+            if (eronDirOverride == null) {
+                String d = Entity.SpriteSet.directionOf(gp.player.worldX - ox, gp.player.worldY - oy);
+                if (d != null) gp.player.direction = d;
+            }
+            gp.player.moveVelocity = 1f;   // pașii lui Eron: cadrele alternează cât merge
+            if (++gp.player.spriteCounter > 12) { gp.player.spriteNum = gp.player.spriteNum == 1 ? 2 : 1; gp.player.spriteCounter = 0; }
+            if (u >= 1f) { eronTicks = 0; gp.player.moveVelocity = 0f; gp.player.spriteNum = 1; }
         }
     }
 
@@ -420,14 +440,18 @@ public class CutsceneUI {
 
     private void drawActors(Graphics2D g2) {
         for (ActorState a : actors) {
-            if (!a.visible || a.img == null) continue;
+            if (!a.visible || (a.img == null && a.set == null)) continue;
             int x = gp.camera.screenX((int) Math.round(a.col * gp.tileSize));
             int y = gp.camera.screenY((int) Math.round(a.row * gp.tileSize));
             y += a.moveTicks > 0 ? Math.round((float) Math.abs(Math.sin(totalTicks * 0.3)) * -5f)
                                  : Math.round((float) Math.sin((totalTicks + Math.abs(a.id.hashCode()) % 90) * 0.045) * Main.GameFeel.IDLE_BOB_PX);
             if (x + gp.tileSize < 0 || x > gp.screenWidth || y + gp.tileSize < 0 || y > gp.screenHeight) continue;
-            int size = a.id.equals("copil") ? gp.tileSize * 3 / 4 : gp.tileSize;   // copilul e mai mic
-            g2.drawImage(a.img, x, y + gp.tileSize - size, size, size, null);
+            BufferedImage img = a.set != null ? a.set.frame(a.dir, a.moveTicks > 0, totalTicks) : a.img;
+            if (img == null) continue;
+            Object oldHint = g2.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+            if (a.set != null) g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g2.drawImage(img, x, y, gp.tileSize, gp.tileSize, null);   // copilul e deja desenat mic în setul lui
+            if (oldHint != null) g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldHint);
         }
     }
 

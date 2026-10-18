@@ -63,6 +63,10 @@ public class DataNPC extends NPC {
         this.type = Json.str(def.get("type"), "simple");
         this.spritePath = Json.str(def.get("sprite"), "/Player/Eron_down1.png");
         this.tint = parseColor(Json.str(def.get("tint"), null));
+        this.spriteSet = Entity.SpriteSet.load(Json.str(def.get("spriteSet"), null));   // fără tentă; "sprite" + "tint" rămân varianta de rezervă
+        this.wanderRadius = Json.integer(def.get("wander"), 0);
+        this.homeDirection = Json.str(def.get("facing"), "down");
+        this.direction = homeDirection;
 
         for (Object o : Json.list(def.get("lines"))) lines.add(String.valueOf(o));
         this.randomLines = "random".equals(Json.str(def.get("lineMode"), "cycle"));
@@ -111,6 +115,7 @@ public class DataNPC extends NPC {
 
     @Override
     public void getImage() {
+        if (spriteSet != null) { down1 = spriteSet.frame("down", false, 0); return; }
         try {
             BufferedImage img = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(spritePath)));
             down1 = tint == null ? img : tinted(img, tint);

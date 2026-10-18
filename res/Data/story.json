@@ -21,11 +21,11 @@
       "eron": [12, 11],
       "cam": [41.5, 8.0],
       "actors": [
-        { "id": "malakor", "sprite": "/Player/Eron_down1.png", "tint": "#C9CED8", "col": 58, "row": 11, "visible": false },
-        { "id": "copil", "sprite": "/Player/Eron_down1.png", "tint": "#F0C890", "col": 32, "row": 12, "visible": true },
-        { "id": "sat1", "sprite": "/Player/Eron_down1.png", "tint": "#F0A0B0", "col": 30, "row": 11, "visible": true },
-        { "id": "sat2", "sprite": "/Player/Eron_down1.png", "tint": "#98B8F0", "col": 34, "row": 11, "visible": true },
-        { "id": "sat3", "sprite": "/Player/Eron_down1.png", "tint": "#90D890", "col": 31, "row": 10, "visible": true },
+        { "id": "malakor", "spriteSet": "/NPC/Malakor", "col": 58, "row": 11, "visible": false },
+        { "id": "copil", "spriteSet": "/NPC/Copil", "col": 32, "row": 12, "visible": true },
+        { "id": "sat1", "spriteSet": "/NPC/Mira", "col": 30, "row": 11, "visible": true },
+        { "id": "sat2", "spriteSet": "/NPC/Satean", "col": 34, "row": 11, "visible": true },
+        { "id": "sat3", "spriteSet": "/NPC/Sateanca", "col": 31, "row": 10, "visible": true },
         { "id": "fiara", "sprite": "/Enemy/Wolf.png", "tint": null, "col": 35, "row": 40, "visible": false }
       ],
       "lines": [
@@ -92,11 +92,11 @@
       "eron": [29, 11],
       "cam": [30.0, 11.0],
       "actors": [
-        { "id": "malakor", "sprite": "/Player/Eron_down1.png", "tint": "#C9CED8", "col": 36, "row": 11, "visible": true },
-        { "id": "sat1", "sprite": "/Player/Eron_down1.png", "tint": "#F0A0B0", "col": 26, "row": 11, "visible": true },
-        { "id": "sat2", "sprite": "/Player/Eron_down1.png", "tint": "#98B8F0", "col": 27, "row": 12, "visible": true },
-        { "id": "sat3", "sprite": "/Player/Eron_down1.png", "tint": "#90D890", "col": 31, "row": 12, "visible": true },
-        { "id": "copil", "sprite": "/Player/Eron_down1.png", "tint": "#F0C890", "col": 28, "row": 10, "visible": true }
+        { "id": "malakor", "spriteSet": "/NPC/Malakor", "col": 36, "row": 11, "visible": true },
+        { "id": "sat1", "spriteSet": "/NPC/Mira", "col": 26, "row": 11, "visible": true },
+        { "id": "sat2", "spriteSet": "/NPC/Satean", "col": 27, "row": 12, "visible": true },
+        { "id": "sat3", "spriteSet": "/NPC/Sateanca", "col": 31, "row": 12, "visible": true },
+        { "id": "copil", "spriteSet": "/NPC/Copil", "col": 28, "row": 10, "visible": true }
       ],
       "lines": [
         { "speaker": "", "text": "A doua zi dimineață, Fiara zace în iarbă, iar tot satul s-a strâns în piață.",

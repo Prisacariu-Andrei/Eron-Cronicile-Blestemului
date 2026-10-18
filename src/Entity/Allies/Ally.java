@@ -31,7 +31,7 @@ public class Ally {
         Line(Map<String, Object> d) { speaker = Json.str(d.get("speaker"), ""); text = Json.str(d.get("text"), ""); }
     }
 
-    public final String id, name, sprite, recruitFrom;
+    public final String id, name, sprite, recruitFrom, mapSet;
     public final int color, maxLife;
     public final List<Ability> abilities = new ArrayList<>();
     public final List<Line> scene = new ArrayList<>();
@@ -48,6 +48,7 @@ public class Ally {
         name = Json.str(d.get("name"), id);
         sprite = Json.str(d.get("sprite"), "/Enemy/JeanPlesa.png");
         recruitFrom = Json.str(d.get("recruitFrom"), "");
+        mapSet = Json.str(d.get("mapSet"), null);   // setul de 8 cadre cu care merge după Eron pe hartă (res/NPC)
         int c;
         try { c = Integer.parseInt(Json.str(d.get("color"), "#FFFFFF").replace("#", ""), 16); } catch (NumberFormatException e) { c = 0xFFFFFF; }
         color = c;

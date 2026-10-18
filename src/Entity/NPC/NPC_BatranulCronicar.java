@@ -20,6 +20,8 @@ public class NPC_BatranulCronicar extends NPC {
 
     @Override
     public void getImage() {
+        spriteSet = Entity.SpriteSet.load("/NPC/Cronicar");
+        if (spriteSet != null) { down1 = spriteSet.frame("down", false, 0); return; }
         try {
             down1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Player/AIGup.png")));
         } catch (Exception e) {

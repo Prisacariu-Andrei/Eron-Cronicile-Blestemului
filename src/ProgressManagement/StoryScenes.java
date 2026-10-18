@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 public class StoryScenes {
     public record Move(String actor, double col, double row, int ticks, String dir, Boolean show) {}
     public record Line(String speaker, String text, List<String> effects, double[] cam, List<Move> moves) {}
-    public record Actor(String id, String sprite, String tint, double col, double row, boolean visible) {}
+    public record Actor(String id, String sprite, String spriteSet, String tint, double col, double row, boolean visible) {}
 
     public static class Scene {
         public final String id, trigger, title;
@@ -42,7 +42,7 @@ public class StoryScenes {
             cam = numbers(d.get("cam"));
             for (Object o : Json.list(d.get("actors"))) {
                 Map<String, Object> a = Json.map(o);
-                actors.add(new Actor(Json.str(a.get("id"), "?"), Json.str(a.get("sprite"), "/Player/Eron_down1.png"), Json.str(a.get("tint"), null),
+                actors.add(new Actor(Json.str(a.get("id"), "?"), Json.str(a.get("sprite"), "/Player/Eron_down1.png"), Json.str(a.get("spriteSet"), null), Json.str(a.get("tint"), null),
                         Json.number(a.get("col"), 0), Json.number(a.get("row"), 0), Json.bool(a.get("visible"), true)));
             }
             for (Object o : Json.list(d.get("lines"))) {

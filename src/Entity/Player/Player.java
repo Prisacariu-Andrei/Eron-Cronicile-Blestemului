@@ -838,6 +838,7 @@ public class Player extends Entity {
 
         if (npcIndex != 999) {
             gp.activeNpcIndex = npcIndex;
+            gp.npc[npcIndex].faceTowards(this);
             gp.changeState(new DialogueState(gp));
             gp.npc[npcIndex].speak();
         }
