@@ -43,3 +43,7 @@ error_log.txt
 ### Word lock files ###
 ~$*
 eron_settings.properties
+
+### Build output (tools/build.ps1) ###
+build/
+dist/

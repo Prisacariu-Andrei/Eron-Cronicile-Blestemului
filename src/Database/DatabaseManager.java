@@ -5,7 +5,7 @@ import java.sql.*;
 
 public class DatabaseManager {
 
-    private static final String DB_URL = "jdbc:sqlite:eron_save.db";
+    private static final String DB_URL = "jdbc:sqlite:" + Main.AppPaths.file("eron_save.db").getAbsolutePath().replace(java.io.File.separatorChar, '/');   // folderul de date (AppPaths), nu cel al jocului
     private static DatabaseManager instance;
     private Connection connection;
 

@@ -5,14 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
-/** Setările jucătorului (tasta T): volum, scuturatul ecranului, viteza textului. Se salvează în eron_settings.properties, lângă joc. */
+/** Setările jucătorului (tasta T): volum, scuturatul ecranului, viteza textului. Se salvează în eron_settings.properties, în folderul de date (AppPaths). */
 public final class Settings {
     public static float volume = 1.0f;        // 0..1
     public static boolean shake = true;       // scuturatul ecranului la lovituri
     public static int textSpeed = 1;          // 0 = lent, 1 = normal, 2 = rapid
     public static boolean fullscreen = false; // ecran complet fără ramă (F11 / Alt+Enter / setări)
 
-    private static final File FILE = new File("eron_settings.properties");
+    private static final File FILE = AppPaths.file("eron_settings.properties");
 
     static { load(); }
 

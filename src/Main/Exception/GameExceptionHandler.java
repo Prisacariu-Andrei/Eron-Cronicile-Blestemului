@@ -7,7 +7,7 @@ import java.io.IOException;
 public class GameExceptionHandler {
 
     private static GameExceptionHandler instance;
-    private static final String LOG_FILE = "error_log.txt";
+    private static final String LOG_FILE = new java.io.File(Main.AppPaths.dir(), "error_log.txt").getPath();   // folderul de date, nu cel al jocului
     private final java.util.Set<String> seenWarnings = new java.util.HashSet<>();
 
     private GameExceptionHandler() {
