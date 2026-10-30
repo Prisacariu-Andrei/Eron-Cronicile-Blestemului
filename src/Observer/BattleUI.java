@@ -63,6 +63,7 @@ public class BattleUI {
     /** Apelată la începutul fiecărei lupte: cărțile vor intra în mână una câte una. */
     public void onBattleStart() {
         gp.tutorial.onBattleStart();
+        gp.choiceUI.clear();
         dying.clear();
         dealtCards = 0;
         enemyHitTimer = 0;
@@ -282,6 +283,7 @@ public class BattleUI {
 
         // 5. TRANZIȚII ȘI MESAJE
         drawMessages(g2);
+        gp.choiceUI.draw(g2);   // alegerea din mijlocul luptei (Vama lui Charon)
     }
 
     /** Fundalul zonei, pus de BattleState la începutul luptei (null = rămâne fundalul vechi al inamicului). */
@@ -491,6 +493,7 @@ public class BattleUI {
                     intentString = "❓❓❓ (" + e.intentValue + ")";
                 }
             }
+            if (e.intentText != null) intentString = Main.Lang.tr(e.intentText);   // textul propriu al bossului (atac dublu, vamă...)
         }
 
         // Centrarea perfectă a string-ului pe axa X în funcție de lungimea lui dinamică
@@ -597,6 +600,7 @@ public class BattleUI {
             int comboReady = Combos.ready(gp.player, card, gp.player.currentEnemy);   // 2 = combo/reacție gata, 1 = continuă un lanț
             boolean hot = comboReady == 2 && gp.player.isPlayerTurn;
             CardFace.draw(g2, card, gp.player, dx, dy, w, h, hot, i == commandNum && gp.player.isPlayerTurn);
+            ChoiceUI.drawFrozen(g2, card, dx, dy, w, h);
 
             Stroke originalStroke = g2.getStroke();
             if (i == commandNum) {   // evidențiere galbenă pentru cartea selectată

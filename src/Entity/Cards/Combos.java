@@ -46,6 +46,7 @@ public final class Combos {
 
     /** Joacă o carte: efectele ei, apoi reacțiile cu statusurile pe care le avea ținta ÎNAINTE, apoi bonusul de lanț. */
     public static void play(Player p, Card card, Enemy target) {
+        if (target != null && card.offensive && target.tryDodge(p, card)) return;   // Eschiva lui Jean: cartea se pierde
         Set<StatusEffect.Type> before = EnumSet.noneOf(StatusEffect.Type.class);
         if (target != null) for (StatusEffect s : target.activeStatuses) before.add(s.type);
 

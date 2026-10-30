@@ -1,30 +1,45 @@
 package Entity.Generali;
 
 import Entity.Inamici.Enemy;
+import Entity.Inamici.Groups;
+import Entity.Items.Card;
 import Entity.Player.Player;
 import Entity.StatusEffect;
 import Main.GamePanel;
+import Main.Json;
 import Observer.DamagePopUp;
 
 import java.awt.*;
+import java.util.Map;
 import java.util.Random;
 
+/**
+ * Jean Pleșa. Cifrele sunt în res/Data/enemies.json -> bosses.jean: gardă, lovitură, atac dublu (2 x 5, apoi Fragilitate),
+ * sabotaj (daune + esență pierdută), iar cărțile cu daune pot fi eschivate (dodgeChance). Sub phase2AtPercent% viață (faza II)
+ * fiecare eschivă declanșează și o contralovitură.
+ */
 public class Enemy_JeanPlesa extends Enemy {
 
-    private boolean isDodging = false;
+    private enum Move { GUARD, HIT, DOUBLE, SABOTAGE }
+
+    private final Map<String, Object> cfg = Groups.boss("jean");
+    private final Random rng = new Random();
+    private Move move = Move.HIT;
+    private boolean phaseTwo = false;
 
     public Enemy_JeanPlesa(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Jean Plesa";
-        this.maxLife = 260;
+        this.maxLife = Json.integer(cfg.get("hp"), 175);
         this.life = maxLife;
-        this.attackDamage = 12; // Va da 12 x 2 pe tură
+        this.attackDamage = Json.integer(cfg.get("hit"), 10);
         this.mapSize = 1.3;
 
         hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
         hitBoxDefaultY = hitBox.y;
         this.isStatic = true;
+        this.ignoreGroupScaling = true;
 
         getImage();
         setNextIntent();
@@ -32,7 +47,6 @@ public class Enemy_JeanPlesa extends Enemy {
 
     @Override
     public void getImage() {
-        // Înlocuiește calea cu fișierele corespunzătoare, dacă este cazul
         up1 = flipImage(setup("/Enemy/JeanPlesa"));
         up2 = flipImage(setup("/Enemy/JeanPlesa"));
         down1 = flipImage(setup("/Enemy/JeanPlesa"));
@@ -44,67 +58,81 @@ public class Enemy_JeanPlesa extends Enemy {
         fightStand = setup("/Enemy/JeanPlesa");
     }
 
+    private int n(String key, int def) { return Json.integer(cfg.get(key), def); }
+
     @Override
     public void setNextIntent() {
-        Random rand = new Random();
-        int chance = rand.nextInt(100);
-
-        // Dacă are sub 35% HP, devine extrem de agresiv
-        if (life < maxLife * 0.35) {
-            nextAction = EnemyAction.ATTACK;
-            intentValue = attackDamage * 2; // Atac combo
-            isDodging = false;
-        }
-        // 30% șansă să folosească Eschiva, pregătindu-se să evite un atac
-        else if (chance < 30) {
+        intentText = null;
+        if (rng.nextInt(100) < n("guardChance", 35)) {
+            move = Move.GUARD;
             nextAction = EnemyAction.DEFEND;
-            intentValue = 0; // Nu dă damage, dar se ferește
-            isDodging = true;
+            intentValue = n("guardBlock", 8);
+            return;
         }
-        // Atac normal sau sabotaj (îți scade o esență / 1 Mana)
-        else if (chance < 60) {
+        Map<String, Object> w = Json.map(cfg.get("weights"));
+        int wHit = Json.integer(w.get("hit"), 40), wDouble = Json.integer(w.get("double"), 30), wSab = Json.integer(w.get("sabotage"), 30);
+        int r = rng.nextInt(Math.max(1, wHit + wDouble + wSab));
+        if (r < wHit) {
+            move = Move.HIT;
             nextAction = EnemyAction.ATTACK;
-            intentValue = attackDamage;
-            isDodging = false;
+            intentValue = n("hit", 10);
+        } else if (r < wHit + wDouble) {
+            move = Move.DOUBLE;
+            nextAction = EnemyAction.ATTACK;
+            intentValue = n("doubleHit", 5);
+            intentText = "⚔ " + intentValue + "×2";
         } else {
-            nextAction = EnemyAction.SPECIAL; // Lovitură cu sabotaj de Mana
-            intentValue = 15;
-            isDodging = false;
+            move = Move.SABOTAGE;
+            nextAction = EnemyAction.SPECIAL;
+            intentValue = n("sabotageDamage", 8);
+            intentText = "⚔ " + intentValue + " · -" + n("sabotageEssence", 1) + " ✦";
         }
     }
 
     @Override
     public void executeIntent(Player player) {
-        if (stunTurns == 0) {
-
-            // 1. Verificăm dacă urmează să se eschiveze
-            if (nextAction == EnemyAction.DEFEND) {
-                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "ESCHIVĂ ACTIVATĂ", Color.YELLOW));
-                // Jucătorul trebuie să știe că Jean este imun la următorul atac fizic.
-                // Poți gestiona această stare în logica player-ului.
+        if (stunTurns != 0) return;
+        switch (move) {
+            case GUARD -> defend(intentValue);
+            case HIT -> player.damagePlayer(intentValue);
+            case DOUBLE -> {
+                gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 4, "ATAC DUBLU!", Color.RED));
+                player.damagePlayer(intentValue);
+                player.damagePlayer(intentValue);
+                if (player.life > 0) player.applyStatus(StatusEffect.Type.VULNERABLE, n("vulnerableTurns", 2), n("vulnerablePercent", 50));   // abia după a doua lovitură
             }
-            // 2. Atacul clasic (de două ori)
-            else if (nextAction == EnemyAction.ATTACK) {
-                // Lovitura 1 marchează ținta: Vulnerabilitate (+50% damage primit, 2 ture); lovitura 2 și turele următoare lovesc mai tare
+            case SABOTAGE -> {
                 player.damagePlayer(intentValue);
-                player.applyStatus(StatusEffect.Type.VULNERABLE, 2, 50);
-                // Lovitura 2
-                player.damagePlayer(intentValue);
-
-                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 4, "ATAC DUBLU!", Color.RED));
-            }
-            // 3. Sabotaj (Scade mana și atacă)
-            else if (nextAction == EnemyAction.SPECIAL) {
-                player.damagePlayer(intentValue);
-                player.applyStatus(StatusEffect.Type.VULNERABLE, 2, 50);
-                if (player.currentMana > 0) {
-                    player.currentMana -= 1;
+                int lost = Math.min(player.currentMana, n("sabotageEssence", 1));   // esența se reface la sfârșitul turei lui Eron: pierderea se simte în tura următoare
+                if (lost > 0) {
+                    player.currentMana -= lost;
                     player.notifyObservers();
-                    gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "-1 ESENȚĂ", Color.BLUE));
+                    gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "-" + lost + " ESENȚĂ", Color.BLUE));
                 }
             }
+        }
+        setNextIntent();
+    }
 
-            setNextIntent();
+    /** Eschiva: o carte cu daune are dodgeChance% să dea greș; în faza II fiecare eschivă e urmată de o contralovitură. */
+    @Override
+    public boolean tryDodge(Player player, Card card) {
+        if (rng.nextInt(100) >= n("dodgeChance", 20)) return false;
+        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "Eschivă!", Color.YELLOW));
+        if (phaseTwo) {
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 4, "CONTRALOVITURĂ!", Color.RED));
+            player.damagePlayer(n("counterDamage", 8));
+        }
+        return true;
+    }
+
+    @Override
+    public void takeDamage(Player player, int amount) {
+        super.takeDamage(player, amount);
+        if (alive && !phaseTwo && life * 100 <= maxLife * n("phase2AtPercent", 40)) {
+            phaseTwo = true;
+            gp.battleUI.announcePhase("FAZA II: JEAN SE ÎNFURIE", "Fiecare carte eschivată primește o contralovitură.", Color.ORANGE);
+            gp.fx.phaseChange();
         }
     }
 }

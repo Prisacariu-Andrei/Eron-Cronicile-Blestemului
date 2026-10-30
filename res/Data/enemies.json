@@ -26,7 +26,8 @@
     { "id": "Feldgug de Obsidian", "map": "/Enemy/FeldgugRegeleTrol", "fight": "/Enemy/FeldgugRegeleTrol", "tint": "#3A3555", "hp": 150, "dmg": 14, "role": "guard", "shield": 16, "mapSize": 1.6, "music": "InamiciCastelull" },
     { "id": "Glaciara de Obsidian", "map": "/Enemy/GlaciaraPhaseOne", "fight": "/Enemy/GlaciaraPhaseOne", "tint": "#4D5688", "hp": 120, "dmg": 14, "role": "mage", "heal": 16, "mapSize": 1.6, "music": "InamiciCastelull" },
     { "id": "Bătrânul Cronicar", "map": "/Player/AIGup", "fight": "/Player/AIGup", "tint": "#6E6A86", "behavior": "pretor3", "hp": 280, "dmg": 17, "role": "mage", "heal": 22, "mapSize": 1.2, "battleSize": 1.1, "music": "InamiciCastelull" },
-    { "id": "Minion de Zăpadă", "map": "/Enemy/GlaciaraPhaseOne", "fight": "/Enemy/GlaciaraPhaseOne", "tint": "#BFEFFF", "hp": 60, "dmg": 15, "role": "mage", "heal": 15, "battleSize": 0.7, "music": "InamiciTundra" }
+    { "id": "Minion de Zăpadă", "map": "/Enemy/GlaciaraPhaseOne", "fight": "/Enemy/GlaciaraPhaseOne", "tint": "#BFEFFF", "behavior": "minion", "hitOn": "always", "hp": 25, "dmg": 6, "role": "brute", "battleSize": 0.7, "music": "InamiciTundra" },
+    { "id": "Minion de Umbră", "map": "/Enemy/Crow", "fight": "/Enemy/CrowFight", "tint": "#6A5A8A", "behavior": "minion", "hitOn": "toll", "hp": 30, "dmg": 6, "role": "brute", "battleSize": 0.8, "music": "InamiciPodul" }
   ],
 
   "_bosses_help": "Cifrele bossilor Fenris și Feldgug (clasele Enemy_LupBoss / Enemy_Feldgug le citesc de aici). Pretorienii și Malakor au cifrele în castle.json. Fenris: lovitură normală hitMin-hitMax; la fiecare howlEvery-a tură urlă (howlDamage, anunțat dinainte); se vindecă cu healFraction din daunele nefiltrate de armură; loviturile nefiltrate pun Slăbiciune weakTurns ture. Feldgug: lovește cu damage; în turele fără atac pune shield armură; regenerează regen pe tură (faza II când viața <= phase2AtPercent%); attackChance = % șansă de atac pe tură; în faza II loviturile pun Fragilitate (vulnerableChance % șansă, vulnerableTurns ture, +vulnerablePercent% daune: 18 devine 27).",
@@ -34,7 +35,19 @@
     "fenris": { "hp": 140, "hitMin": 13, "hitMax": 15, "howlEvery": 3, "howlDamage": 18, "healFraction": 0.5, "weakTurns": 1, "weakPercent": 25 },
     "feldgug": { "hp": 180, "damage": 18, "shield": 10, "phase2AtPercent": 50,
                  "regen": [3, 5], "attackChance": [40, 50],
-                 "vulnerableChance": 50, "vulnerableTurns": 1, "vulnerablePercent": 50 }
+                 "vulnerableChance": 50, "vulnerableTurns": 1, "vulnerablePercent": 50 },
+    "_help_jean": "Jean: gardă (guardChance % din ture, guardBlock armură); în rest alege cu greutăți weights: lovitură (hit), atac dublu (2 x doubleHit, Fragilitate abia după a doua lovitură) și sabotaj (sabotageDamage + esență pierdută data viitoare). Eschivă: fiecare carte cu daune are dodgeChance % să dea greș; în faza II (sub phase2AtPercent% viață) fiecare eschivă declanșează o contralovitură counterDamage.",
+    "jean": { "hp": 175, "phase2AtPercent": 40, "guardChance": 35, "guardBlock": 8, "weights": { "hit": 40, "double": 30, "sabotage": 30 },
+              "hit": 10, "doubleHit": 5, "sabotageDamage": 8, "sabotageEssence": 1,
+              "vulnerableTurns": 2, "vulnerablePercent": 50, "dodgeChance": 20, "counterDamage": 8 },
+    "_help_glaciara": "Glaciara: faza II sub phase2AtPercent% viață. weights = ghețar (iceHit/iceHitII), suflu (breathDamage + o carte înghețată din mâna următoare) și degerătură (frostbite/frostbiteII, ignoră armura). După hitsToStun lovituri primite e amețită stunTurns ture și invocă Minionul de Zăpadă (hp/dmg în types), care trebuie ucis primul.",
+    "glaciara": { "hp": 225, "phase2AtPercent": 50, "weights": { "ice": 40, "breath": 30, "frostbite": 30 },
+                  "iceHit": [16, 20], "breathDamage": 10, "frostbite": [5, 7], "hitsToStun": 5, "stunTurns": 1 },
+    "_help_charon": "Charon: faza II sub phase2AtPercent%. weights = lovitură (hit/hitII), Săgeata Sufletului (arrow, ignoră armura) și Bântuire (haunt, ignoră armura + Fragilitate). La fiecare tollEvery-a tură cere Vama: Eron plătește tollEssence esență sau primește Săgeata. La începutul luptei apare Minionul de Umbră (în types), care lovește doar în turele de Vamă.",
+    "charon": { "hp": 180, "phase2AtPercent": 40, "weights": { "hit": 40, "arrow": 30, "haunt": 30 },
+                "hit": [15, 20], "arrow": 12, "haunt": 6, "vulnerableTurns": 2, "vulnerablePercent": 50, "tollEvery": 3, "tollEssence": 2 },
+    "_help_valerius": "Valerius: faza I = scut persistent shield (+blockGain în turele în care se apără, blockChance %), lovește hit. Când scutul cade: faza II cu phase2Hp viață, lovește hit; a chargeEvery-a tură se încarcă (anunțat), iar în tura următoare lovește chargedHits x chargedHit. phase1Hp = viața din faza I (ascunsă în spatele scutului).",
+    "valerius": { "phase1Hp": 200, "shield": 50, "blockGain": 10, "blockChance": 40, "hit": 14, "phase2Hp": 200, "chargeEvery": 3, "chargedHits": 3, "chargedHit": 8 }
   },
 
   "spawns": {

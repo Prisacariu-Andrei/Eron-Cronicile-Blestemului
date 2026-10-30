@@ -60,6 +60,7 @@ public class GamePanel extends JPanel implements Runnable {
     public PauseUI pauseUI = new PauseUI(this);
     public InventoryUI inventoryUI = new InventoryUI(this);
     public BattleUI battleUI = new BattleUI(this);
+    public ChoiceUI choiceUI = new ChoiceUI(this);   // alegeri în luptă (Vama lui Charon)
     public RewardUI rewardUI = new RewardUI(this);
     public DeathUI deathUI = new DeathUI(this);
     public DialogueUI dialogueUI = new DialogueUI(this);

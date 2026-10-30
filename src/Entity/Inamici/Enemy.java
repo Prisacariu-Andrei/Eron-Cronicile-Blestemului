@@ -1,6 +1,7 @@
 package Entity.Inamici;
 
 import Entity.Entity;
+import Entity.Items.Card;
 import Entity.Player.Player;
 import Entity.StatusEffect;
 import Main.GameFeel;
@@ -24,6 +25,7 @@ public abstract class Enemy extends Entity {
     public EnemyAction nextAction;
     public int intentValue;
     public int attackDamage;
+    public String intentText;   // dacă e pus, înlocuiește textul intenției din luptă (culoarea rămâne a acțiunii); bossii îl pun în setNextIntent
     public boolean ignoreGroupScaling = false;   // cifrele lui sunt făcute pentru grup: fără înmulțitorul din enemies.json -> groups.damage
     public boolean persistentShield = false;   // scutul nu dispare la sfârșitul turei (Valerius, Malakor)
     public String introTitle, introSubtitle, introQuote;    // bannerul de la începutul luptei (Pretorienii, fazele lui Malakor)
@@ -282,6 +284,29 @@ public abstract class Enemy extends Entity {
             }
             // Progresul quest-urilor se actualizează în Player.winBattle()
         }
+    }
+
+    /** Eschivă: true dacă inamicul ocolește cartea cu daune jucată acum (cartea se consumă, fără efect). */
+    public boolean tryDodge(Player player, Card card) { return false; }
+
+    /** Lovitură care trece peste armura lui Eron (armura rămâne neatinsă). */
+    protected void hitIgnoringBlock(Player player, int dmg) {
+        int armor = player.shield;
+        player.shield = 0;
+        player.damagePlayer(dmg);
+        player.shield = armor;
+    }
+
+    /** Schimbare de fază: Eron primește o mână nouă și tura lui reîncepe, fără ca inamicul să joace în faza nouă. */
+    protected void restartPlayerTurn() {
+        if (gp.player == null) return;
+        gp.player.isPlayerTurn = false;
+        while (!gp.player.inventory.hand.isEmpty()) gp.player.inventory.discard(gp.player.inventory.hand.removeFirst());
+        gp.player.shield = 0;
+        gp.player.currentMana = gp.player.maxMana;
+        gp.player.isPlayerTurn = true;
+        for (int i = 0; i < 5; i++) gp.player.inventory.drawCard();
+        gp.battleUI.commandNum = 0;
     }
 
     /** Apelat după ce Eron a tras mâna nouă, la începutul turei lui. */

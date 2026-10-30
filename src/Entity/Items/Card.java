@@ -9,6 +9,7 @@ public abstract class Card {
     public String name;
     public String id;   // cheia stabilă din CardFactory (ex. "ParjolulSferic"); numele de mai sus se afișează și se poate schimba
     public int manaCost;
+    public boolean frozen = false;   // înghețată de Glaciara: nu se poate juca în tura asta
     public int curseCost = 0;   // +cost doar în tura asta (Bătrânul Cronicar)
 
     /** Costul de acum: cel al cărții plus blestemul. */

@@ -47,7 +47,8 @@ public class EnemyFactory {
 
             default -> {
                 var def = Groups.type(enemyName); // inamici din res/Data/enemies.json
-                if (def != null) yield def.get("behavior") != null ? new Entity.Generali.Enemy_Pretorian(gp, x, y, def) : new Enemy_Data(gp, x, y, def);
+                if (def != null) yield "minion".equals(def.get("behavior")) ? new Entity.Generali.Enemy_Minion(gp, x, y, def)
+                        : def.get("behavior") != null ? new Entity.Generali.Enemy_Pretorian(gp, x, y, def) : new Enemy_Data(gp, x, y, def);
                 System.out.println("Eroare: Inamicul '" + enemyName + "' nu există în Factory!");
                 yield null;
             }

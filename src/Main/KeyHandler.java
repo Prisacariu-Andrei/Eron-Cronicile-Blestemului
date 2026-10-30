@@ -185,6 +185,7 @@ public class KeyHandler implements KeyListener {
 
         // 2. GESTIUNE BATTLE
         if (state instanceof BattleState) {
+            if (gp.choiceUI.active()) { gp.choiceUI.onKey(code); return; }   // o alegere deschisă primește tastele
             // Mai mulți inamici: săgețile sus/jos sau TAB aleg ținta (Q/W/E/R sunt abilitățile)
             if (code == KeyEvent.VK_UP) gp.player.cycleTarget(-1);
             if (code == KeyEvent.VK_DOWN || code == KeyEvent.VK_TAB) gp.player.cycleTarget(1);

@@ -554,6 +554,11 @@ public class Player extends Entity {
             if (index >= 0 && index < inventory.hand.size()) {
                 Card card = inventory.hand.get(index);
 
+                if (card.frozen) {   // Suflul Glaciarei
+                    gp.fx.denied();
+                    gp.popups.add(new DamagePopUp(gp.tileSize * 4, gp.tileSize * 3, "Carte înghețată!", Color.CYAN));
+                    return;
+                }
                 if (currentMana >= card.cost()) {
                     currentMana -= card.cost();
 
@@ -656,6 +661,7 @@ public class Player extends Entity {
         while(!inventory.hand.isEmpty()) {
             Card spent = inventory.hand.removeFirst();
             spent.curseCost = 0;   // blestemul Cronicarului ține doar o tură
+            spent.frozen = false;  // iar gheața Glaciarei la fel
             inventory.discard(spent);
         }
         gp.battleUI.commandNum = 0;
@@ -699,8 +705,13 @@ public class Player extends Entity {
         boolean acted = e.alive;
         if (acted) e.executeIntent(this);
         if (life <= 0) return;                       // Eron a căzut: damagePlayer a trecut deja pe ecranul de moarte
-        Timer next = new Timer(acted ? 650 : 1, ev -> { enemyActs(order, i + 1); ((Timer)ev.getSource()).stop(); });
-        next.setRepeats(false);
+        Timer next = new Timer(acted ? 650 : 1, ev -> {
+            Timer self = (Timer) ev.getSource();
+            if (gp.choiceUI.active()) { self.setDelay(100); return; }   // Vama lui Charon: tura inamicilor așteaptă alegerea lui Eron
+            self.stop();
+            enemyActs(order, i + 1);
+        });
+        next.setRepeats(true);
         next.start();
     }
 
