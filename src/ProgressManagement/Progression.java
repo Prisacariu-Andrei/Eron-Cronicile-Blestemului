@@ -57,6 +57,16 @@ public class Progression {
         abilities.sort(Comparator.comparingInt(a -> a.unlockLevel));
     }
 
+    private static Map<String, Object> staticRoot;
+    private static synchronized Map<String, Object> staticRoot() {
+        if (staticRoot == null) staticRoot = Json.map(Json.parseResource("/Data/progression.json"));
+        return staticRoot;
+    }
+    /** Viața maximă a lui Eron la orice nivel (progression.json -> playerMaxLife); runele adaugă peste ea. */
+    public static int baseMaxLife() { return Json.integer(staticRoot().get("playerMaxLife"), 60); }
+    /** Viața maximă în plus dată de Diamantul Nopții (progression.json -> diamondMaxLife). */
+    public static int diamondMaxLife() { return Json.integer(staticRoot().get("diamondMaxLife"), 20); }
+
     public int maxLevel() { return Json.integer(root.get("maxLevel"), 10); }
 
     /** XP necesar ca să treci de nivelul curent (0 la nivelul maxim). */

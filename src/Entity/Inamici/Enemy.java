@@ -24,6 +24,7 @@ public abstract class Enemy extends Entity {
     public EnemyAction nextAction;
     public int intentValue;
     public int attackDamage;
+    public boolean ignoreGroupScaling = false;   // cifrele lui sunt făcute pentru grup: fără înmulțitorul din enemies.json -> groups.damage
     public boolean persistentShield = false;   // scutul nu dispare la sfârșitul turei (Valerius, Malakor)
     public String introTitle, introSubtitle, introQuote;    // bannerul de la începutul luptei (Pretorienii, fazele lui Malakor)
 
@@ -282,6 +283,9 @@ public abstract class Enemy extends Entity {
             // Progresul quest-urilor se actualizează în Player.winBattle()
         }
     }
+
+    /** Apelat după ce Eron a tras mâna nouă, la începutul turei lui. */
+    public void onPlayerTurnStart(Player player) { }
 
     public void heal(int amount) {
         life = Math.min(life + amount, maxLife);

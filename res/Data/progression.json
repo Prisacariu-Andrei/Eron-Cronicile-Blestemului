@@ -1,9 +1,11 @@
 {
   "_help": [
-    "Nivelurile și XP-ul. Nivelul NU dă viață sau daune: aduce doar deblocări, anume cărțile noi (cardLevels) și abilitățile Q/W/E/R (abilities). cardLevels = nivelul de la care o carte apare în magazin și în recompensele de după luptă (implicit 1); cărțile legate de un boss cad oricând de la boss.",
+    "Nivelurile și XP-ul. Viața maximă a lui Eron: playerMaxLife (60, fixă la orice nivel; runele pot adăuga cel mult +10, Diamantul Nopții adaugă diamondMaxLife). Nivelul NU dă viață sau daune: aduce doar deblocări, anume cărțile noi (cardLevels) și abilitățile Q/W/E/R (abilities). cardLevels = nivelul de la care o carte apare în magazin și în recompensele de după luptă (implicit 1); cărțile legate de un boss cad oricând de la boss.",
     "XP necesar pentru nivelul următor = round(xpBase * xpGrowth ^ (nivel - 1)). hpPerLevel / healOnLevelUp rămân aici doar ca să poți reaprinde bonusul (acum 0 / false). abilities: key = tasta în luptă, unlockLevel = nivelul de deblocare, cooldown = ture între două folosiri (1 = o dată pe tură), oncePerBattle = o singură dată pe luptă; nu costă esență. tags = elementele abilității (runele tagDamage.<ELEMENT> îi cresc paguba), iar cardShield crește armura."
   ],
 
+  "playerMaxLife": 60,
+  "diamondMaxLife": 20,
   "maxLevel": 10,
   "xpBase": 40,
   "xpGrowth": 1.35,

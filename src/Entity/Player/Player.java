@@ -138,6 +138,8 @@ public class Player extends Entity {
             inventory.addRune(r); // obiectele de poveste nu se echipează
         }
         runeLifeApplied = runeSum("maxLife");
+        // viața maximă nu mai depinde de salvare: bază fixă + Diamantul Nopții + runele echipate (salvările vechi aveau 100+)
+        maxLife = ProgressManagement.Progression.baseMaxLife() + (areDiamantulNoptii ? ProgressManagement.Progression.diamondMaxLife() : 0) + runeLifeApplied;
         runeDamageApplied = 0;
         refreshRunes();
     }
@@ -236,7 +238,7 @@ public class Player extends Entity {
             team.add(e);
         }
         int n = team.size();
-        enemyDmgScale = Groups.damageScale(n);
+        enemyDmgScale = team.stream().anyMatch(e -> e.ignoreGroupScaling) ? 1.0 : Groups.damageScale(n);   // Pretorienii au cifre făcute pentru grup
         double hs = Groups.hpScale(n);
         if (hs != 1.0) for (Enemy e : team) { e.maxLife = (int) Math.round(e.maxLife * hs); e.life = e.maxLife; }
     }
@@ -325,6 +327,7 @@ public class Player extends Entity {
 
 
         name = "Eron";
+        maxLife = ProgressManagement.Progression.baseMaxLife();   // 60, fix; progression.json
         life = maxLife;
         currentMana = maxMana;
         exploreMana = maxExploreMana;
@@ -551,8 +554,8 @@ public class Player extends Entity {
             if (index >= 0 && index < inventory.hand.size()) {
                 Card card = inventory.hand.get(index);
 
-                if (currentMana >= card.manaCost) {
-                    currentMana -= card.manaCost;
+                if (currentMana >= card.cost()) {
+                    currentMana -= card.cost();
 
                     Combos.play(this, card, currentEnemy);   // efectele cărții + reacții + lanț (cards.json)
 
@@ -651,7 +654,9 @@ public class Player extends Entity {
         }
 
         while(!inventory.hand.isEmpty()) {
-            inventory.discard(inventory.hand.removeFirst());
+            Card spent = inventory.hand.removeFirst();
+            spent.curseCost = 0;   // blestemul Cronicarului ține doar o tură
+            inventory.discard(spent);
         }
         gp.battleUI.commandNum = 0;
 
@@ -730,6 +735,7 @@ public class Player extends Entity {
             isPlayerTurn = true;
             tickAbilityCooldowns();
             for(int i = 0; i < 5; i++) inventory.drawCard();
+            for (Enemy f : livingEnemies()) f.onPlayerTurnStart(this);   // ex. Bătrânul Cronicar blestemă o carte din mână
             ((Timer)e.getSource()).stop();
         });
         t2.start();
@@ -883,6 +889,7 @@ public class Player extends Entity {
         combo.reset();
         ensureTeam();
         for (Enemy f : team) f.setNextIntent();
+        for (Enemy f : livingEnemies()) f.onPlayerTurnStart(this);   // blestemul Cronicarului și din prima tură
         if (currentEnemy != null && currentEnemy.introTitle != null) gp.battleUI.announcePhase(currentEnemy.introTitle, currentEnemy.introSubtitle, new java.awt.Color(200, 160, 255), currentEnemy.introQuote);
         if (team.isEmpty() && currentEnemy != null) currentEnemy.setNextIntent();
     }
@@ -1177,9 +1184,9 @@ public class Player extends Entity {
 
     public void primesteDiamantulNoptii() {
         this.areDiamantulNoptii = true;
-        this.maxLife += 10;
-        this.maxLife += 10;
-        this.life += 10; // Îi dăm și viața curentă ca bonus instant
+        int bonus = ProgressManagement.Progression.diamondMaxLife();
+        this.maxLife += bonus;
+        this.life += bonus; // Îi dăm și viața curentă ca bonus instant
         this.notifyObservers(); // Actualizează HealthBarUI-ul!
     }
 }

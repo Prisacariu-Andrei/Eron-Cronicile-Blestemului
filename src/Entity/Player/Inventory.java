@@ -103,6 +103,7 @@ public class Inventory {
             hand.clear();
             cards.addAll(discardPile);
             discardPile.clear();
+            for (Card c : cards) c.curseCost = 0;
 
             Collections.shuffle(cards);
 

@@ -1,24 +1,33 @@
 package Entity.Generali;
 
 import Entity.Inamici.Enemy;
+import Entity.Inamici.Groups;
 import Entity.Player.Player;
+import Entity.StatusEffect;
+import Main.Json;
 import Main.GamePanel;
 import Observer.DamagePopUp;
 
 import java.awt.*;
+import java.util.Map;
 import java.util.Random;
 
+/**
+ * Feldgug, Regele Trol. Cifrele sunt în res/Data/enemies.json -> bosses.feldgug: lovește cu damage (27 când Eron e Fragil: +50%),
+ * în turele fără atac își pune armură; regenerează pe tură (mai mult în faza II, sub phase2AtPercent% viață), iar în faza II
+ * loviturile pot pune Fragilitate.
+ */
 public class Enemy_Feldgug extends Enemy {
 
-    // trebuie implementat turele de Rage!!!
-    private int rageTurns = 0;
+    private final Map<String, Object> cfg = Groups.boss("feldgug");
+    private final Random rand = new Random();
 
     public Enemy_Feldgug(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Feldgug, Regele Trol";
-        this.maxLife = 220;
+        this.maxLife = Json.integer(cfg.get("hp"), 180);
         this.life = maxLife;
-        this.attackDamage = 15;
+        this.attackDamage = Json.integer(cfg.get("damage"), 18);
         this.mapSize = 1.5;
 
         hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
@@ -28,6 +37,14 @@ public class Enemy_Feldgug extends Enemy {
 
         getImage();
         setNextIntent();
+    }
+
+    private boolean phaseTwo() { return life * 100 <= maxLife * Json.integer(cfg.get("phase2AtPercent"), 50); }
+
+    /** Valoarea din pereche [faza I, faza II] după faza de acum. */
+    private int byPhase(String key, int def1, int def2) {
+        var l = Json.list(cfg.get(key));
+        return Json.integer(l.get(Math.min(phaseTwo() ? 1 : 0, Math.max(0, l.size() - 1))), phaseTwo() ? def2 : def1);
     }
 
     @Override
@@ -46,50 +63,35 @@ public class Enemy_Feldgug extends Enemy {
 
     @Override
     public void setNextIntent() {
-        // Alternăm între atacul simplu și capacitatea de apărare cu lovitură
-        Random rand = new Random();
-        int chance = rand.nextInt(100);
-
-        // Dacă are sub 30% HP, devine mai agresiv
-        if (life < maxLife * 0.3) {
+        if (rand.nextInt(100) < byPhase("attackChance", 40, 50)) {
             nextAction = EnemyAction.ATTACK;
-            intentValue = attackDamage + 10; // Lovitură Zdrobitoare
-        } else if (chance < 40) {
-            // trebuie implementat UI de block, atunci cand isi da block hp-ul sau sa devina albastru!
-            nextAction = EnemyAction.DEFEND; // Piele de Piatră
-            intentValue = 10; // Valoarea scutului
+            intentValue = attackDamage;
         } else {
-            nextAction = EnemyAction.ATTACK;
-            intentValue = attackDamage; // Atac normal
+            nextAction = EnemyAction.DEFEND;   // Piele de Piatră
+            intentValue = Json.integer(cfg.get("shield"), 10);
         }
     }
 
     @Override
     public void executeIntent(Player player) {
-        if (stunTurns == 0) {
-            // 1. Regenerare pasivă (Sânge de Trol)
-            if (life < maxLife) {
-                life = Math.min(maxLife, life + 5);
-                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "+5 HP (Regen)", Color.GREEN));
-            }
+        // 1. Regenerare pasivă (Sânge de Trol), și când e amețit
+        int regen = byPhase("regen", 3, 5);
+        if (life < maxLife && regen > 0) {
+            life = Math.min(maxLife, life + regen);
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "+" + regen + " HP (Regen)", Color.GREEN));
+        }
+        if (stunTurns != 0) return;
 
-            // 2. Acțiunea aleasă
-            if (nextAction == EnemyAction.DEFEND) {
-                // Adăugare Scut Trol
-                this.shield += intentValue;
-                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "+" + intentValue + " BLOCK", Color.CYAN));
-            }
-            else if (nextAction == EnemyAction.ATTACK) {
-                player.damagePlayer(intentValue);
-            }
-
-            setNextIntent();
-        } else {
-            // Dacă este în stare de STUN, nu poate executa acțiunea dar regenerează oricum
-            if (life < maxLife) {
-                life = Math.min(maxLife, life + 10);
-                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 2, "+10 HP (Regen)", Color.GREEN));
+        // 2. Acțiunea aleasă
+        if (nextAction == EnemyAction.DEFEND) {
+            this.shield += intentValue;
+            gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 3, "+" + intentValue + " BLOCK", Color.CYAN));
+        } else if (nextAction == EnemyAction.ATTACK) {
+            player.damagePlayer(intentValue);
+            if (phaseTwo() && rand.nextInt(100) < Json.integer(cfg.get("vulnerableChance"), 50)) {
+                player.applyStatus(StatusEffect.Type.VULNERABLE, Json.integer(cfg.get("vulnerableTurns"), 1), Json.integer(cfg.get("vulnerablePercent"), 50));
             }
         }
+        setNextIntent();
     }
 }

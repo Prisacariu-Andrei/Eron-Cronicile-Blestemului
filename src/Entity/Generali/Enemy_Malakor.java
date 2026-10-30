@@ -116,7 +116,7 @@ public class Enemy_Malakor extends Enemy {
         player.life = Math.min(player.maxLife, player.life + heal);
         if (Json.bool(lp.get("resetScaling"), true)) { phase3Turns = 0; setNextIntent(); }
         gp.battleUI.announcePhase(Json.str(lp.get("title"), "ULTIMA PAGINĂ"), "", new Color(255, 232, 160), Json.str(lp.get("text"), ""));
-        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "+" + heal + " VIAȚĂ", new Color(120, 255, 140)));
+        if (heal > 0) gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "+" + heal + " VIAȚĂ", new Color(120, 255, 140)));
         gp.fx.phaseChange();
     }
 

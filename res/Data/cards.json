@@ -21,18 +21,21 @@
   },
 
   "reactions": [
-    { "id": "topire", "name": "Topire", "element": "FOC", "requires": ["FROZEN"], "damage": 10, "color": "#FF9A4D" },
-    { "id": "soc_lant", "name": "Șoc în Lanț", "element": "FULGER", "requires": ["WET", "FROZEN"], "damage": 6, "aoeDamage": 6, "color": "#FFE36B" },
-    { "id": "soc_termic", "name": "Șoc Termic", "element": "GHEATA", "requires": ["BURN"], "damage": 8, "color": "#8FE0FF" },
-    { "id": "eclipsa", "name": "Eclipsă Încărcată", "element": "UMBRA", "requires": ["CHARGED"], "damage": 9,
+    { "id": "topire", "name": "Topire", "element": "FOC", "requires": ["FROZEN"], "damage": 5, "color": "#FF9A4D" },
+    { "id": "soc_lant", "name": "Șoc în Lanț", "element": "FULGER", "requires": ["WET", "FROZEN"], "damage": 6, "aoeDamage": 3, "color": "#FFE36B" },
+    { "id": "soc_termic", "name": "Șoc Termic", "element": "GHEATA", "requires": ["BURN"], "damage": 5, "color": "#8FE0FF" },
+    { "id": "eclipsa", "name": "Eclipsă Încărcată", "element": "UMBRA", "requires": ["CHARGED"], "damage": 7,
       "apply": { "status": "WEAK", "turns": 2, "value": 25 }, "color": "#C79CFF" },
-    { "id": "abur", "name": "Abur", "element": "FOC", "requires": ["WET"], "damage": 6,
+    { "id": "abur", "name": "Abur", "element": "FOC", "requires": ["WET"], "damage": 4,
       "apply": { "status": "WEAK", "turns": 2, "value": 25 }, "color": "#E8E8F0" },
     { "id": "supraincarcare", "name": "Supraîncărcare", "element": "FULGER", "requires": ["CHARGED"], "damage": 8, "aoeDamage": 3, "color": "#FFF08A" }
   ],
 
 
-  "chain": { "perLevel": 2, "shieldPerLevel": 2, "maxLevel": 3 },
+  "chain": { "perLevel": 2, "shieldPerLevel": 1, "maxLevel": 3 },
+
+  "_codeCards_help": "Armura cărților scrise în cod (Pavaza*): valoarea de bază, citită de CardCatalog.codeShield(id).",
+  "codeCards": { "PavazaGlaciara": { "shield": 6 }, "PavazaAmurgului": { "shield": 15 } },
 
   "rarityWeights": { "Comună": 10, "Rară": 5, "Epică": 2 },
   "baseCardWeight": 10,
@@ -114,7 +117,7 @@
       "shop": true, "drop": { "zones": ["Eldoria"] } },
 
     { "id": "MantiaNoptii", "name": "Mantia Nopții", "cost": 0, "rarity": "Comună", "tags": ["UMBRA"],
-      "effects": [ { "type": "shield", "value": 3 } ],
+      "effects": [ { "type": "shield", "value": 2 } ],
       "drop": { "zones": ["Abisul", "Podul", "Castelul"] } },
 
     { "id": "LanceDeFoc", "name": "Lance de Foc", "cost": 2, "rarity": "Rară", "tags": ["FOC"], "offensive": true,
@@ -131,8 +134,8 @@
 
     { "id": "ExecutieUmbrita", "name": "Execuție Umbrită", "cost": 2, "rarity": "Rară", "tags": ["UMBRA"], "offensive": true,
       "effects": [ { "type": "damage", "value": 8 } ],
-      "combo": { "when": { "playedTag": "UMBRA" }, "text": "După o carte Umbră: +20 paguba",
-                 "effects": [ { "type": "damage", "value": 20 } ] },
+      "combo": { "when": { "playedTag": "UMBRA" }, "text": "După o carte Umbră: +10 paguba",
+                 "effects": [ { "type": "damage", "value": 10 } ] },
       "drop": { "zones": ["Podul", "Castelul"], "bosses": ["Charon"] } },
 
     { "id": "ArmoniaElementelor", "name": "Armonia Elementelor", "cost": 1, "rarity": "Rară", "tags": [], "offensive": true,
@@ -140,7 +143,7 @@
       "drop": { "zones": ["Citadela", "Tundra"] } },
 
     { "id": "ChemareaHaiducilor", "name": "Chemarea Haiducilor", "cost": 2, "rarity": "Rară", "tags": [],
-      "effects": [ { "type": "shield", "value": 6 } ],
+      "effects": [ { "type": "shield", "value": 5 } ],
       "combo": { "when": { "ally": "jean" }, "text": "Cu Jean în echipă: Jean acționează din nou + armură aliaților",
                  "effects": [ { "type": "allyAction" }, { "type": "shieldAllies", "value": 4 } ] },
       "drop": { "bosses": ["Jean Plesa"] } },
@@ -162,7 +165,7 @@
       "shop": true, "drop": { "zones": ["Barlogul", "Tundra", "Eldoria"] } },
 
     { "id": "ValDeCeata", "name": "Văl de Ceață", "cost": 1, "rarity": "Comună", "tags": ["GHEATA"],
-      "effects": [ { "type": "shield", "value": 5 }, { "type": "status", "status": "WET", "turns": 2, "all": true } ],
+      "effects": [ { "type": "shield", "value": 4 }, { "type": "status", "status": "WET", "turns": 2, "all": true } ],
       "drop": { "zones": ["Eldoria", "Barlogul", "Abisul"] } },
 
     { "id": "ArcElectric", "name": "Arc Electric", "cost": 1, "rarity": "Comună", "tags": ["FULGER"], "offensive": true,
@@ -194,7 +197,7 @@
       "drop": { "zones": ["Tundra", "Podul"], "bosses": ["Glaciara"] } },
 
     { "id": "RitualulUmbrelor", "name": "Ritualul Umbrelor", "cost": 1, "rarity": "Rară", "tags": ["UMBRA"],
-      "effects": [ { "type": "shield", "value": 5 } ],
+      "effects": [ { "type": "shield", "value": 4 } ],
       "combo": { "when": { "minTags": 3 }, "text": "După 3 elemente diferite în tură: +6 armură și vindecă 4",
                  "effects": [ { "type": "shield", "value": 6 }, { "type": "heal", "value": 4 } ] },
       "drop": { "zones": ["Citadela", "Podul", "Castelul"] } },

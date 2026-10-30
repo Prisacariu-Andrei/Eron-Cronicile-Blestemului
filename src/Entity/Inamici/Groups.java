@@ -42,6 +42,9 @@ public final class Groups {
         return types.get(id);
     }
 
+    /** Cifrele unui boss din enemies.json -> bosses ("fenris", "feldgug"). */
+    public static Map<String, Object> boss(String id) { return Json.map(Json.map(root().get("bosses")).get(id)); }
+
     public static List<Object> spawns(String zone) { return Json.list(Json.map(root().get("spawns")).get(zone)); }
 
     public static List<Object> safe(String zone) { return Json.list(Json.map(root().get("safe")).get(zone)); }

@@ -107,7 +107,7 @@ public final class CardFace {
     /** Fața din cache; se redesenează doar dacă s-a schimbat ceva din ce se vede (valori cu bonusuri, combo, raritate). */
     public static synchronized BufferedImage face(Card c, Player p, boolean hot) {
         String desc = c.getDynamicDescription(p);
-        String key = c.id + "|" + c.name + "|" + c.rarity + "|" + c.manaCost + "|" + hot + "|" + c.comboHint() + "|" + c.tags + "|" + desc
+        String key = c.id + "|" + c.name + "|" + c.rarity + "|" + c.cost() + "|" + hot + "|" + c.comboHint() + "|" + c.tags + "|" + desc
                 + "|" + bonusSig(c, p);
         BufferedImage img = faces.get(key);
         if (img == null) {
@@ -180,7 +180,7 @@ public final class CardFace {
         g.setStroke(new BasicStroke(3));
         g.drawOval(18, 20, 52, 52);
         g.setFont(new Font(Font.SERIF, Font.BOLD, 34));
-        String cost = String.valueOf(c.manaCost);
+        String cost = String.valueOf(c.cost());
         g.drawString(cost, 44 - g.getFontMetrics().stringWidth(cost) / 2, 58);
 
         // elemente (dreapta sus)

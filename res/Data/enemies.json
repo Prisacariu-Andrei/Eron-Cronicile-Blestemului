@@ -21,13 +21,21 @@
     { "id": "Umbră Rătăcitoare", "map": "/Enemy/Crow", "fight": "/Enemy/CrowFight", "tint": "#6A5A8A", "hp": 55, "dmg": 13, "role": "brute", "music": "InamiciPodul" },
     { "id": "Cavaler Blestemat", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#7A3030", "hp": 85, "dmg": 16, "role": "brute", "mapSize": 1.6, "music": "InamiciCastelull" },
     { "id": "Străjer de Obsidian", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#403A55", "hp": 70, "dmg": 10, "role": "guard", "shield": 14, "mapSize": 1.6, "music": "InamiciCastelull" },
-    { "id": "Soldat de Obsidian", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#3E3560", "hp": 95, "dmg": 15, "role": "brute", "mapSize": 1.6, "music": "InamiciCastelull" },
-    { "id": "Fenris de Obsidian", "map": "/Enemy/LupBossFight", "fight": "/Enemy/LupBossFight", "tint": "#4A4468", "hp": 110, "dmg": 16, "role": "brute", "mapSize": 1.6, "music": "InamiciCastelull" },
+    { "id": "Soldat de Obsidian", "map": "/Enemy/Trol", "fight": "/Enemy/Trol", "tint": "#3E3560", "behavior": "pretor1", "hp": 95, "dmg": 15, "role": "brute", "mapSize": 1.6, "music": "InamiciCastelull" },
+    { "id": "Fenris de Obsidian", "map": "/Enemy/LupBossFight", "fight": "/Enemy/LupBossFight", "tint": "#4A4468", "behavior": "pretor2", "hp": 110, "dmg": 16, "role": "brute", "mapSize": 1.6, "music": "InamiciCastelull" },
     { "id": "Feldgug de Obsidian", "map": "/Enemy/FeldgugRegeleTrol", "fight": "/Enemy/FeldgugRegeleTrol", "tint": "#3A3555", "hp": 150, "dmg": 14, "role": "guard", "shield": 16, "mapSize": 1.6, "music": "InamiciCastelull" },
     { "id": "Glaciara de Obsidian", "map": "/Enemy/GlaciaraPhaseOne", "fight": "/Enemy/GlaciaraPhaseOne", "tint": "#4D5688", "hp": 120, "dmg": 14, "role": "mage", "heal": 16, "mapSize": 1.6, "music": "InamiciCastelull" },
-    { "id": "Bătrânul Cronicar", "map": "/Player/AIGup", "fight": "/Player/AIGup", "tint": "#6E6A86", "hp": 280, "dmg": 17, "role": "mage", "heal": 22, "mapSize": 1.2, "battleSize": 1.1, "music": "InamiciCastelull" },
+    { "id": "Bătrânul Cronicar", "map": "/Player/AIGup", "fight": "/Player/AIGup", "tint": "#6E6A86", "behavior": "pretor3", "hp": 280, "dmg": 17, "role": "mage", "heal": 22, "mapSize": 1.2, "battleSize": 1.1, "music": "InamiciCastelull" },
     { "id": "Minion de Zăpadă", "map": "/Enemy/GlaciaraPhaseOne", "fight": "/Enemy/GlaciaraPhaseOne", "tint": "#BFEFFF", "hp": 60, "dmg": 15, "role": "mage", "heal": 15, "battleSize": 0.7, "music": "InamiciTundra" }
   ],
+
+  "_bosses_help": "Cifrele bossilor Fenris și Feldgug (clasele Enemy_LupBoss / Enemy_Feldgug le citesc de aici). Pretorienii și Malakor au cifrele în castle.json. Fenris: lovitură normală hitMin-hitMax; la fiecare howlEvery-a tură urlă (howlDamage, anunțat dinainte); se vindecă cu healFraction din daunele nefiltrate de armură; loviturile nefiltrate pun Slăbiciune weakTurns ture. Feldgug: lovește cu damage; în turele fără atac pune shield armură; regenerează regen pe tură (faza II când viața <= phase2AtPercent%); attackChance = % șansă de atac pe tură; în faza II loviturile pun Fragilitate (vulnerableChance % șansă, vulnerableTurns ture, +vulnerablePercent% daune: 18 devine 27).",
+  "bosses": {
+    "fenris": { "hp": 140, "hitMin": 13, "hitMax": 15, "howlEvery": 3, "howlDamage": 18, "healFraction": 0.5, "weakTurns": 1, "weakPercent": 25 },
+    "feldgug": { "hp": 180, "damage": 18, "shield": 10, "phase2AtPercent": 50,
+                 "regen": [3, 5], "attackChance": [40, 50],
+                 "vulnerableChance": 50, "vulnerableTurns": 1, "vulnerablePercent": 50 }
+  },
 
   "spawns": {
     "Eldoria": [

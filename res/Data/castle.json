@@ -1,19 +1,22 @@
 {
-  "_help": "Finalul jocului, în Castelul de Obsidian. gate = Poarta de Obsidian din coridorul castelului (col,row,lățime în dale): Paloșul Legendar (flag 'jean') o dărâmă. pretorians = cele trei lupte, în ordine; fiecare apare doar după ce a căzut cea dinainte (la = unde stă, col,row; enemy + with = echipa din enemies.json; title/subtitle = bannerul de la începutul luptei). malakor = cele trei faze: faza 1 (Egida): scut persistent care absoarbe damage-ul, regenerat cu shieldRegen pe tură, lovește și aplică Slăbiciune; faza 2 (Furia): Fragilitate (damage primit +fragilityPercent%); faza 3 (Eclipsa): atacul crește cu scalePerTurn în fiecare tură. at = unde stă Malakor. quote = replica lui Malakor afișată sub bannerul fazei. lastPage = „Ultima pagină” a Manuscrisului, o dată pe luptă în faza III: când lovitura l-ar duce pe Eron sub lifeBelowPercent% din viață sau la tura maxTurn a fazei, Eron se vindecă cu healPercent% din viața maximă, iar dacă resetScaling e true atacul lui Malakor revine la bază.",
+  "_help": "Finalul jocului, în Castelul de Obsidian. gate = Poarta de Obsidian din coridorul castelului (col,row,lățime în dale): Paloșul Legendar (flag 'jean') o dărâmă. pretorians = cele trei lupte (stats = cifrele lor, citite de Enemy_Pretorian; Pretorianul II e un singur trup), în ordine; fiecare apare doar după ce a căzut cea dinainte (la = unde stă, col,row; enemy + with = echipa din enemies.json; title/subtitle = bannerul de la începutul luptei). malakor = cele trei faze: faza 1 (Egida): scut persistent care absoarbe damage-ul, regenerat cu shieldRegen pe tură, lovește și aplică Slăbiciune; faza 2 (Furia): Fragilitate (damage primit +fragilityPercent%); faza 3 (Eclipsa): atacul crește cu scalePerTurn în fiecare tură. at = unde stă Malakor. quote = replica lui Malakor afișată sub bannerul fazei. lastPage = „Ultima pagină” a Manuscrisului, o dată pe luptă în faza III: când lovitura l-ar duce pe Eron sub lifeBelowPercent% din viață sau la tura maxTurn a fazei, Eron se vindecă cu healPercent% din viața maximă, iar dacă resetScaling e true atacul lui Malakor revine la bază.",
 
   "gate": { "col": 26, "row": 24, "widthTiles": 2 },
 
   "pretorians": [
-    { "id": "pretor1", "at": [27, 19], "enemy": "Soldat de Obsidian", "with": ["Soldat de Obsidian"], "title": "PRETORIANUL I: GARDA DE OBSIDIAN", "subtitle": "Doi soldați corupți de puterea lui Malakor" },
-    { "id": "pretor2", "at": [27, 17], "enemy": "Fenris de Obsidian", "with": ["Feldgug de Obsidian", "Glaciara de Obsidian"], "title": "PRETORIANUL II: GENERALII DE OBSIDIAN", "subtitle": "Fenris, Feldgug și Glaciara, recreați din piatră neagră" },
-    { "id": "pretor3", "at": [27, 15], "enemy": "Bătrânul Cronicar", "with": [], "title": "PRETORIANUL III: BĂTRÂNUL CRONICAR", "subtitle": "Scurs de puteri, a cedat Blestemului" }
+    { "id": "pretor1", "at": [27, 19], "enemy": "Soldat de Obsidian", "with": ["Soldat de Obsidian"], "title": "PRETORIANUL I: GARDA DE OBSIDIAN", "subtitle": "Doi soldați corupți de puterea lui Malakor",
+      "stats": { "hp": 80, "hit": 12, "soloHit": 16, "guardBlock": 8 } },
+    { "id": "pretor2", "at": [27, 17], "enemy": "Fenris de Obsidian", "with": [], "title": "PRETORIANUL II: GENERALII DE OBSIDIAN", "subtitle": "Fenris, Feldgug și Glaciara, recreați din piatră neagră",
+      "stats": { "hp": 180, "startDamage": 11, "growPerTurn": 1 } },
+    { "id": "pretor3", "at": [27, 15], "enemy": "Bătrânul Cronicar", "with": [], "title": "PRETORIANUL III: BĂTRÂNUL CRONICAR", "subtitle": "Scurs de puteri, a cedat Blestemului",
+      "stats": { "hp": 160, "heavyHit": 15, "lightHit": 9, "lightIgnoresBlock": true, "curseCost": 1 } }
   ],
 
   "malakor": {
     "at": [27, 12],
-    "phase1": { "life": 300, "shield": 180, "shieldRegen": 8, "attack": 14, "weakTurns": 2, "title": "FAZA I: EGIDA MONARHULUI", "subtitle": "Pecetea de Obsidian absoarbe orice lovitură. Macină-i scutul.", "quote": "Uită-te la Jean. Și el te-a mințit, Eron. Toată lumea minte. Doar eu ți-am spus adevărul." },
-    "phase2": { "life": 300, "attack": 20, "fragilityTurns": 2, "fragilityPercent": 100, "title": "FAZA II: FURIA UMBREI FRÂNTE", "subtitle": "Scutul a crăpat. Malakor lovește fără milă: primești daune duble.", "quote": "Ei mă iubesc! M-au iubit treizeci de ani! Nu-mi poți lua asta!" },
-    "phase3": { "life": 220, "attack": 12, "scalePerTurn": 5, "title": "FAZA III: ECLIPSA FINALĂ", "subtitle": "Își varsă tot blestemul. Cu fiecare tură lovește mai tare: încheie lupta repede!", "quote": "Dă-mi Flacăra! Dacă nu mi-o dai, o iau!" },
-    "lastPage": { "lifeBelowPercent": 35, "maxTurn": 3, "healPercent": 40, "resetScaling": true, "title": "ULTIMA PAGINĂ", "text": "Inelul nu poate fi ținut. Poate fi doar lăsat." }
+    "phase1": { "life": 300, "shield": 130, "shieldRegen": 8, "attack": 9, "weakTurns": 2, "title": "FAZA I: EGIDA MONARHULUI", "subtitle": "Pecetea de Obsidian absoarbe orice lovitură. Macină-i scutul.", "quote": "Uită-te la Jean. Și el te-a mințit, Eron. Toată lumea minte. Doar eu ți-am spus adevărul." },
+    "phase2": { "life": 110, "attack": 6, "fragilityTurns": 2, "fragilityPercent": 100, "title": "FAZA II: FURIA UMBREI FRÂNTE", "subtitle": "Scutul a crăpat. Malakor lovește fără milă: primești daune duble.", "quote": "Ei mă iubesc! M-au iubit treizeci de ani! Nu-mi poți lua asta!" },
+    "phase3": { "life": 80, "attack": 10, "scalePerTurn": 5, "title": "FAZA III: ECLIPSA FINALĂ", "subtitle": "Își varsă tot blestemul. Cu fiecare tură lovește mai tare: încheie lupta repede!", "quote": "Dă-mi Flacăra! Dacă nu mi-o dai, o iau!" },
+    "lastPage": { "lifeBelowPercent": 35, "maxTurn": 3, "healPercent": 0, "resetScaling": false, "title": "ULTIMA PAGINĂ", "text": "Inelul nu poate fi ținut. Poate fi doar lăsat." }
   }
 }

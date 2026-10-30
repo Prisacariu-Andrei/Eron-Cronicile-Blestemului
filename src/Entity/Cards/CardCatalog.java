@@ -53,6 +53,9 @@ public final class CardCatalog {
 
     public static List<Reaction> reactions() { root(); return reactions; }
 
+    /** Armura de bază a unei cărți scrise în cod (cards.json -> codeCards), ca să nu fie cifra în Java. */
+    public static int codeShield(String id, int def) { return Json.integer(Json.map(Json.map(root().get("codeCards")).get(id)).get("shield"), def); }
+
     public static Map<String, Object> chain() { return Json.map(root().get("chain")); }
 
     public static int rarityWeight(String rarity) { return Json.integer(Json.map(root().get("rarityWeights")).get(rarity), 5); }

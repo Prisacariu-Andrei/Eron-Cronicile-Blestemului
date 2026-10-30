@@ -1,24 +1,34 @@
 package Entity.Generali;
 
 import Entity.Inamici.Enemy;
+import Entity.Inamici.Groups;
 import Entity.Player.Player;
+import Entity.StatusEffect;
+import Main.Json;
 import Main.GamePanel;
 import Observer.DamagePopUp;
 
 import java.awt.*;
+import java.util.Map;
 import java.util.Random;
 
+/**
+ * Fenris cel Alb. Cifrele sunt în res/Data/enemies.json -> bosses.fenris: lovitură normală hitMin-hitMax, la fiecare howlEvery-a tură
+ * o mușcătură cu urlet (howlDamage, anunțată dinainte); se vindecă cu healFraction din daunele care trec de armură, iar acestea îl Slăbesc pe Eron.
+ */
 public class Enemy_LupBoss extends Enemy {
 
-    private int damageBuffTurns = 0;
-    private boolean isBuffing = false;
+    private final Map<String, Object> cfg = Groups.boss("fenris");
+    private final Random rand = new Random();
+    private int turn = 0;          // câte ture a jucat până acum
+    private boolean howling = false;
 
     public Enemy_LupBoss(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.name = "Fenris cel Alb";
-        this.maxLife = 150;
+        this.maxLife = Json.integer(cfg.get("hp"), 140);
         this.life = maxLife;
-        this.attackDamage = 10;
+        this.attackDamage = Json.integer(cfg.get("hitMin"), 13);
         this.mapSize = 1.8;
 
         hitBox = new Rectangle(0, 0, (int)(gp.tileSize * mapSize), (int)(gp.tileSize * mapSize));
@@ -45,44 +55,31 @@ public class Enemy_LupBoss extends Enemy {
 
     @Override
     public void setNextIntent() {
-        Random rand = new Random();
-        int chance = rand.nextInt(100);
-
-        if (damageBuffTurns <= 0 && chance < 30) {
-            isBuffing = true;
-            nextAction = EnemyAction.BUFF;
-            intentValue = 0;
-        } else {
-            isBuffing = false;
-            nextAction = EnemyAction.ATTACK;
-            intentValue = attackDamage + (damageBuffTurns > 0 ? 5 : 0);
-        }
+        int every = Math.max(1, Json.integer(cfg.get("howlEvery"), 3));
+        nextAction = EnemyAction.ATTACK;
+        howling = (turn + 1) % every == 0;   // a treia tură, a șasea...: mușcătura cu urlet, vizibilă dinainte în intenție
+        int lo = Json.integer(cfg.get("hitMin"), 13), hi = Math.max(lo, Json.integer(cfg.get("hitMax"), 15));
+        intentValue = howling ? Json.integer(cfg.get("howlDamage"), 18) : lo + rand.nextInt(hi - lo + 1);
     }
 
     @Override
     public void executeIntent(Player player) {
         if (stunTurns == 0) {
-            if (isBuffing) {
-                damageBuffTurns = 3;
-                gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 3, "URLET: +5 DMG!", Color.ORANGE));
-            } else if (nextAction == EnemyAction.ATTACK) {
-                int shieldBefore = player.shield;
-                player.damagePlayer(intentValue);
-                int unblockedDamage = Math.max(0, intentValue - shieldBefore);
+            if (howling) gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "URLET!", Color.ORANGE));
+            int lifeBefore = player.life;
+            player.damagePlayer(intentValue);
+            int unblocked = Math.max(0, lifeBefore - player.life);   // cât a trecut de armură
 
-                if (unblockedDamage > 0) {
-                    int healAmount = unblockedDamage / 2;
-                    if (healAmount > 0) {
-                        this.life = Math.min(this.maxLife, this.life + healAmount);
-                        gp.popups.add(new DamagePopUp(gp.screenWidth - gp.tileSize * 6, gp.tileSize * 4, "+" + healAmount + " HP", Color.GREEN));
-                    }
+            if (unblocked > 0) {
+                int healAmount = (int) (unblocked * Json.number(cfg.get("healFraction"), 0.5));
+                if (healAmount > 0) {
+                    this.life = Math.min(this.maxLife, this.life + healAmount);
+                    gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 4, "+" + healAmount + " HP", Color.GREEN));
                 }
+                player.applyStatus(StatusEffect.Type.WEAK, Json.integer(cfg.get("weakTurns"), 1), Json.integer(cfg.get("weakPercent"), 25));
             }
 
-            if (damageBuffTurns > 0 && !isBuffing) {
-                damageBuffTurns--;
-            }
-
+            turn++;
             setNextIntent();
         }
     }
