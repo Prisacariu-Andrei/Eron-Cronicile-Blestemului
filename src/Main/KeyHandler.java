@@ -149,6 +149,7 @@ public class KeyHandler implements KeyListener {
                 if (gp.ui.commandNum == 0) gp.changeState(new InputNameState(gp,1));
                 else if (gp.ui.commandNum == 1) {gp. changeState(new PlayState(gp));}
                 else if (gp.ui.commandNum == 2) {gp.changeState(new LeaderboardState(gp));}
+                else if (gp.ui.commandNum == 3) {gp.changeState(new SettingsState(gp, state));}   // opțiuni + limbă
                 else if (gp.ui.commandNum == 4) {
                     // MODIFICAT: Închidem baza de date curat înainte de a închide procesul ★★★
                     Database.DatabaseManager.getInstance().close();

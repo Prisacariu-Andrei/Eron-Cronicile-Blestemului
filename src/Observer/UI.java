@@ -4,6 +4,7 @@ import Main.Easing;
 import Main.Exception.GameExceptionHandler;
 import Main.GameFeel;
 import Main.GamePanel;
+import Main.Lang;
 import GameState.*; // Importă toate stările din pachetul nou
 import java.awt.*;
 import java.util.Objects;
@@ -39,9 +40,9 @@ public class UI {
         // ★ OPTIMIZARE: Încărcăm imaginea o SINGURĂ dată la inițializarea UI-ului, nu în loop-ul de draw!
         try {
             menuBackground = javax.imageio.ImageIO.read(java.util.Objects.requireNonNull(
-                    getClass().getResourceAsStream("/Backgrounds/menu_bg1.png")));
+                    getClass().getResourceAsStream("/Loading/10_Harta_Aethelgard.png")));
         } catch (Exception e) {
-            GameExceptionHandler.getInstance().handleWarning("Nu s-a putut încărca textura pentru Meniul Principal (/Backgrounds/menu_bg1.png)", e);
+            GameExceptionHandler.getInstance().handleWarning("Nu s-a putut încărca textura pentru Meniul Principal (/Loading/10_Harta_Aethelgard.png)", e);
         }
     }
 
@@ -49,7 +50,7 @@ public class UI {
         this.g2 = g2;
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
         g2.setColor(Color.WHITE);
-        g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), (int)(gp.screenWidth*0.9), (int)(gp.screenHeight*0.05));
+        g2.drawString(Lang.t("hud.time", gp.gameTimer.getFormattedTime()), (int)(gp.screenWidth*0.9), (int)(gp.screenHeight*0.05));
 
         g2.setFont(arial_40);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -90,14 +91,14 @@ public class UI {
             gp.inventoryUI.draw(g2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
-            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
+            g2.drawString(Lang.t("hud.time", gp.gameTimer.getFormattedTime()), gp.tileSize * 11, gp.tileSize);
         }
         if (state instanceof BattleState) {
             gp.battleUI.draw(g2);
             gp.tutorial.draw(g2);   // indiciile primei lupte
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
-            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
+            g2.drawString(Lang.t("hud.time", gp.gameTimer.getFormattedTime()), gp.tileSize * 11, gp.tileSize);
         }
         if (state instanceof DeathState) {
             gp.deathUI.draw(g2);
@@ -107,13 +108,13 @@ public class UI {
             gp.tutorial.draw(g2);   // indiciul primei recompense
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
-            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
+            g2.drawString(Lang.t("hud.time", gp.gameTimer.getFormattedTime()), gp.tileSize * 11, gp.tileSize);
         }
         if (state instanceof QuestGameState) {
             gp.questBookUI.draw(g2);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
             g2.setColor(Color.WHITE);
-            g2.drawString("Timp: " + gp.gameTimer.getFormattedTime(), gp.tileSize * 11, gp.tileSize);
+            g2.drawString(Lang.t("hud.time", gp.gameTimer.getFormattedTime()), gp.tileSize * 11, gp.tileSize);
         }
         if (state instanceof LeaderboardState) {
             gp.leaderboardUI.draw(g2);
@@ -140,7 +141,7 @@ public class UI {
 
         if (npcIndex != 999) {
             String npcName = gp.npc[npcIndex].name;
-            String text = "[E] – vorbește" + (npcName != null ? "  (" + npcName + ")" : "");
+            String text = Lang.t("hud.talk") + (npcName != null ? "  (" + npcName + ")" : "");
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
 
             // Deasupra lui Eron, oriunde este el pe ecran (lângă marginile hărții nu mai e în centru)
@@ -155,11 +156,12 @@ public class UI {
         }
     }
 
-    private void drawMenuScreen() {
-        //1. RANDARE FUNDAL
+    /** Fundalul meniului principal (harta întunecată + luminițe); îl folosește și ecranul de setări deschis din meniu. */
+    public void drawMenuBackdrop(Graphics2D g2) {
         if (menuBackground != null) {
             g2.drawImage(menuBackground, -80, 0, gp.screenWidth+80, gp.screenHeight, null);
-
+            g2.setColor(new Color(0, 0, 0, 140)); // harta întunecată, ca textul meniului să se citească
+            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
         } else {
             // Fallback în caz că imaginea nu s-a putut încărca, să nu rămână ecranul gol
             g2.setColor(Color.BLACK);
@@ -167,10 +169,15 @@ public class UI {
         }
 
         gp.fx.drawAmbient(g2); // luminițe care plutesc în spatele meniului
+    }
+
+    private void drawMenuScreen() {
+        //1. RANDARE FUNDAL
+        drawMenuBackdrop(g2);
 
         // 2. OPȚIUNI MENIU
         g2.setFont(arial_40.deriveFont(Font.BOLD, 26F));
-        String[] menuOptions = {"ÎNCEPE AVENTURA", "CONTINUĂ CĂLĂTORIA", "TOP SCORURI", "OPȚIUNI ȘI SECRETE", "PĂRĂSEȘTE TĂRÂMUL"};
+        String[] menuOptions = {Lang.t("menu.new_game"), Lang.t("menu.continue"), Lang.t("menu.leaderboard"), Lang.t("menu.options"), Lang.t("menu.quit")};
 
         // În interiorul metodei drawMenuScreen din UI.java:
         for (int i = 0; i < menuOptions.length; i++) {
@@ -215,7 +222,7 @@ public class UI {
     private void drawLevel(Graphics2D g2, int x, int y) {
         var pg = gp.progression;
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 17F));
-        String lvl = "Nv. " + pg.level;
+        String lvl = Lang.t("hud.level", pg.level);
         g2.setColor(Color.BLACK);
         g2.drawString(lvl, x + 1, y + 15);
         g2.setColor(new Color(200, 170, 255));
@@ -231,7 +238,7 @@ public class UI {
         g2.setStroke(new BasicStroke(1.2f));
         g2.drawRoundRect(barX, barY, barW, barH, 8, 8);
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11F));
-        String xpText = pg.xpToNext() == 0 ? "MAX" : pg.xp + "/" + pg.xpToNext();
+        String xpText = pg.xpToNext() == 0 ? Lang.t("hud.xp_max") : pg.xp + "/" + pg.xpToNext();
         g2.setColor(Color.WHITE);
         g2.drawString(xpText, barX + barW / 2 - g2.getFontMetrics().stringWidth(xpText) / 2, barY + 9);
     }
@@ -284,7 +291,7 @@ public class UI {
             g2.setColor(new Color(0, 204, 255));
         }
 
-        String manaText = "DASH: " + (int)gp.player.exploreMana + "%";
+        String manaText = Lang.t("hud.dash", (int) gp.player.exploreMana);
 
         int x = gp.tileSize / 2;
         int y = (gp.tileSize / 2) + 45;

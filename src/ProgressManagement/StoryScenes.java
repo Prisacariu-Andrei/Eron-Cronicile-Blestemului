@@ -131,6 +131,14 @@ public class StoryScenes {
         return new CutsceneState(gp, s, null);
     }
 
+    /** Ca mai sus, dar după scenă urmează "then" (ex. finalul, apoi epilogul). */
+    public GameState stateFor(String trigger, Supplier<GameState> fallback, Supplier<GameState> then) {
+        Scene s = unseen(trigger);
+        if (s == null) return fallback.get();
+        gp.story.set(key(s));
+        return new CutsceneState(gp, s, then);
+    }
+
     /** Un obiect/semn cu care s-a interacționat (trigger "inspect:<id>"). true = scena a pornit. */
     public boolean inspect(String id) { return playNow("inspect:" + id, null); }
 

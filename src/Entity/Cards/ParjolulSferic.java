@@ -6,9 +6,9 @@ import Entity.Inamici.Enemy;
 import Entity.StatusEffect;
 
 public class ParjolulSferic extends Card {
-    public static final int baseDamage= 10;
-    public static final int burnTurns= 3;
-    public static final int burnDamage= 5;
+    public static final int baseDamage= 6;
+    public static final int burnTurns= 2;
+    public static final int burnDamage= 3;
     public ParjolulSferic(Player player) {
         super("Pârjolul Sferic",
                 1,

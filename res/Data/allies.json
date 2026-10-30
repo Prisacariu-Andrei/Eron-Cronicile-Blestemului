@@ -5,18 +5,32 @@
 
   "allies": [
     {
-      "id": "jean", "name": "Jean Pleșa", "sprite": "/Enemy/JeanPlesa.png", "mapSet": "/NPC/Jean", "color": "#E0B050",
-      "maxLife": 90, "recruitFrom": "Jean Plesa",
+      "id": "jean",
+      "name": "Jean Pleșa",
+      "sprite": "/Enemy/JeanPlesa.png",
+      "mapSet": "/NPC/Jean",
+      "color": "#E0B050",
+      "maxLife": 90,
+      "recruitFrom": "Jean Plesa",
       "scene": [
-        { "speaker": "Jean Pleșa", "text": "Destul... Sulița mea n-a întâlnit în viața ei o magie ca a ta. Ai învins un spadasin în duel cinstit, vrăjitorule." },
-        { "speaker": "Jean Pleșa", "text": "Malakor mi-a furat onoarea și mi-a dat în schimb dueluri fără sfârșit. Nu mai vreau să mor pe jumătate, în beciul lui Bachus." },
-        { "speaker": "Eron", "text": "Atunci ia-ți Paloșul înapoi, Jean. Va dărâma porțile Castelului de Obsidian." },
-        { "speaker": "Jean Pleșa", "text": "Jur pe sângele meu: de azi lupt alături de tine. Unde mergi tu, merge și sulița mea!" }
+        { "speaker": "", "text": "Ai câștigat dreptul la capul lui. Regele ți l-a cerut. Tu îți cobori mâna." },
+        { "speaker": "Jean Pleșa", "text": "Nu-l iei? Ciudat. Oricine altcineva l-ar fi luat." },
+        { "speaker": "", "text": "Jean își desface cămașa. Pe piept poartă însemnul Purtătorilor de Paloș ai Coroanei." },
+        { "speaker": "Jean Pleșa", "text": "Tatăl meu a fost în sala tronului în noaptea Eclipsei. După ea n-a mai ieșit nimeni să povestească." },
+        { "speaker": "Jean Pleșa", "text": "Regele zice că Monarhul i-a luat. Eu zic că nu exista niciun Monarh." },
+        { "speaker": "Eron", "text": "Regele m-a avertizat că o să spui asta." },
+        { "speaker": "Jean Pleșa", "text": "Bineînțeles că te-a avertizat." },
+        { "speaker": "Jean Pleșa", "text": "Jur pe sângele meu: merg cu tine până la castel, să văd cu ochii mei cine stă pe tronul ăla." },
+        { "speaker": "", "text": "Jean îți încredințează Paloșul Legendar. De acum, luptă alături de tine." }
       ],
       "abilities": [
         { "name": "Eschiva Haiducului", "when": "selfLifeBelow:0.4", "effect": { "type": "shieldSelf", "value": 12 } },
         { "name": "Strigătul Haiducilor", "when": "teamLifeBelow:0.5", "effect": { "type": "shieldLowest", "value": 9 } },
-        { "name": "Sulița Nestatornică", "when": "always", "effect": { "type": "damage", "value": 10, "status": "VULNERABLE", "statusTurns": 1, "statusValue": 50 } }
+        {
+          "name": "Sulița Nestatornică",
+          "when": "always",
+          "effect": { "type": "damage", "value": 10, "status": "VULNERABLE", "statusTurns": 1, "statusValue": 50 }
+        }
       ]
     }
   ]

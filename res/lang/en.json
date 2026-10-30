@@ -1,0 +1,36 @@
+{
+  "_help": "UI texts (EN). Flat key -> text. %s %d are value placeholders; %% = a percent sign. The same keys must exist in ro.json (python tools/check_data.py).",
+
+  "menu.new_game": "BEGIN THE ADVENTURE",
+  "menu.continue": "CONTINUE THE JOURNEY",
+  "menu.leaderboard": "HIGH SCORES",
+  "menu.options": "OPTIONS & SECRETS",
+  "menu.quit": "LEAVE THE REALM",
+
+  "hud.time": "Time: %s",
+  "hud.talk": "[E] – talk",
+  "hud.level": "Lv. %s",
+  "hud.xp_max": "MAX",
+  "hud.dash": "DASH: %d%%",
+
+  "pause.title": "PAUSED",
+  "pause.continue": "CONTINUE",
+  "pause.save": "SAVE GAME",
+  "pause.options": "OPTIONS",
+  "pause.main_menu": "MAIN MENU",
+
+  "settings.title": "SETTINGS",
+  "settings.volume": "Volume",
+  "settings.shake": "Screen shake",
+  "settings.text_speed": "Text speed",
+  "settings.fullscreen": "Fullscreen",
+  "settings.language": "Limbă / Language",
+  "settings.on": "On",
+  "settings.off": "Off",
+  "settings.speed.slow": "Slow",
+  "settings.speed.normal": "Normal",
+  "settings.speed.fast": "Fast",
+  "settings.lang.ro": "Română",
+  "settings.lang.en": "English",
+  "settings.hint": "[W/S] choose   [A/D] change   [F11] fullscreen   [T] or [ESC] close and save"
+}

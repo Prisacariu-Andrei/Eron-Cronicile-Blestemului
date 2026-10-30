@@ -78,12 +78,13 @@ public class AllySceneState implements GameState {
 
         Ally.Line line = ally.scene.get(page);
         boolean allyTalks = line.speaker.equals(ally.name);
+        boolean narrator = line.speaker.isBlank();   // replică de narator: niciun portret luminat
 
         // portretele: aliatul în stânga, Eron în dreapta; cel care vorbește e luminat
         BufferedImage ai = ally.image(), ei = gp.player.fightStand;
         int ph = (int) (H * 0.46);
-        if (ai != null) drawPortrait(g2, ai, (int) (W * 0.12), H - (int) (H * 0.30) - ph, ph, allyTalks);
-        if (ei != null) drawPortrait(g2, ei, (int) (W * 0.70), H - (int) (H * 0.30) - ph, ph, !allyTalks);
+        if (ai != null) drawPortrait(g2, ai, (int) (W * 0.12), H - (int) (H * 0.30) - ph, ph, allyTalks && !narrator);
+        if (ei != null) drawPortrait(g2, ei, (int) (W * 0.70), H - (int) (H * 0.30) - ph, ph, !allyTalks && !narrator);
 
         // caseta de dialog
         int bx = (int) (W * 0.08), by = H - (int) (H * 0.28), bw = W - 2 * bx, bh = (int) (H * 0.23);
@@ -95,7 +96,7 @@ public class AllySceneState implements GameState {
 
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 28F));
         g2.setColor(allyTalks ? new Color(ally.color) : new Color(190, 150, 255));
-        g2.drawString(line.speaker, bx + 30, by + 44);
+        if (!narrator) g2.drawString(line.speaker, bx + 30, by + 44);
 
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 24F));
         g2.setColor(Color.WHITE);

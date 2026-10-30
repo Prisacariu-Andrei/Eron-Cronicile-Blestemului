@@ -10,7 +10,10 @@ public class GameExceptionHandler {
     private static final String LOG_FILE = "error_log.txt";
     private final java.util.Set<String> seenWarnings = new java.util.HashSet<>();
 
-    private GameExceptionHandler() {}
+    private GameExceptionHandler() {
+        // Logul pornește gol la fiecare rulare, ca să nu crească la nesfârșit.
+        try (FileWriter fw = new FileWriter(LOG_FILE, false)) { /* golit */ } catch (IOException ignored) { }
+    }
 
     public static GameExceptionHandler getInstance() {
         if (instance == null) {
@@ -44,7 +47,7 @@ public class GameExceptionHandler {
         }
 
         // 2. SPARGEM RECURSIVITATEA: Dacă problema e de la SQLite, nu o mai salvăm în DB!
-        if (e instanceof org.sqlite.SQLiteException || message.contains("Database") || message.contains("DatabaseManager")) {
+        if (e instanceof org.sqlite.SQLiteException || (message != null && (message.contains("Database") || message.contains("DatabaseManager")))) {
             System.err.println("⚠️ Alertă: Eroarea provine de la baza de date. Salvarea în DB a fost anulată pentru a preveni StackOverflow.");
 
             // Opțional: Aici poți scrie eroarea într-un fișier text simplu (txt) local, nu în DB

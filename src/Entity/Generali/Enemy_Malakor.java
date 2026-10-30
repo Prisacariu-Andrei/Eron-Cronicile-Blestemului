@@ -23,11 +23,12 @@ public class Enemy_Malakor extends Enemy {
 
     private final Map<String, Object> cfg;
     private int phase3Turns = 0;
+    private boolean lastPageUsed = false;   // "Ultima pagină" (castle.json -> lastPage), o singură dată pe luptă
 
     public Enemy_Malakor(GamePanel gp, int x, int y) {
         super(gp, x, y);
         this.cfg = Json.map(Json.map(Json.parseResource("/Data/castle.json")).get("malakor"));
-        this.name = "Malakor, Monarhul Amurgului";
+        this.name = "Malakor, Regele Eldoriei";
         Map<String, Object> p1 = phase(1);
         this.maxLife = Json.integer(p1.get("life"), 300);
         this.life = maxLife;
@@ -37,6 +38,7 @@ public class Enemy_Malakor extends Enemy {
         this.mapSize = 1.4;
         this.introTitle = Json.str(p1.get("title"), "FAZA I");
         this.introSubtitle = Json.str(p1.get("subtitle"), "");
+        this.introQuote = Json.str(p1.get("quote"), "");
 
         hitBox = new Rectangle(0, 0, (int) (gp.tileSize * mapSize), (int) (gp.tileSize * mapSize));
         hitBoxDefaultX = hitBox.x;
@@ -53,7 +55,6 @@ public class Enemy_Malakor extends Enemy {
     @Override
     public void getImage() {
         up1 = up2 = down1 = down2 = left1 = left2 = right1 = right2 = setup("/Enemy/MalakorPhaseOne");
-        battleBackground = setup("/Backgrounds/Malakor_bg");
         fightStand = switch (currentPhase) {
             case 2 -> setup("/Enemy/MalakorPhaseTwo");
             case 3 -> setup("/Enemy/MalakorPhaseThree");
@@ -89,6 +90,7 @@ public class Enemy_Malakor extends Enemy {
                 player.applyStatus(StatusEffect.Type.VULNERABLE, Json.integer(phase(2).get("fragilityTurns"), 2), Json.integer(phase(2).get("fragilityPercent"), 100));
             }
             case 3 -> {   // Scalare: mai tare în fiecare tură
+                tryLastPage(player);
                 player.damagePlayer(intentValue);
                 phase3Turns++;
                 gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "Atacul crește!", new Color(255, 120, 60)));
@@ -96,6 +98,26 @@ public class Enemy_Malakor extends Enemy {
             default -> { }
         }
         setNextIntent();
+    }
+
+    /**
+     * "Ultima pagină" a Manuscrisului: în faza III, înainte de lovitură, dacă Eron ar coborî sub pragul de viață
+     * (sau la tura maxTurn a fazei), se deschide o singură dată: banner, vindecare, iar atacul lui Malakor revine la bază.
+     */
+    private void tryLastPage(Player player) {
+        Map<String, Object> lp = Json.map(cfg.get("lastPage"));
+        if (lastPageUsed || lp.isEmpty()) return;
+        int threshold = player.maxLife * Json.integer(lp.get("lifeBelowPercent"), 35) / 100;
+        boolean low = player.life - intentValue <= threshold;
+        boolean late = phase3Turns + 1 >= Json.integer(lp.get("maxTurn"), 3);
+        if (!low && !late) return;
+        lastPageUsed = true;
+        int heal = player.maxLife * Json.integer(lp.get("healPercent"), 40) / 100;
+        player.life = Math.min(player.maxLife, player.life + heal);
+        if (Json.bool(lp.get("resetScaling"), true)) { phase3Turns = 0; setNextIntent(); }
+        gp.battleUI.announcePhase(Json.str(lp.get("title"), "ULTIMA PAGINĂ"), "", new Color(255, 232, 160), Json.str(lp.get("text"), ""));
+        gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, "+" + heal + " VIAȚĂ", new Color(120, 255, 140)));
+        gp.fx.phaseChange();
     }
 
     private void changePhase(int next) {
@@ -122,7 +144,7 @@ public class Enemy_Malakor extends Enemy {
         stunTurns = 0;
         getImage();
         setNextIntent();
-        gp.battleUI.announcePhase(Json.str(ph.get("title"), "FAZĂ NOUĂ"), Json.str(ph.get("subtitle"), ""), next == 2 ? Color.ORANGE : new Color(255, 80, 80));
+        gp.battleUI.announcePhase(Json.str(ph.get("title"), "FAZĂ NOUĂ"), Json.str(ph.get("subtitle"), ""), next == 2 ? Color.ORANGE : new Color(255, 80, 80), Json.str(ph.get("quote"), ""));
         gp.popups.add(new DamagePopUp(popX(), gp.tileSize * 2, Json.str(ph.get("title"), ""), next == 2 ? Color.ORANGE : Color.RED));
         gp.fx.phaseChange();
         endTurnSafely();   // Eron primește o mână nouă, fără ca inamicul să joace în faza nouă

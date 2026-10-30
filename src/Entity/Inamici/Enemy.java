@@ -25,7 +25,7 @@ public abstract class Enemy extends Entity {
     public int intentValue;
     public int attackDamage;
     public boolean persistentShield = false;   // scutul nu dispare la sfârșitul turei (Valerius, Malakor)
-    public String introTitle, introSubtitle;    // bannerul de la începutul luptei (Pretorienii, fazele lui Malakor)
+    public String introTitle, introSubtitle, introQuote;    // bannerul de la începutul luptei (Pretorienii, fazele lui Malakor)
 
     // Grup de luptă (enemies.json): membrii suplimentari care luptă alături de acesta când te atingi de el
     public java.util.List<String> packExtras = new java.util.ArrayList<>();

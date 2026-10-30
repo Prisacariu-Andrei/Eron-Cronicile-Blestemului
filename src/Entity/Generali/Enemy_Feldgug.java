@@ -42,7 +42,6 @@ public class Enemy_Feldgug extends Enemy {
         right1 = setup("/Enemy/FeldgugRegeleTrol");
         right2 = setup("/Enemy/FeldgugRegeleTrol");
         fightStand = setup("/Enemy/FeldgugRegeleTrol");
-        battleBackground = setup("/Backgrounds/Abisul_bg");
     }
 
     @Override

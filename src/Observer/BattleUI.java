@@ -23,7 +23,7 @@ public class BattleUI {
 
     public boolean isTransitioning = false;
     public int transitionTimer = 0;
-    private String transitionPhaseName = "", transitionSubtitle = "";
+    private String transitionPhaseName = "", transitionSubtitle = "", transitionQuote = "";
     private Color transitionColor;
     private int transitionLength = 40;
 
@@ -41,11 +41,15 @@ public class BattleUI {
     }
 
     /** Banner mare (titlu + rând de explicație) la începutul unei lupte speciale sau la schimbarea fazei unui boss. */
-    public void announcePhase(String title, String subtitle, Color color) {
+    public void announcePhase(String title, String subtitle, Color color) { announcePhase(title, subtitle, color, null); }
+
+    /** Banner de fază cu o replică a boss-ului dedesubt (castle.json -> quote); cu replică, bannerul stă mai mult. */
+    public void announcePhase(String title, String subtitle, Color color, String quote) {
+        transitionQuote = quote == null ? "" : quote;
         transitionPhaseName = title == null ? "" : title;
         transitionSubtitle = subtitle == null ? "" : subtitle;
         transitionColor = color == null ? Color.WHITE : color;
-        transitionLength = 130;
+        transitionLength = transitionQuote.isEmpty() ? 130 : 230;
         transitionTimer = 0;
         isTransitioning = true;
     }
@@ -168,7 +172,7 @@ public class BattleUI {
         updateDying();
         if (isTransitioning) {
             transitionTimer++;
-            if (transitionTimer > transitionLength) { isTransitioning = false; transitionTimer = 0; transitionLength = 40; transitionSubtitle = ""; }
+            if (transitionTimer > transitionLength) { isTransitioning = false; transitionTimer = 0; transitionLength = 40; transitionSubtitle = ""; transitionQuote = ""; }
         } else if (turnMessageTimer > 0) {
             turnMessageTimer--;
         }
@@ -800,6 +804,16 @@ public class BattleUI {
                 g2.setColor(new Color(225, 225, 240));
                 g2.drawString(transitionSubtitle, gp.screenWidth/2 - g2.getFontMetrics().stringWidth(transitionSubtitle)/2, gp.screenHeight/2 + gp.screenHeight / 14);
             }
+            if (!transitionQuote.isEmpty()) {   // replica boss-ului, în ghilimele, pe cel mult 2 rânduri
+                g2.setFont(g2.getFont().deriveFont(Font.ITALIC, gp.screenWidth / 62f));
+                g2.setColor(new Color(255, 214, 140));
+                java.util.List<String> rows = wrapQuote("„" + transitionQuote + "”", g2.getFontMetrics(), (int) (gp.screenWidth * 0.7));
+                int qy = gp.screenHeight/2 + gp.screenHeight / 7;
+                for (String r : rows) {
+                    g2.drawString(r, gp.screenWidth/2 - g2.getFontMetrics().stringWidth(r)/2, qy);
+                    qy += g2.getFontMetrics().getHeight();
+                }
+            }
             g2.setComposite(old);
         } else if (turnMessageTimer > 0) {
             float progress = 1f - (float) turnMessageTimer / TURN_MESSAGE_TICKS;   // 0 -> 1
@@ -813,5 +827,17 @@ public class BattleUI {
             g2.drawString(turnMessage, x, gp.screenHeight/2);
             g2.setComposite(old);
         }
+    }
+
+    private static java.util.List<String> wrapQuote(String text, FontMetrics fm, int width) {
+        java.util.List<String> rows = new java.util.ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        for (String w : text.split(" ")) {
+            if (cur.length() > 0 && fm.stringWidth(cur + " " + w) > width) { rows.add(cur.toString()); cur.setLength(0); }
+            if (cur.length() > 0) cur.append(' ');
+            cur.append(w);
+        }
+        if (cur.length() > 0) rows.add(cur.toString());
+        return rows;
     }
 }

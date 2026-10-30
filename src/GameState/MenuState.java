@@ -42,7 +42,7 @@ public class MenuState implements GameState {
                     gp.changeState(new LeaderboardState(gp));
                     break;
                 case 3: // Opțiuni
-                    // gp.changeState(new OptionsState(gp));
+                    gp.changeState(new SettingsState(gp, this)); // aici se schimbă și limba (RO | EN)
                     break;
                 case 4: // Părăsește tărâmul
                     Database.DatabaseManager.getInstance().close();

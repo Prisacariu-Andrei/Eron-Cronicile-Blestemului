@@ -1,0 +1,36 @@
+{
+  "_help": "Texte de interfață (RO). Cheie plată -> text. %s %d sunt locuri pentru valori; %% = semnul procent. Aceleași chei trebuie să existe în en.json (python tools/check_data.py).",
+
+  "menu.new_game": "ÎNCEPE AVENTURA",
+  "menu.continue": "CONTINUĂ CĂLĂTORIA",
+  "menu.leaderboard": "TOP SCORURI",
+  "menu.options": "OPȚIUNI ȘI SECRETE",
+  "menu.quit": "PĂRĂSEȘTE TĂRÂMUL",
+
+  "hud.time": "Timp: %s",
+  "hud.talk": "[E] – vorbește",
+  "hud.level": "Nv. %s",
+  "hud.xp_max": "MAX",
+  "hud.dash": "DASH: %d%%",
+
+  "pause.title": "PAUZĂ",
+  "pause.continue": "CONTINUĂ",
+  "pause.save": "SALVEAZĂ JOCUL",
+  "pause.options": "OPȚIUNI",
+  "pause.main_menu": "MENIU PRINCIPAL",
+
+  "settings.title": "SETĂRI",
+  "settings.volume": "Volum",
+  "settings.shake": "Scuturat ecran",
+  "settings.text_speed": "Viteză text",
+  "settings.fullscreen": "Ecran complet",
+  "settings.language": "Limbă / Language",
+  "settings.on": "Pornit",
+  "settings.off": "Oprit",
+  "settings.speed.slow": "Lent",
+  "settings.speed.normal": "Normal",
+  "settings.speed.fast": "Rapid",
+  "settings.lang.ro": "Română",
+  "settings.lang.en": "English",
+  "settings.hint": "[W/S] alege   [A/D] schimbă   [F11] ecran complet   [T] sau [ESC] închide și salvează"
+}

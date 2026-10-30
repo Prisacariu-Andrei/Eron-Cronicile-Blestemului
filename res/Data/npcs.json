@@ -531,6 +531,69 @@
           "text": "Du-te, băiete. Și ține minte ce ți-am spus: nu toate promisiunile se țin.\nPlatoșa Amintirii e a ta, poartă-o bine."
         }
       }
+    },
+    {
+      "id": "haiduc",
+      "name": "Haiduc",
+      "type": "simple",
+      "zone": "Citadela",
+      "col": 36,
+      "row": 35,
+      "spriteSet": "/NPC/Radu",
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#7A5A3A",
+      "lineMode": "cycle",
+      "lines": [
+        "Ești omul regelui? Se vede. Toți au privirea aia, la început.",
+        "Bea ceva, străine. Poate mâine afli ce-ai venit să afli."
+      ]
+    },
+    {
+      "id": "haiduca",
+      "name": "Haiducă",
+      "type": "simple",
+      "zone": "Citadela",
+      "col": 40,
+      "row": 32,
+      "spriteSet": "/NPC/Sateanca",
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#9A6A5A",
+      "lineMode": "cycle",
+      "lines": [
+        "Jean ne-a învățat un lucru: nu crede nimic doar pentru că e spus frumos.",
+        "Afișele alea cu Jean? Le pune regele. Noi le dăm jos în fiecare dimineață."
+      ]
+    },
+    {
+      "id": "haiduc_batran",
+      "name": "Haiduc bătrân",
+      "type": "simple",
+      "zone": "Citadela",
+      "col": 24,
+      "row": 61,
+      "spriteSet": "/NPC/Vasile",
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#6A6A7A",
+      "lineMode": "cycle",
+      "lines": [
+        "Am fost în Garda de Fier, odată. Am plecat în noaptea în care mi s-a cerut să nu văd nimic."
+      ]
+    },
+    {
+      "id": "miner",
+      "name": "Miner rătăcit",
+      "type": "simple",
+      "zone": "Abisul",
+      "col": 15,
+      "row": 17,
+      "spriteSet": "/NPC/Satean",
+      "sprite": "/Player/Eron_down1.png",
+      "tint": "#7A8AA0",
+      "lineMode": "cycle",
+      "lines": [
+        "Torțele astea le-am aprins acum treizeci de ani. Nu s-au stins niciodată. Nici eu.",
+        "Feldgug primea aur de sus. Saci întregi. Nu mă întreba de la cine."
+      ]
     }
   ]
 }

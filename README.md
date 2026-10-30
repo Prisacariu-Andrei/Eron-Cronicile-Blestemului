@@ -1,8 +1,9 @@
 # ERON: Cronicile Blestemului
 
-Un RPG turn-based cu sistem de cărți (deckbuilder), scris în Java (Swing). Joci ca Eron, un
-vrăjitor care traversează 6 zone pentru a-l înfrânge pe Malakor, Monarhul Amurgului, și a
-dezlega blestemul nemuririi.
+Un RPG turn-based cu sistem de cărți (deckbuilder), scris în Java (Swing). Joci ca Eron, un pelerin
+cu flacăra de demult în palme, trimis de Malakor, regele iubit al Eldoriei, să adune Artefactele
+Blestemului din 7 zone: Eldoria, Bârlogul, Abisul, Citadela, Tundra, Podul de Oase și Castelul de Obsidian.
+Povestea completă (cu dezvăluirea de la final): `docs/POVESTE.md`.
 
 **Autori:** Prisacariu Andrei, Mihalache Costin-Daniel (grupa 1210B)
 Documentația completă: `ERON Cronicile Blestemului.docx`
@@ -19,34 +20,26 @@ Salvările se scriu în `eron_save.db`, lângă proiect (nu este urmărit de git
 
 ## Controale
 
-| Tastă | Acțiune |
-| --- | --- |
-| W A S D / săgeți | Mișcare |
-| Space | Dash |
-| E | Vorbește cu un NPC |
-| I | Inventar |
-| J | Jurnalul de misiuni (Q schimbă tab-ul) |
-| ESC | Pauză |
-| În luptă: A / D, ENTER, T | Alege cartea, joac-o, termină tura |
-| F3 | Afișează/ascunde panoul de performanță (FPS, durata update/desenare, tile-uri desenate, entități, memorie) |
-| În prolog: ENTER, SPACE (ținut), ESC | Continuă, text mai rapid, sari peste prolog |
-
-## Taste
-
 | Tastă | Unde | Ce face |
 | --- | --- | --- |
-| W A S D / săgeți, Space | hartă | mers, dash |
+| W A S D / săgeți | hartă | mers (și pe diagonală) |
+| Space | hartă | dash |
 | E | hartă | vorbește cu un NPC |
-| **F** | hartă | deschide un cufăr / folosește poarta Castelului |
-| **M** | hartă | harta ținutului (zona curentă, zone deschise / închise) |
-| **T** | hartă, pauză | setări: volum, scuturat ecran, viteza textului (se salvează) |
-| I, J, ESC | hartă | inventar, jurnal de misiuni, pauză |
-| **1–8** | luptă | alege cartea din mână |
-| A / D, ENTER | luptă | mută cursorul prin mână, joacă cartea aleasă |
-| **Q E R Z** | luptă | abilitățile 1–4 (progression.json) |
-| W / S, TAB | luptă | schimbă ținta |
+| F | hartă | deschide un cufăr / folosește poarta Castelului |
+| M | hartă | harta ținutului (zona curentă, zone deschise / închise) |
+| I | hartă | inventar (rune: A/D aleg, ENTER echipează) |
+| J | hartă | jurnalul de misiuni (Q schimbă fila) |
+| T | hartă, pauză | setări: volum, scuturat ecran, viteza textului (se salvează) |
+| ESC | hartă | pauză |
+| 1–8, A / D | luptă | alege cartea din mână |
+| ENTER | luptă | joacă cartea aleasă |
+| Q W E R | luptă | abilitățile (se deblochează la nivelurile 2, 3, 5, 7; `progression.json`) |
+| săgeată sus / jos, TAB | luptă | schimbă ținta |
 | T | luptă | termină tura |
-| F3 / F9 | oriunde / mod test | panou de performanță / „Sari la zonă” (vezi Mod de test) |
+| ENTER / SPACE, SPACE ținut, ESC ținut | scene | mai departe, text mai rapid, sari peste scenă |
+| F11 / Alt+Enter | oriunde | ecran complet |
+| F3 | oriunde | panou de performanță (FPS, durate, memorie) |
+| F9 | hartă, mod de test | „Sari la zonă” și panoul de admin |
 
 Cufere: `res/Data/chests.json` (monede, rună și/sau carte; zona, conținutul); un cufăr deschis rămâne deschis după salvare. Pozițiile pe hartă (M) și zonele deschise: `zones.json` (`map`, `requires`).
 
@@ -73,8 +66,8 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
   activă → îndeplinită → predată. NPC-ul cu o misiune de oferit are `!` deasupra capului, cel la care o predai `?` (galben);
   `?` gri = în desfășurare. Jurnalul (**J**, tasta **Q** schimbă fila) are fila „Misiuni”.
 - **`res/Data/progression.json`** — XP-ul necesar pe nivel, ce primești la fiecare nivel (viață maximă; esența rămâne 3, `manaBonusAtLevels` e gol),
-  XP-ul fiecărui inamic și **abilitățile**. Abilitățile se deblochează automat la nivelul lor și se folosesc în luptă cu **1-4**
-  (costă esență, ca cărțile).
+  XP-ul fiecărui inamic și **abilitățile**. Abilitățile se deblochează automat la nivelul lor și se folosesc în luptă cu **Q W E R**
+  (nu costă esență; au timp de reîncărcare sau se folosesc o dată pe luptă).
 
 **Misiune nouă:** adaugă un obiect în `quests` (vezi `_help` în fișier). Pentru obiectivul `collect`, adaugă și obiectele în `pickups`.
 **Abilitate nouă:** adaugă un obiect în `abilities` din `progression.json` (`unlockLevel`, `cost`, `effects`: `damage`, `shield`, `heal`,
@@ -120,7 +113,7 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
 - **`res/Data/enemies.json`** — `groups` (cu cât sunt mai mulți inamici în luptă, cu atât lovesc mai slab: 1 → 100%, 2 → 80%, 3 → 70%, 4 → 60% din damage;
   la 4 au și mai puțină viață), `types` (inamici noi: rol `brute` / `healer` / `mage` / `guard`, sprite + culoare, viață, damage), `spawns` (câte grupuri apar în
   fiecare zonă, pe dale libere, la fel la fiecare încărcare) și `safe` (zone fără inamici, în jurul intrărilor). Grupul se alege din `pack` ([min,max] în total) și `with` (membri în plus, ex. un șaman).
-- În luptă: **W/S, săgeți sau TAB** schimbă ținta. Inamicii de sprijin vindecă sau protejează aliații; aliații lui Eron pot proteja/vindeca pe cel mai slab din echipă.
+- În luptă: **săgeată sus/jos sau TAB** schimbă ținta. Inamicii de sprijin vindecă sau protejează aliații; aliații lui Eron pot proteja/vindeca pe cel mai slab din echipă.
   Bossii luptă singuri; **Glaciara** e amețită după 5 lovituri primite și invocă a doua rundă un Minion de Zăpadă (60 viață, 15 damage).
 - **Valerius** nu mai atacă: vorbește cu el (E), iar dacă ai nivelul 7 poți alege duelul. Runele boss-ilor (Platoșa Amintirii, Runa lui Fenris) nu se pot vinde.
 - **`res/Data/zones.json`** — titlul și subtitlul din ecranul de tranziție (imagine din hartă + bară de încărcare, `loadingTicks`) și locul unde apare Eron în Eldoria
@@ -137,9 +130,10 @@ Monedele se salvează în baza de date (coloana `saves.coins`). Magazinul: A/D s
   *Faza III, Eclipsa* — atacul lui crește cu fiecare tură. Fiecare fază are banner cu text, flash și scuturat.
 - După victorie: **epilogul** (cutscene peste Eldoria, același sistem ca prologul; `CutsceneUI.Script.EPILOGUE`), apoi genericul. Dalele lipsă ale Castelului au o variantă provizorie până apar desenele reale.
 
-## Mod de test (oprit implicit)
+## Mod de test
 
-Pornește jocul cu opțiunea JVM `-Deron.debug=true` (IntelliJ: Run → Edit Configurations → Modify options → Add VM options) sau cu variabila `ERON_DEBUG=1`.
+Modul de test e **pornit implicit** (`Main/DebugMode.java`). Se oprește cu opțiunea JVM `-Deron.debug=false`
+(IntelliJ: Run → Edit Configurations → Modify options → Add VM options) sau cu variabila `ERON_DEBUG=0`.
 Apoi, în joc, **F9** deschide „Sari la zonă”: alegi Eldoria, Munți, Abis, Citadela, Tundra, Pod sau Castel (tastele **1–7** sau **W/S + ENTER**) și primești progresul
 necesar (boss-ii dinainte, artefactele, Jean, nivelul) și ești teleportat. Doar adaugă progres, nu scoate nimic. Fără opțiune, F9 nu face nimic.
 
@@ -184,3 +178,24 @@ Duratele sunt în *ticks* (60 pe secundă), deci nu depind de FPS. Orice efect s
 | `Tiles` | `TileManager`: încărcarea și desenarea hărților din `res/Maps` |
 | `Database` | Salvare/încărcare cu SQLite |
 | `ProgressManagement` | Misiunile (`QuestManager`) |
+
+## Povestea în date
+
+- **`res/Data/story.json`** — scenele: prologul, scenele de după fiecare boss (`after_boss:<flag>`), intrarea în Castel (`enter_zone:Castelul`),
+  mărturisirile Pretorienilor, dezvăluirea Cronicarului și sala tronului, finalul (`finale`, după Malakor) și epilogul. Portretele vorbitorilor sunt în `portraits`.
+- **`res/Data/boss_intro.json`** — dialogul de dinaintea fiecărei lupte cu un boss.
+- **`res/Data/castle.json`** — `quote` = replica lui Malakor la fiecare fază; `lastPage` = „Ultima pagină” (o dată pe luptă, în faza III: vindecare și atacul revine la bază).
+
+## Unelte
+
+- `python tools/check_data.py` — verifică toate fișierele din `res/Data`: JSON valid, declanșatori de scene, portrete, diacritice (ș ț, nu ş ţ),
+  lungimea replicilor, imagini lipsă, inamici/cărți/NPC-uri inexistente. Cod de ieșire 1 dacă găsește erori.
+- `python tools/art/castle_tiles.py res/Tiles/Castelul` — regenerează dalele Castelului de Obsidian.
+- `tools/sim/Sim.java` — simulatorul de balans folosit pentru `docs/BALANS.md` (un bot joacă luptele cu bossii pe motorul jocului).
+
+## Pentru prezentare
+
+1. Rulează `python tools/check_data.py` (trebuie să arate 0 erori).
+2. Pornește jocul. Modul de test e activ, deci **F9** te duce direct în orice zonă, cu progresul necesar.
+3. Pentru o demonstrație scurtă a poveștii: F9 → Castel, apoi cei trei Pretorieni, sala tronului, Malakor și finalul.
+

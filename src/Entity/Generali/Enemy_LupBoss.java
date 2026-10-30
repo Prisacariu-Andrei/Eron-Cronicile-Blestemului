@@ -41,7 +41,6 @@ public class Enemy_LupBoss extends Enemy {
         right1 = setup("/Enemy/LupBossFight");
         right2 = setup("/Enemy/LupBossFight");
         fightStand = setup("/Enemy/LupBossFight");
-        battleBackground = setup("/Backgrounds/Barlog_bg");
     }
 
     @Override

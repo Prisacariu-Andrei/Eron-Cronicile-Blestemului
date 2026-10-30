@@ -63,6 +63,16 @@ public final class Portraits {
             }
         }
         if (maxX < 0) return null;
+        if (f.getWidth() > 64 || f.getHeight() > 64) {   // imagine mare (ex. boss din luptă): partea de sus a siluetei, pătrat
+            int side = Math.max(1, Math.min(maxX - minX + 1, maxY - minY + 1));
+            int bx = Math.max(0, Math.min(f.getWidth() - side, (minX + maxX) / 2 - side / 2));
+            BufferedImage big = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D gb = big.createGraphics();
+            gb.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            gb.drawImage(f, 0, 0, SIZE, SIZE, bx, minY, bx + side, Math.min(f.getHeight(), minY + side), null);
+            gb.dispose();
+            return big;
+        }
         int cx = (minX + maxX) / 2;
         int sx = Math.max(0, Math.min(f.getWidth() - HEAD, cx - HEAD / 2));
         int sy = Math.max(0, Math.min(f.getHeight() - HEAD, minY - 1));

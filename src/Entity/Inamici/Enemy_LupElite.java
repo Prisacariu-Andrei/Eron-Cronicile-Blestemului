@@ -33,7 +33,6 @@ public class Enemy_LupElite extends Enemy {
         right1 = setup("/Enemy/LupElite");
         right2 = setup("/Enemy/LupElite");
         fightStand = setup("/Enemy/LupEliteFight");
-        battleBackground = setup("/Backgrounds/Barlog_bg");
 
     }
     @Override

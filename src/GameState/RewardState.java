@@ -11,7 +11,12 @@ public class RewardState implements GameState {
         this.gp = gp;
     }
 
-    @Override public void enter() { gp.rewardUI.onOpen(); gp.tutorial.onRewardOpen(); }
+    @Override public void enter() {
+        gp.keyH.enterPressed = false;   // un ENTER rămas din luptă nu alege singur o carte
+        gp.keyH.escPressed = false;
+        gp.rewardUI.onOpen();
+        gp.tutorial.onRewardOpen();
+    }
 
     @Override
     public void update() {
@@ -33,16 +38,16 @@ public class RewardState implements GameState {
             Card selected = gp.rewardUI.getSelectedCard();
             if (selected != null) {
                 gp.fx.rewardBurst(gp.rewardUI.selectedCenterX(), gp.rewardUI.selectedCenterY());
-                gp.player.inventory.addCardToDeck(selected.name, gp.player);
+                gp.player.inventory.cards.add(selected);   // obiectul cărții (id stabil), ca în KeyHandler
                 gp.rewardUI.commandNum = 0;
-                gp.changeState(new PlayState(gp));
+                gp.leaveReward();                          // scena aliatului / ieșirea din zona boss-ului
             }
         }
 
         if (gp.keyH.escPressed) {
             gp.keyH.escPressed = false;
             gp.rewardUI.commandNum = 0;
-            gp.changeState(new PlayState(gp));
+            gp.leaveReward();
         }
     }
 

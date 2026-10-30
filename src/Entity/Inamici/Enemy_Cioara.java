@@ -32,7 +32,6 @@ public class Enemy_Cioara extends Enemy {
         right1 = setup("/Enemy/Crow");
         right2 = setup("/Enemy/Crow");
         fightStand = setup("/Enemy/CrowFight");
-        battleBackground = setup("/Backgrounds/Barlog_bg");
     }
 
     @Override

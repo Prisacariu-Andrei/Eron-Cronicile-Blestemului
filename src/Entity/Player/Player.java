@@ -883,7 +883,7 @@ public class Player extends Entity {
         combo.reset();
         ensureTeam();
         for (Enemy f : team) f.setNextIntent();
-        if (currentEnemy != null && currentEnemy.introTitle != null) gp.battleUI.announcePhase(currentEnemy.introTitle, currentEnemy.introSubtitle, new java.awt.Color(200, 160, 255));
+        if (currentEnemy != null && currentEnemy.introTitle != null) gp.battleUI.announcePhase(currentEnemy.introTitle, currentEnemy.introSubtitle, new java.awt.Color(200, 160, 255), currentEnemy.introQuote);
         if (team.isEmpty() && currentEnemy != null) currentEnemy.setNextIntent();
     }
 
@@ -1079,7 +1079,9 @@ public class Player extends Entity {
                     activeStatuses.clear();
                     long finalTime = gp.ui.getPlayTime();
                     gp.leaderboardUI.checkAndSaveNewScore(finalTime, playerProfileName);
-                    gp.changeState(new ZoneTransitionState(gp, "epilogue", () -> gp.storyScenes.stateFor("epilogue", () -> new CreditsState(gp))));
+                    // finalul din sala tronului (story.json, trigger "finale"), apoi epilogul și genericul
+                    java.util.function.Supplier<GameState> toEpilogue = () -> new ZoneTransitionState(gp, "epilogue", () -> gp.storyScenes.stateFor("epilogue", () -> new CreditsState(gp)));
+                    gp.changeState(gp.storyScenes.stateFor("finale", toEpilogue, toEpilogue));
                     return false;
             }
 

@@ -31,7 +31,6 @@ public class Enemy_TrolElite extends Enemy {
         left2 = setup("/Enemy/Trol");
         right2 = setup("/Enemy/Trol");
         fightStand = setup("/Enemy/Trol");
-        battleBackground = setup("/Backgrounds/Abisul_bg");
     }
 
     @Override

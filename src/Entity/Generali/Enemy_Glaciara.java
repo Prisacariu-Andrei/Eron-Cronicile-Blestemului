@@ -45,7 +45,6 @@ public class Enemy_Glaciara extends Enemy {
         right1 = setup("/Enemy/GlaciaraPhaseOne");
         right2 = setup("/Enemy/GlaciaraPhaseOne");
         fightStand = setup("/Enemy/GlaciaraPhaseOne");
-        battleBackground = setup("/Backgrounds/Tundra_bg");
     }
 
     @Override

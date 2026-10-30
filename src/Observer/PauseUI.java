@@ -1,12 +1,13 @@
 package Observer;
 
 import Main.GamePanel;
+import Main.Lang;
 import java.awt.*;
 
 public class PauseUI {
     GamePanel gp;
     public int commandNum = 0;
-    private final String[] options = {"CONTINUĂ", "SALVEAZĂ JOCUL", "OPȚIUNI", "MENIU PRINCIPAL"};
+    private static final String[] OPTION_KEYS = {"pause.continue", "pause.save", "pause.options", "pause.main_menu"};
 
     public PauseUI(GamePanel gp) {
         this.gp = gp;
@@ -19,7 +20,7 @@ public class PauseUI {
 
         // 2. Titlu PAUZĂ
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 60F));
-        String title = "PAUZĂ";
+        String title = Lang.t("pause.title");
         int x = getXforCenteredText(title, g2);
         int y = gp.tileSize * 3;
 
@@ -33,8 +34,8 @@ public class PauseUI {
         // 3. Opțiuni Meniu
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 28F));
 
-        for (int i = 0; i < options.length; i++) {
-            String text = options[i];
+        for (int i = 0; i < OPTION_KEYS.length; i++) {
+            String text = Lang.t(OPTION_KEYS[i]);
             int optionY = gp.tileSize * 5 + (i * 60);
             int optionX = getXforCenteredText(text, g2);
 

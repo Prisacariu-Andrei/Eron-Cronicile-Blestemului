@@ -3,7 +3,7 @@
     "Scenele poveștii (sursa textelor: docs/POVESTE.md). Fiecare scenă se joacă o singură dată (flag 'scene:<id>' în salvare).",
     "Scenă: id, trigger, title (titlul de pe ecran când vorbește naratorul), lines, și opțional: hideNpcs (nume de NPC ascunși cât ține scena),",
     "  eron [col,row] (unde stă Eron la început), cam [x,y] (unde începe camera, în tile-uri; implicit la Eron), map {zone,col,row} (zona în care se joacă), actors, onEnd.",
-    "Trigger: game_start | enter_zone:<zonă> | before_boss:<flag> | after_boss:<flag> | flag:<flag> | inspect:<id> | epilogue.  <flag> = flag-ul din gates.json (fenris, feldgug, jean, valerius, fiara...).",
+    "Trigger: game_start | enter_zone:<zonă> | before_boss:<flag> | after_boss:<flag> | flag:<flag> | inspect:<id> | finale | epilogue.  <flag> = flag-ul din gates.json (fenris, feldgug, jean, valerius, fiara...).",
     "Replică: speaker ('' = narator, fără portret), text (max ~2 rânduri), effect (opțional, string sau listă), cam, moves.",
     "  effect: flash | shake | tone:day|dusk|night|dawn|sunrise | sound:<nume> | burst:<col>:<row>:<RRGGBB> | kneel:<actor>.",
     "  cam: [x,y] fix | [x1,y1,x2,y2] mișcare | [x1,y1,x2,y2,zoom1,zoom2,ticks]. Fără cam, camera rămâne unde a fost.",
@@ -24,7 +24,13 @@
     "Jean Pleșa": "/NPC/Jean",
     "Căpitanul Vlaicu": "/NPC/Vlaicu",
     "Crainicul Regal": "/NPC/Crainic",
-    "Garda de Fier": "/NPC/GardaDeFier"
+    "Garda de Fier": "/NPC/GardaDeFier",
+    "Fenris cel Albit": "/Enemy/LupBossFight.png",
+    "Feldgug": "/Enemy/FeldgugRegeleTrol.png",
+    "Glaciara": "/Enemy/GlaciaraPhaseTwo.png",
+    "Charon": "/Enemy/Charon.png",
+    "Valerius": "/Enemy/Valerius.png",
+    "Soldat de Obsidian": "/NPC/GardaDeFier"
   },
 
   "scenes": [
@@ -178,6 +184,143 @@
         { "speaker": "", "text": "Învins, Valerius își ridică viziera pentru o clipă. Dedesubt, o față obosită, de om care nu a mai dormit de treizeci de ani." },
         { "speaker": "Valerius", "text": "Și mie mi-a spus că sunt singurul, băiete. Acum treizeci de ani." },
         { "speaker": "", "text": "Îți lasă Platoșa Amintirii și se pierde între copaci. Pe atunci, cuvintele lui nu înseamnă nimic pentru tine." }
+      ]
+    },
+
+    {
+      "id": "fenris_colt",
+      "trigger": "after_boss:fenris",
+      "title": "BÂRLOGUL - COLȚUL DE CHIHLIMBAR",
+      "lines": [
+        { "speaker": "", "text": "Fenris se prăbușește. Din pieptul lui se desprinde un colț de chihlimbar care pulsează ca o inimă.", "effect": "flash" },
+        { "speaker": "Fenris cel Albit", "text": "Păstrătorule... am ținut-o treizeci de ani departe de el." },
+        { "speaker": "Fenris cel Albit", "text": "De ce i-o duci înapoi?" },
+        { "speaker": "", "text": "Crezi că vorbește despre Monarhul Amurgului. Iei Colțul de Chihlimbar." },
+        { "speaker": "", "text": "Printre oase zac platoșe ruginite, cu blazon regal. Cineva a trimis soldați aici, an după an." },
+        { "speaker": "", "text": "La coborâre, prin lumina chihlimbarului, conacul regelui pare învăluit de o umbră neagră. Clipești, și dispare.", "effect": "tone:dusk" }
+      ]
+    },
+
+    {
+      "id": "feldgug_diamant",
+      "trigger": "after_boss:feldgug",
+      "title": "ABISUL - DIAMANTUL NOPȚII",
+      "lines": [
+        { "speaker": "", "text": "Feldgug își strânge pumnul de piatră în jurul unei bucăți de întuneric pur.", "effect": "shake" },
+        { "speaker": "Feldgug", "text": "Treizeci de ani mi-a trimis aur ca să i-l dau. Aurul lui n-a cumpărat piatra." },
+        { "speaker": "Feldgug", "text": "Dar tu... tu i-l duci pe gratis." },
+        { "speaker": "", "text": "Râde încet, apoi se face stană. Pe fiecare monedă din sală e bătut chipul regelui Malakor." },
+        { "speaker": "", "text": "Îți spui că Monarhul Amurgului a jefuit vistieria regală. Ar fi o explicație bună." }
+      ]
+    },
+
+    {
+      "id": "glaciara_amintire",
+      "trigger": "after_boss:glaciara",
+      "title": "TUNDRA - INELUL DE GHEAȚĂ",
+      "lines": [
+        { "speaker": "", "text": "Glaciara cade. Gheața turnului se limpezește și îți arată o amintire prinsă în ea de treizeci de ani.", "effect": "flash" },
+        { "speaker": "", "text": "Noaptea Eclipsei. În sala tronului, un rege tânăr ridică Inelul Eternității deasupra capului.", "effect": "tone:night" },
+        { "speaker": "", "text": "Inelul crapă. Trei lumini zboară din el: spre munte, spre adâncuri și spre tundră.", "effect": "shake" },
+        { "speaker": "", "text": "Chipul regelui e ascuns în lumină. Nu-l poți vedea." },
+        { "speaker": "Glaciara", "text": "Am prins ultima bucată, ca să nu se întoarcă la el." },
+        { "speaker": "Glaciara", "text": "Inelul nu poate fi ținut, Păstrătorule. Poate fi doar lăsat. El n-a înțeles niciodată asta." },
+        { "speaker": "Jean Pleșa", "text": "„El”. Nici dragonul nu-i spune pe nume. Interesant." },
+        { "speaker": "", "text": "Îți lasă Inelul de Gheață. Pentru prima dată, nu te grăbești să cobori.", "effect": "tone:day" }
+      ]
+    },
+
+    {
+      "id": "charon_adevar",
+      "trigger": "after_boss:charon",
+      "title": "PODUL DE OASE",
+      "lines": [
+        { "speaker": "", "text": "Charon îngenunchează. Nu-ți cere viața. Îți spune doar un adevăr." },
+        { "speaker": "Charon", "text": "Am trecut peste podul ăsta fiecare nume din lumea asta, vrăjitorule. Știu toate numele." },
+        { "speaker": "Charon", "text": "Monarhul Amurgului nu e unul dintre ele. Nu există.", "effect": "shake" },
+        { "speaker": "Charon", "text": "Întreabă-te cine are nevoie de un dușman pe care nu l-a văzut nimeni niciodată." },
+        { "speaker": "", "text": "Colțul, Diamantul și Inelul de Gheață îți apasă traista. Sunt mai grele decât au fost vreodată." },
+        { "speaker": "", "text": "La capătul podului, în fața porții de obsidian, te așteaptă regele, cu Garda de Fier în spate." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Știam că vei ajunge, Eron. Am venit să terminăm împreună ce am început împreună." },
+        { "speaker": "", "text": "Jean își strânge sulița și nu spune nimic." }
+      ]
+    },
+
+    {
+      "id": "castel_intrare",
+      "trigger": "enter_zone:Castelul",
+      "title": "CASTELUL DE OBSIDIAN - APOGEUL BLESTEMULUI",
+      "lines": [
+        { "speaker": "", "text": "Castelul se ridică deasupra norilor ca o rană neagră în cer. Poarta n-a mai fost deschisă de treizeci de ani.", "effect": "tone:dusk" },
+        { "speaker": "", "text": "Regele intră după tine, ca un aliat. Explică fiecare umbră, fiecare monstru, fiecare statuie." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Opera Monarhului. Toate astea sunt opera lui, Eron." }
+      ]
+    },
+
+    {
+      "id": "pretor1_marturisire",
+      "trigger": "after_boss:pretor1",
+      "title": "PRETORIANUL I - GARDA DE OBSIDIAN",
+      "lines": [
+        { "speaker": "", "text": "Cei doi soldați cad. Le ridici coiful: sunt oameni din Garda de Fier. I-ai văzut zi de zi la poarta Eldoriei." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Monarhul i-a luat și pe ei. Vezi acum de ce trebuie oprit?" },
+        { "speaker": "Soldat de Obsidian", "text": "Noi am deschis palisada... în noaptea lupului." },
+        { "speaker": "Soldat de Obsidian", "text": "Ordinul... regelui.", "effect": "shake" },
+        { "speaker": "", "text": "Soldatul se stinge. Regele tace o clipă prea lungă." }
+      ]
+    },
+
+    {
+      "id": "pretor2_manusa",
+      "trigger": "after_boss:pretor2",
+      "title": "PRETORIANUL II - GENERALII DE OBSIDIAN",
+      "lines": [
+        { "speaker": "", "text": "Statuile se sfărâmă. Artefactele din traista ta se mai zbat o clipă, apoi tac." },
+        { "speaker": "Jean Pleșa", "text": "Eron. Uită-te la mâna lui. Sub mănușă." },
+        { "speaker": "", "text": "Mâna regelui strălucește prin mănușă la fel ca statuile. Malakor o strânge la piept, fără grabă." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Blestemul ne atinge pe toți, Jean. Chiar și pe mine." },
+        { "speaker": "Jean Pleșa", "text": "Sigur. Pe unii mai mult decât pe alții." }
+      ]
+    },
+
+    {
+      "id": "pretor3_adevarul",
+      "trigger": "after_boss:pretor3",
+      "title": "UȘA SĂLII TRONULUI",
+      "lines": [
+        { "speaker": "", "text": "Cronicarul cade în genunchi. Lumina Blestemului din ochii lui se stinge pentru o clipă." },
+        { "speaker": "Bătrânul Cronicar", "text": "Eu l-am învățat să citească, Eron. Eu i-am arătat Inelul când era copil, în arhivă, ca pe o poveste." },
+        { "speaker": "Bătrânul Cronicar", "text": "Nu exista niciun Monarh al Amurgului.", "effect": "shake" },
+        { "speaker": "Bătrânul Cronicar", "text": "În noaptea Eclipsei, Malakor a încercat să-și lege viața de Inel, ca să nu fie uitat niciodată." },
+        { "speaker": "Bătrânul Cronicar", "text": "Inelul nu l-a primit. Îi lipsea inima: Flacăra de demult, pe care strămoșii tăi au ascuns-o în sânge." },
+        { "speaker": "Bătrânul Cronicar", "text": "De treizeci de ani mă ține tăcut cu o singură amenințare: că va stinge Eldoria, om cu om." },
+        { "speaker": "Bătrânul Cronicar", "text": "Ți-am dat Manuscrisul din ordinul lui. Dar ultima pagină am scris-o eu." },
+        { "speaker": "Bătrânul Cronicar", "text": "Ultima pagină nu e pentru el." },
+        { "speaker": "", "text": "Apoi se stinge.", "effect": "tone:night" },
+        { "speaker": "", "text": "Ușa sălii tronului se deschide. Sala e goală." },
+        { "speaker": "", "text": "Malakor trece pe lângă tine fără grabă, urcă treptele și se așază pe tron, pentru prima dată în treizeci de ani." },
+        { "speaker": "", "text": "Își scoate mănușa. Pe deget poartă Inelul Eternității: crăpat, ciuntit, pulsând." },
+        { "speaker": "", "text": "Colțul, Diamantul și Inelul de Gheață îți sunt smulse din traistă și zboară în mâna lui. Lipsește doar inima.", "effect": "flash" },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Aproape tot ce ți-am spus a fost adevărat, Eron. Ți-am spus că ești singurul. Ești." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Singurul care le putea lua de la paznicii lor. Și singurul care mi le putea aduce aici." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Am oprit moartea în regatul meu. Treizeci de ani n-a mai îngropat nimeni un copil." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Dă-mi Flacăra. Un regat în care nu moare nimeni și nu e uitat nimeni. Nici tu. Nici eu." }
+      ]
+    },
+
+    {
+      "id": "finalul",
+      "trigger": "finale",
+      "title": "FINALUL - INELUL LĂSAT",
+      "lines": [
+        { "speaker": "", "text": "Jean smulge Paloșul Legendar de la brâul tău și lovește cu singura lamă care taie obsidianul.", "effect": "shake" },
+        { "speaker": "", "text": "Inelul Eternității se desprinde de pe degetul regelui. Îl prinzi în palmă.", "effect": "flash" },
+        { "speaker": "", "text": "Malakor se târăște pe treptele tronului și îți oferă totul: coroana, regatul, veșnicia." },
+        { "speaker": "", "text": "Tu doar deschizi mâna. Îi dai Inelului Flacăra de bunăvoie și îl lași să se risipească în lume.", "effect": "tone:sunrise" },
+        { "speaker": "", "text": "Blestemul se frânge. Timpul începe din nou să curgă." },
+        { "speaker": "", "text": "Cei treizeci de ani îl ajung pe Malakor într-o singură clipă. Pe tron rămâne un bătrân care își șoptește numele." },
+        { "speaker": "Malakor, Regele Eldoriei", "text": "Spune-le... spune-le că am fost un rege bun." },
+        { "speaker": "Eron", "text": "Le voi spune adevărul." }
       ]
     },
 

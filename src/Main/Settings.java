@@ -27,6 +27,7 @@ public final class Settings {
             shake = Boolean.parseBoolean(p.getProperty("shake", "true"));
             textSpeed = Math.max(0, Math.min(2, Integer.parseInt(p.getProperty("textSpeed", "1"))));
             fullscreen = Boolean.parseBoolean(p.getProperty("fullscreen", "false"));
+            Lang.set(p.getProperty("language", "ro"));   // limba e globală, nu pe slot de salvare
         } catch (Exception ignored) { /* fișier stricat: rămân valorile implicite */ }
     }
 
@@ -37,6 +38,7 @@ public final class Settings {
             p.setProperty("shake", String.valueOf(shake));
             p.setProperty("textSpeed", String.valueOf(textSpeed));
             p.setProperty("fullscreen", String.valueOf(fullscreen));
+            p.setProperty("language", Lang.get());
             p.store(out, "Eron: setari");
         } catch (Exception ignored) { /* setările rămân doar în memorie */ }
     }
@@ -47,5 +49,7 @@ public final class Settings {
     /** Înmulțitorul vitezei textului din cutscene-uri. */
     public static float cutsceneSpeedFactor() { return switch (textSpeed) { case 0 -> 0.6f; case 2 -> 1.7f; default -> 1f; }; }
 
-    public static String textSpeedLabel() { return switch (textSpeed) { case 0 -> "Lent"; case 2 -> "Rapid"; default -> "Normal"; }; }
+    public static String textSpeedLabel() {
+        return Lang.t(switch (textSpeed) { case 0 -> "settings.speed.slow"; case 2 -> "settings.speed.fast"; default -> "settings.speed.normal"; });
+    }
 }

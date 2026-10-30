@@ -33,7 +33,6 @@ public class Enemy_Lup extends Enemy {
         right1 = setup("/Enemy/Wolf");
         right2 = setup("/Enemy/Wolf");
         fightStand = setup("/Enemy/WolfFight");
-        battleBackground = setup("/Backgrounds/Barlog_bg");
 
     }
 
