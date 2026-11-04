@@ -51,39 +51,161 @@ public class AssetSetter {
         var specs = Groups.spawns(zone);
         if (specs.isEmpty()) return;
         java.util.Random rng = new java.util.Random(zone.hashCode() * 31L + 7);
-        java.util.List<int[]> candidates = floorSpots(rng);
+        var rule = Groups.spawnRule(zone);
+        boolean ruled = !rule.isEmpty();
+        int spacing = Json.integer(rule.get("spacing"), 6);
+        var safe = Groups.safe(zone);
+        java.util.List<int[]> candidates = ruled ? ruledSpots(rule, rng) : floorSpots(rng);
+        if (ruled) candidates.removeIf(c -> inSafe(c, safe));   // la zonele cu regulă, cercurile safe se scot dintr-o dată
 
         java.util.List<int[]> taken = new java.util.ArrayList<>();
         for (var e : gp.enemy) if (e != null) taken.add(new int[]{e.worldX / gp.tileSize, e.worldY / gp.tileSize});
-        var safe = Groups.safe(zone);
+        int wanted = 0, placed = 0;
+        boolean[] warned = {false};
 
+        // 1. grupurile fixe ({ at, group }) primele: pe cea mai apropiată dală bună
+        boolean[][] ok = null;
         for (Object o : specs) {
             var spec = Json.map(o);
-            String id = Json.str(spec.get("enemy"), "");
+            if (spec.get("at") == null) continue;
+            wanted++;
+            if (ok == null) ok = spotGrid(candidates, safe);
+            var at = Json.list(spec.get("at"));
+            int c0 = Json.integer(at.size() > 0 ? at.get(0) : null, 0), r0 = Json.integer(at.size() > 1 ? at.get(1) : null, 0);
+            int[] spot = nearestValid(c0, r0, ok, taken, 4);
+            if (spot == null) {
+                GameExceptionHandler.getInstance().handleWarning("SPAWN " + zone + ": nicio dală bună lângă [" + c0 + "," + r0 + "], grupul lipsește", null);
+                continue;
+            }
+            if (spot[0] != c0 || spot[1] != r0) System.out.println("SPAWN moved " + zone + " [" + c0 + "," + r0 + "] -> [" + spot[0] + "," + spot[1] + "]");
+            if (placeGroup(zone, spot, members(spec.get("group")), taken)) placed++;
+        }
+
+        // 2. restul: grupuri amestecate ({ count, groups }) sau vechiul format ({ enemy, count, pack, with })
+        for (Object o : specs) {
+            var spec = Json.map(o);
+            if (spec.get("at") != null) continue;
             int count = Json.integer(spec.get("count"), 1);
+            var mixed = Json.list(spec.get("groups"));
+            String id = Json.str(spec.get("enemy"), "");
             var pack = Json.list(spec.get("pack"));
             int pmin = Json.integer(pack.size() > 0 ? pack.get(0) : null, 1), pmax = Json.integer(pack.size() > 1 ? pack.get(1) : null, pmin);
             var with = Json.list(spec.get("with"));
+            wanted += count;
 
             for (int k = 0; k < count; k++) {
-                int[] spot = null;
-                for (int[] cand : candidates) {
-                    if (nearAny(cand, taken, 5) || inSafe(cand, safe)) continue;
-                    spot = cand;
-                    break;
+                int[] spot = pickSpot(zone, ruled, candidates, taken, safe, spacing, warned);
+                if (spot == null) break;
+                java.util.List<String> names = new java.util.ArrayList<>();
+                if (!mixed.isEmpty()) {
+                    names = members(mixed.get(k % mixed.size()));
+                } else {
+                    int size = pmin + (pmax > pmin ? rng.nextInt(pmax - pmin + 1) : 0);
+                    for (int i = 0; i < size; i++) names.add(id);
+                    for (Object w : with) names.add(Json.str(w, ""));
                 }
-                int slot = freeEnemySlot();
-                if (spot == null || slot < 0) break;
-                taken.add(spot);
-
-                var enemy = EnemyFactory.createEnemy(id, gp, gp.tileSize * spot[0], gp.tileSize * spot[1]);
-                if (enemy == null) continue;
-                int size = pmin + (pmax > pmin ? rng.nextInt(pmax - pmin + 1) : 0);
-                for (int i = 1; i < size; i++) enemy.packExtras.add(id);
-                for (Object w : with) enemy.packExtras.add(Json.str(w, ""));
-                gp.enemy[slot] = enemy;
+                if (placeGroup(zone, spot, names, taken)) placed++;
             }
         }
+        int used = 0;
+        for (var e : gp.enemy) if (e != null) used++;
+        System.out.println("SPAWN " + zone + ": placed " + placed + "/" + wanted + " groups (enemy[] slots used " + used + "/" + gp.enemy.length + ")");
+    }
+
+    /** Numele dintr-un grup, cel mult groups.maxSize (primul e inamicul de pe hartă, restul vin în luptă). */
+    private static java.util.List<String> members(Object group) {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        for (Object m : Json.list(group)) if (out.size() < Groups.maxSize()) out.add(Json.str(m, ""));
+        return out;
+    }
+
+    /** Pune un grup pe hartă; false dacă nu mai e loc în enemy[] sau primul nume nu există. */
+    private boolean placeGroup(String zone, int[] spot, java.util.List<String> names, java.util.List<int[]> taken) {
+        int slot = freeEnemySlot();
+        if (names.isEmpty() || slot < 0) {
+            if (slot < 0) GameExceptionHandler.getInstance().handleWarning("SPAWN " + zone + ": enemy[] e plin", null);
+            return false;
+        }
+        var enemy = EnemyFactory.createEnemy(names.get(0), gp, gp.tileSize * spot[0], gp.tileSize * spot[1]);
+        if (enemy == null) return false;
+        for (int i = 1; i < names.size(); i++) enemy.packExtras.add(names.get(i));
+        gp.enemy[slot] = enemy;
+        taken.add(spot);
+        return true;
+    }
+
+    /**
+     * Locul următorului grup la întâmplare. Zonele fără regulă: primul candidat la cel puțin 5 dale de ceilalți (ca înainte).
+     * Zonele cu regulă: cel mai îndepărtat punct, adică dala cu cea mai mare distanță Chebyshev minimă față de tot ce e deja pus;
+     * sub spacing se acceptă tot ce e la cel puțin 3 dale (cu un avertisment), sub 3 grupul se sare.
+     */
+    private int[] pickSpot(String zone, boolean ruled, java.util.List<int[]> candidates, java.util.List<int[]> taken,
+                           java.util.List<Object> safe, int spacing, boolean[] warned) {
+        if (!ruled) {
+            for (int[] cand : candidates) if (!nearAny(cand, taken, 5) && !inSafe(cand, safe)) return cand;
+            return null;
+        }
+        int[] best = null;
+        int bestD = -1;
+        for (int[] cand : candidates) {
+            int d = minDist(cand, taken);
+            if (d > bestD) { bestD = d; best = cand; }
+        }
+        if (best == null || bestD < 3) {
+            GameExceptionHandler.getInstance().handleWarning("SPAWN " + zone + ": nu mai e loc la cel puțin 3 dale, grupul se sare", null);
+            return null;
+        }
+        if (bestD < spacing && !warned[0]) {
+            warned[0] = true;
+            GameExceptionHandler.getInstance().handleWarning("spacing reduced in " + zone, null);
+        }
+        return best;
+    }
+
+    /** Cea mai mică distanță Chebyshev de la p la un loc luat (mare dacă nu e niciunul). */
+    private static int minDist(int[] p, java.util.List<int[]> taken) {
+        int d = Integer.MAX_VALUE;
+        for (int[] o : taken) d = Math.min(d, Math.max(Math.abs(o[0] - p[0]), Math.abs(o[1] - p[1])));
+        return d;
+    }
+
+    private boolean[][] spotGrid(java.util.List<int[]> candidates, java.util.List<Object> safe) {
+        boolean[][] ok = new boolean[gp.tileM.actualMapCols][gp.tileM.actualMapRows];
+        for (int[] c : candidates) if (!inSafe(c, safe)) ok[c[0]][c[1]] = true;
+        return ok;
+    }
+
+    /** Cea mai apropiată dală bună de (c0, r0), pe inele Chebyshev până la maxRing; nu se pune lângă un loc luat. Null dacă nu există. */
+    private int[] nearestValid(int c0, int r0, boolean[][] ok, java.util.List<int[]> taken, int maxRing) {
+        for (int ring = 0; ring <= maxRing; ring++) {
+            int[] best = null;
+            int bestSq = Integer.MAX_VALUE;
+            for (int dc = -ring; dc <= ring; dc++) for (int dr = -ring; dr <= ring; dr++) {
+                if (Math.max(Math.abs(dc), Math.abs(dr)) != ring) continue;
+                int c = c0 + dc, r = r0 + dr;
+                if (c < 0 || r < 0 || c >= ok.length || r >= ok[0].length || !ok[c][r]) continue;
+                if (minDist(new int[]{c, r}, taken) < 2) continue;
+                int sq = dc * dc + dr * dr;
+                if (sq < bestSq) { bestSq = sq; best = new int[]{c, r}; }
+            }
+            if (best != null) return best;
+        }
+        return null;
+    }
+
+    /** Dalele permise de spawnRules: id-ul dalei și al celor 4 vecine ortogonale e în "tiles"; la cel puțin 2 dale de margine. Amestecate cu generatorul dat. */
+    private java.util.List<int[]> ruledSpots(java.util.Map<String, Object> rule, java.util.Random rng) {
+        var tm = gp.tileM;
+        int cols = tm.actualMapCols, rows = tm.actualMapRows;
+        java.util.Set<Integer> tiles = new java.util.HashSet<>();
+        for (Object t : Json.list(rule.get("tiles"))) tiles.add(Json.integer(t, -1));
+        java.util.List<int[]> out = new java.util.ArrayList<>();
+        for (int c = 2; c < cols - 2; c++) for (int r = 2; r < rows - 2; r++) {
+            if (tiles.contains(tm.mapTileNum[c][r]) && tiles.contains(tm.mapTileNum[c - 1][r]) && tiles.contains(tm.mapTileNum[c + 1][r])
+                    && tiles.contains(tm.mapTileNum[c][r - 1]) && tiles.contains(tm.mapTileNum[c][r + 1])) out.add(new int[]{c, r});
+        }
+        java.util.Collections.shuffle(out, rng);
+        return out;
     }
 
     /** Dalele libere din jurul cărora totul e podea (nu zid, nu teleportare), amestecate cu generatorul dat. */
@@ -173,13 +295,7 @@ public class AssetSetter {
 
     private void spawnBarlogul() {
         if (!gp.story.has("fenris")) gp.enemy[0] = EnemyFactory.createEnemy("Fenris cel Alb", gp, gp.tileSize * 78 + 16, gp.tileSize * 36);   // în fața grămezii de oase din bârlog
-        gp.enemy[1] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 48, gp.tileSize * 26);
-        gp.enemy[2] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 47, gp.tileSize * 27);
-        gp.enemy[3] = EnemyFactory.createEnemy("Cioara", gp, gp.tileSize * 49, gp.tileSize * 25);
-        gp.enemy[4] = EnemyFactory.createEnemy("Lup", gp, gp.tileSize * 45, gp.tileSize * 25);
-        gp.enemy[5] = EnemyFactory.createEnemy("Lup", gp, gp.tileSize * 51, gp.tileSize * 26);
-        gp.enemy[6] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 21, gp.tileSize * 26);
-        gp.enemy[7] = EnemyFactory.createEnemy("Lup de Elită", gp, gp.tileSize * 23, gp.tileSize * 28);
+        // lupii, corbii și lupii de elită sunt grupuri puse de mână în res/Data/enemies.json (spawns -> Barlogul)
     }
 
     private void spawnAbisul() {

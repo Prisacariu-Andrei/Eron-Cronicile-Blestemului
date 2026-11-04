@@ -1,5 +1,5 @@
 {
-  "_help": "Inamici din date și grupurile din luptă. groups.damage / groups.hp: înmulțitori după câți inamici sunt în luptă (index 0 = singur, 1 = doi, 2 = trei, 3+ = patru): cu cât sunt mai mulți, cu atât lovesc mai slab. types: inamici noi (id = numele), role = brute (atacă, uneori se apără) | healer (vindecă/protejează aliații, lovește slab) | mage (atac magic, vindecă un aliat rănit) | guard (protejează aliații). map/fight = sprite-urile (fără .png), tint = culoare peste sprite, hp/dmg = viața și lovitura de bază, passive = stă pe loc și luptă doar dacă te atingi tu de el. spawns: inamici adăugați în fiecare zonă: enemy = numele (din types sau din EnemyFactory), count = câte grupuri, pack = [min,max] inamici în grup (primul e cel de pe hartă), with = membri suplimentari (ex. un șaman). safe = [col,row,rază]: zone în care nu apar inamici (intrări). Pozițiile se aleg o singură dată, pe dale libere, la fel la fiecare încărcare.",
+  "_help": "Inamici din date și grupurile din luptă. groups.damage / groups.hp: înmulțitori după câți inamici sunt în luptă (index 0 = singur, 1 = doi, 2 = trei, 3+ = patru): cu cât sunt mai mulți, cu atât lovesc mai slab. types: inamici noi (id = numele), role = brute (atacă, uneori se apără) | healer (vindecă/protejează aliații, lovește slab) | mage (atac magic, vindecă un aliat rănit) | guard (protejează aliații). map/fight = sprite-urile (fără .png), tint = culoare peste sprite, hp/dmg = viața și lovitura de bază, passive = stă pe loc și luptă doar dacă te atingi tu de el. spawns: inamici adăugați în fiecare zonă: enemy = numele (din types sau din EnemyFactory), count = câte grupuri, pack = [min,max] inamici în grup (primul e cel de pe hartă), with = membri suplimentari (ex. un șaman). safe = [col,row,rază]: zone în care nu apar inamici (intrări). Pozițiile se aleg o singură dată, pe dale libere, la fel la fiecare încărcare. spawnRules (opțional, pe zonă): tiles = id-urile dalelor permise (o dală e bună doar dacă ea și cele 4 vecine ortogonale sunt în listă, la cel puțin 2 dale de margine și în afara cercurilor safe), spacing = distanța Chebyshev dorită între grupuri; grupurile se pun cel mai departe de cele deja puse (dacă nu încape, se acceptă minim 3 dale, cu avertisment). Zonele fără regulă folosesc dalele de pardoseală, ca înainte. Formate în spawns (o listă de specificații sau una singură): (1) vechi { enemy, count, pack, with }; (2) amestecat { count: N, groups: [[...], ...] }: grupul k ia groups[k % lungime], primul nume e inamicul de pe hartă, restul vin în luptă (cel mult groups.maxSize); (3) fix { at: [col, row], group: [...] }: pe cea mai apropiată dală bună din 4 dale (mutarea apare în consolă: SPAWN moved), pus înaintea celor la întâmplare, fără spacing.",
 
   "groups": {
     "damage": [1.0, 0.85, 0.75, 0.7],
@@ -56,23 +56,25 @@
       { "enemy": "Corb de Ceață", "count": 2, "pack": [2, 3] }
     ],
     "Barlogul": [
-      { "enemy": "Lup", "count": 2, "pack": [2, 3] },
-      { "enemy": "Lup de Elită", "count": 1, "pack": [2, 2], "with": ["Șamanul Haitei"] },
-      { "enemy": "Cioara", "count": 1, "pack": [3, 4] }
+      { "at": [71, 9],  "group": ["Lup", "Lup", "Lup"] },
+      { "at": [67, 16], "group": ["Cioara", "Cioara", "Cioara", "Cioara"] },
+      { "at": [50, 27], "group": ["Lup", "Lup", "Cioara", "Cioara"] },
+      { "at": [63, 31], "group": ["Lup"] },
+      { "at": [71, 30], "group": ["Lup de Elită", "Lup de Elită", "Lup de Elită"] },
+      { "at": [26, 41], "group": ["Lup", "Lup", "Lup"] },
+      { "at": [35, 41], "group": ["Lup", "Lup", "Cioara"] },
+      { "at": [23, 26], "group": ["Lup de Elită", "Lup de Elită"] },
+      { "at": [24, 52], "group": ["Lup de Elită", "Lup de Elită"] },
+      { "at": [35, 59], "group": ["Cioara", "Cioara", "Cioara"] },
+      { "at": [33, 62], "group": ["Cioara", "Cioara", "Lup"] },
+      { "at": [26, 62], "group": ["Lup", "Lup", "Lup"] },
+      { "at": [12, 76], "group": ["Lup de Elită"] },
+      { "at": [55, 75], "group": ["Lup de Elită", "Lup", "Cioara"] },
+      { "at": [80, 76], "group": ["Lup de Elită", "Lup de Elită", "Lup de Elită"] }
     ],
-    "Abisul": [
-      { "enemy": "Trol Cioplitor", "count": 2, "pack": [2, 3] },
-      { "enemy": "Trol Cioplitor", "count": 1, "pack": [1, 1], "with": ["Șaman de Piatră"] }
-    ],
-    "Citadela": [
-      { "enemy": "Haiduc Beat", "count": 3, "pack": [1, 2] },
-      { "enemy": "Haiduc cu Arcul", "count": 2, "pack": [1, 1], "with": ["Haiduc Beat"] }
-    ],
-    "Tundra": [
-      { "enemy": "Lup de Gheață", "count": 4, "pack": [2, 3] },
-      { "enemy": "Yeti", "count": 3, "pack": [1, 1] },
-      { "enemy": "Vrăjitor de Brumă", "count": 2, "pack": [1, 1], "with": ["Lup de Gheață", "Lup de Gheață"] }
-    ],
+    "Abisul": { "count": 8, "groups": [["Trol Cioplitor", "Trol Cioplitor"], ["Trol Cioplitor", "Șaman de Piatră"], ["Trol Cioplitor", "Trol Cioplitor", "Trol Cioplitor"], ["Trol Cioplitor", "Trol Cioplitor", "Șaman de Piatră"]] },
+    "Citadela": { "count": 8, "groups": [["Haiduc Beat"], ["Haiduc Beat", "Haiduc Beat"], ["Haiduc cu Arcul", "Haiduc Beat"], ["Haiduc Beat", "Haiduc Beat", "Haiduc cu Arcul"]] },
+    "Tundra": { "count": 14, "groups": [["Lup de Gheață", "Lup de Gheață"], ["Yeti"], ["Lup de Gheață", "Lup de Gheață", "Lup de Gheață"], ["Vrăjitor de Brumă", "Lup de Gheață", "Lup de Gheață"], ["Yeti", "Lup de Gheață"], ["Lup de Gheață", "Lup de Gheață"], ["Vrăjitor de Brumă", "Yeti"]] },
     "Podul": [
       { "enemy": "Umbră Rătăcitoare", "count": 3, "pack": [2, 3] },
       { "enemy": "Cavaler Blestemat", "count": 2, "pack": [1, 2] }
@@ -81,6 +83,13 @@
       { "enemy": "Cavaler Blestemat", "count": 3, "pack": [2, 3] },
       { "enemy": "Cavaler Blestemat", "count": 2, "pack": [1, 1], "with": ["Străjer de Obsidian"] }
     ]
+  },
+
+  "spawnRules": {
+    "Barlogul": { "tiles": [0, 3], "spacing": 8 },
+    "Abisul":   { "tiles": [0],    "spacing": 8 },
+    "Citadela": { "tiles": [8],    "spacing": 8 },
+    "Tundra":   { "tiles": [1],    "spacing": 7 }
   },
 
   "safe": {

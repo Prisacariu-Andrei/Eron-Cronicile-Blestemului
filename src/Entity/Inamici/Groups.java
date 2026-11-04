@@ -45,7 +45,14 @@ public final class Groups {
     /** Cifrele unui boss din enemies.json -> bosses ("fenris", "feldgug"). */
     public static Map<String, Object> boss(String id) { return Json.map(Json.map(root().get("bosses")).get(id)); }
 
-    public static List<Object> spawns(String zone) { return Json.list(Json.map(root().get("spawns")).get(zone)); }
+    /** Specificațiile de apariție ale zonei: o listă sau o singură specificație (obiect). */
+    public static List<Object> spawns(String zone) {
+        Object v = Json.map(root().get("spawns")).get(zone);
+        return v instanceof Map ? List.of(v) : Json.list(v);
+    }
+
+    /** Regula de așezare a zonei (enemies.json -> spawnRules): tiles + spacing; goală dacă zona nu are. */
+    public static Map<String, Object> spawnRule(String zone) { return Json.map(Json.map(root().get("spawnRules")).get(zone)); }
 
     public static List<Object> safe(String zone) { return Json.list(Json.map(root().get("safe")).get(zone)); }
 }
