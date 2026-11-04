@@ -1005,6 +1005,7 @@ public class Player extends Entity {
             }
 
             // --- 2. ACTUALIZARE AUTOMATĂ PROGRES QUEST-URI PRINCIPALE ---
+            countZoneKill(inamicNume);   // "Învinge 5 inamici în <zonă>": fiecare inamic din grup contează, indiferent de nume
             // Verificăm ce monstru a murit și trimitem progresul către QuestManager
             switch (inamicNume) {
 
@@ -1012,14 +1013,7 @@ public class Player extends Entity {
                 case "Cioara":
                 case "Lup de Elită":
                 case "Lup Slăbit":
-                    // Quest 2: Învinge 5 inamici în Bârlog
-                    var q2 = gp.questManager.getQuestById(2, true);
-                    if (q2 != null && q2.isReceived && !q2.isCompleted) {
-                        gp.questManager.updateQuestProgress(2, true, 1);
-                        gp.ui.message = "Progres Bârlog: " + q2.currentAmount + "/5";
-                        gp.ui.messageOn = true;
-                    }
-
+                    // (Quest 2, "Învinge 5 inamici în Bârlog", se numără pe zonă, în countZoneKill)
                     // Quest 1: Dacă Tutorialul cere doar uciderea primului inamic din pădure (un lup normal)
                     var q1 = gp.questManager.getQuestById(1, true);
                     if (q1 != null && q1.isReceived && !q1.isCompleted) {
@@ -1044,16 +1038,6 @@ public class Player extends Entity {
                 case "Yeti":
                     // Side Quest 4: Vânătorul de Yeti
                     gp.questManager.updateQuestProgress(4, false, 1);
-                    break;
-
-                case "Trol de Pestera":
-                    // Quest 5: Învinge 5 inamici în Abisul de Piatra
-                    var q5 = gp.questManager.getQuestById(5, true);
-                    if (q5 != null && q5.isReceived && !q5.isCompleted) {
-                        gp.questManager.updateQuestProgress(5, true, 1);
-                        gp.ui.message = "Progres Abis: " + q5.currentAmount + "/5";
-                        gp.ui.messageOn = true;
-                    }
                     break;
 
                 case "Trol de Elită":
@@ -1112,6 +1096,21 @@ public class Player extends Entity {
             currentEnemy = null;
         }
         return true;
+    }
+
+    /**
+     * Misiunile principale "Învinge N inamici într-o zonă" (2 = Bârlog, 5 = Abis): fiecare inamic obișnuit învins în zona respectivă
+     * se numără, oricare ar fi numele lui și oricâți ar fi în grup. Bossul zonei și mini-boss-ul au misiunile lor.
+     */
+    private void countZoneKill(String enemy) {
+        String zone = gp.tileM.currentZone;
+        int id = "Barlogul".equals(zone) ? 2 : "Abisul".equals(zone) ? 5 : 0;
+        if (id == 0 || gp.story.isBoss(enemy) || enemy.startsWith("Fenris") || enemy.equals("Trol de Elită")) return;
+        var q = gp.questManager.getQuestById(id, true);
+        if (q == null || !q.isReceived || q.isCompleted) return;
+        gp.questManager.updateQuestProgress(id, true, 1);
+        gp.ui.message = (id == 2 ? "Progres Bârlog: " : "Progres Abis: ") + q.currentAmount + "/" + q.requiredAmount;
+        gp.ui.messageOn = true;
     }
 
     private void finishWin() {
